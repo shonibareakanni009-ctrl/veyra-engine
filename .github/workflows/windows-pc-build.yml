@@ -32,13 +32,13 @@ jobs:
       - name: Check out Veyra Engine
         uses: actions/checkout@v6
 
-      # GitHub's Windows runner includes Visual Studio C++ build tools,
-      # the Windows SDK, and CMake. CMake detects the native compiler.
-      - name: Show native build tool versions
+      # CMake is on PATH. We intentionally let CMake select Visual Studio's
+      # compiler during configuration rather than calling cl.exe directly:
+      # cl.exe is not necessarily on PATH in an ordinary PowerShell session.
+      - name: Show CMake version
         shell: pwsh
         run: |
           cmake --version
-          cl.exe 2>&1 | Select-Object -First 3
 
       # Configure a 64-bit Release build. SDL3 is downloaded from the pinned
       # source archive in the prototype CMake file and built statically.
