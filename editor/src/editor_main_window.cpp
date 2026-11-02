@@ -17,9 +17,10 @@
 #include <QFormLayout>
 #include <QInputDialog>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMenu>
 #include <QMenuBar>
-#include < QMessageBox>
+#include <QMessageBox>
 #include <QStatusBar>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -251,6 +252,7 @@ void EditorMainWindow::updateWindowTitle()
 void EditorMainWindow::newScene()
 {
     m_document = std::make_unique<SceneDocument>();
+    m_sceneViewport->setDocument(m_document.get());
     m_selectedId.clear();
     m_sceneViewport->setSelectedObject({});
     refreshHierarchy();
