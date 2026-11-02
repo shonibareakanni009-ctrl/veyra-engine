@@ -5,6 +5,11 @@
 # Installs a pinned Emscripten toolchain, configures the existing CMake
 # prototype, and compiles the HTML, JavaScript, and WebAssembly deliverables.
 # This reuses the same C++ source and pinned SDL3 dependency as GitHub Actions.
+#
+# IMPORTANT: Vercel serves the root URL ("/") from a file named index.html.
+# Emscripten names its generated page after the CMake executable target, so
+# this script also publishes a copy as index.html. The generated page keeps
+# its original JavaScript/WASM filenames; those files remain beside it.
 
 set -euo pipefail
 
@@ -62,4 +67,12 @@ test -s "$OUTPUT_ROOT/veyra_browser_prototype.html"
 test -s "$OUTPUT_ROOT/veyra_browser_prototype.js"
 test -s "$OUTPUT_ROOT/veyra_browser_prototype.wasm"
 
+# Emscripten's HTML filename follows the executable target name. Vercel does
+# not automatically discover that custom filename for the site's root route.
+# Copy (do not rename) the page to index.html so "/" has a default document.
+# The page still loads the target-named .js and .wasm files from this directory.
+cp "$OUTPUT_ROOT/veyra_browser_prototype.html" "$OUTPUT_ROOT/index.html"
+test -s "$OUTPUT_ROOT/index.html"
+
 echo "Veyra browser build completed. Static files are in $OUTPUT_ROOT"
+echo "Vercel root document: $OUTPUT_ROOT/index.html"
