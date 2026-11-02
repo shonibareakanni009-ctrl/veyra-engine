@@ -1,7 +1,3 @@
-This is a temporary placeholder test file.
+This placeholder file was edited successfully by the Veyra Engine repository test.
 
-Created by the manager on 2026-11-02 so the tests/ folder exists in the repository.
-
-You can delete this file once you no longer need it.
-
-Real tests will be added after the core language is chosen.
+The edit is being verified before the file is deleted.
