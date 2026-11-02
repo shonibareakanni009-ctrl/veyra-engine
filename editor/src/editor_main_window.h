@@ -23,6 +23,7 @@ class EditorMainWindow final : public QMainWindow
 {
 public:
     explicit EditorMainWindow(QWidget* parent = nullptr);
+    ~EditorMainWindow() override;
 
 private:
     void createMenus();
