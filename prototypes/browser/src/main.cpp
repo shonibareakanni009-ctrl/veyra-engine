@@ -24,10 +24,11 @@
  * a later rendering prototype.
  *
  * Ownership:
- * SDL creates and owns the window and renderer objects. This file stores
- * their pointers, uses them while the application is alive, and destroys
- * them in SDL_AppQuit. The static application state itself is not allocated
- * dynamically and remains alive for the full process lifetime.
+ * SDL creates the window and renderer objects, and this application is
+ * responsible for their lifetimes. This file stores their handles, uses them
+ * while the application is alive, and releases them in SDL_AppQuit. The
+ * static application state itself is not allocated dynamically and remains
+ * alive for the full process lifetime.
  *
  * Threading:
  * This first prototype starts no worker threads. All application state is
@@ -80,9 +81,9 @@ namespace
      * application callbacks. Keeping the state in one structure makes the
      * lifetime and ownership of the prototype's data easy to inspect.
      *
-     * The window and renderer are SDL-owned resources represented here by
-     * non-owning pointers. This application is responsible for calling the
-     * matching SDL destroy functions before the application exits.
+     * The window and renderer are SDL-created resources. This state stores
+     * their handles, and the application is responsible for releasing them
+     * with the matching SDL destroy functions before the application exits.
      */
     struct AppState
     {
