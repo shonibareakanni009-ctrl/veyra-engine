@@ -47,7 +47,11 @@ jobs:
         shell: pwsh
         run: |
           $output = "$env:GITHUB_WORKSPACE\build\windows\package"
-          cmake -S prototypes/browser -B build/windows -A x64 -DCMAKE_BUILD_TYPE=Release "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=$output"
+          # /MT links the Microsoft C/C++ runtime into the executable instead
+          # of requiring vcruntime140.dll and the other VC runtime DLLs on
+          # the target PC. This makes the artifact more portable across clean
+          # Windows installations. SDL3 is already built as a static library.
+          cmake -S prototypes/browser -B build/windows -A x64 -DCMAKE_BUILD_TYPE=Release "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=$output" -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
 
       # Compile the prototype and its SDL3 dependency with Visual C++.
       - name: Compile Windows executable
@@ -66,6 +70,11 @@ jobs:
             exit 1
           }
           Get-Item $executable | Format-List FullName, Length, LastWriteTime
+
+          # Record every file in the package directory. This is a useful
+          # sanity check that the uploaded artifact is a folder/package and
+          # not an accidentally empty or misdirected build output.
+          Get-ChildItem "$env:GITHUB_WORKSPACE\build\windows\package" -File | Select-Object Name, Length
 
       # Add a plain-English note describing the artifact and its limitations.
       - name: Write artifact readme
@@ -94,7 +103,30 @@ jobs:
             Platform: Windows x64
             Configuration: Release
             Compiler: Visual C++ (GitHub-hosted Windows runner)
+          C/C++ runtime: statically linked (/MT)
+
+          Packaging note:
+            This ZIP contains the complete output folder for this prototype.
+            SDL3 is linked statically. The Microsoft C/C++ runtime is also
+            linked statically to avoid a separate vcruntime140.dll dependency.
+            Windows system libraries remain supplied by Windows itself.
           '@ | Set-Content -Path "build\windows\package\BUILD-INFO.txt" -Encoding utf8
+
+          # Add a short launch guide beside the executable so the extracted
+          # folder explains itself even when separated from the repository.
+          @'
+          Veyra Windows Prototype — Quick Start
+          =====================================
+
+          1. Extract the entire ZIP to a normal folder.
+          2. Keep all files in that folder together.
+          3. Double-click veyra_browser_prototype.exe.
+          4. If Windows SmartScreen appears, verify that you downloaded this
+             artifact from the official Veyra Engine GitHub Actions run.
+
+          This is an early prototype, not an installer. No setup wizard is
+          included. See BUILD-INFO.txt for controls and current limitations.
+          '@ | Set-Content -Path "build\windows\package\README.txt" -Encoding utf8
 
       # Upload the executable and build note as a downloadable ZIP.
       # Artifacts expire after 14 days; release downloads will be handled
