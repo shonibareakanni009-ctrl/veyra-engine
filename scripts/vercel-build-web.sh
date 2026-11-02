@@ -24,6 +24,14 @@ python3 -m pip install --disable-pip-version-check --no-warn-script-location \
 export PYTHONPATH="$TOOL_ROOT/python:"
 export PATH="$TOOL_ROOT/python/bin:$TOOL_ROOT/python/cmake/data/bin:$PATH"
 
+# Vercel may restore a build cache containing a partially-created emsdk
+# directory from an interrupted download. A directory without .git is not a
+# usable SDK checkout, so remove only that incomplete checkout before cloning.
+if [[ -d "$EMSDK_ROOT" && ! -d "$EMSDK_ROOT/.git" ]]; then
+    echo "Removing incomplete cached Emscripten SDK checkout."
+    rm -rf "$EMSDK_ROOT"
+fi
+
 # Install the same Emscripten SDK version used by the GitHub Actions build.
 if [[ ! -d "$EMSDK_ROOT/.git" ]]; then
     mkdir -p "$TOOL_ROOT"
