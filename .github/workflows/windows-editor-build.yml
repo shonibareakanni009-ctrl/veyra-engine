@@ -96,10 +96,11 @@ jobs:
           Veyra Engine Editor 0.1.0 — Windows x64
           Extract the entire folder and run VeyraEditor.exe.
           Keep all DLLs and the platforms folder beside the executable.
-          Included: Qt runtime deployment and the first dockable editor shell.
-          Not implemented yet: project persistence, real scene editing, engine
-          renderer integration, asset database, code editor, scripting, export,
-          installer and uninstaller. This is an early development build.
+          Included: Qt runtime, editable 2D scene viewport, object hierarchy,
+          transform inspector, and versioned .vscene JSON save/load.
+          Not implemented yet: project management, engine renderer integration,
+          asset import, code editor, scripting, export, installer and uninstaller.
+          This is an early development build; scene editing uses the editor 2D renderer.
           '@ | Set-Content "$env:GITHUB_WORKSPACE\build\editor\package\README.txt" -Encoding utf8
 
       - name: Upload complete editor application folder
