@@ -56,37 +56,16 @@ jobs:
             throw "Qt Windows platform plugin was not deployed."
           }
 
-          # Qt's deployment tool normally gathers the MSVC runtime, but we
-          # explicitly stage the official x64 Visual C++ runtime DLLs beside
-          # the application as an app-local deployment. This avoids requiring
-          # the user to separately download/install the redistributable just
-          # to test this portable development folder.
-          $redistRoots = @(
-            "$env:ProgramFiles\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC",
-            "$env:ProgramFiles\Microsoft Visual Studio\2022\Professional\VC\Redist\MSVC",
-            "$env:ProgramFiles\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC",
-            "$env:ProgramFiles\Microsoft Visual Studio\2022\BuildTools\VC\Redist\MSVC"
-          )
-          $runtimeFiles = @()
-          foreach ($root in $redistRoots) {
-            if (Test-Path $root) {
-              $runtimeFiles = Get-ChildItem $root -Recurse -File -Filter "vcruntime140_1.dll" |
-                Where-Object { $_.FullName -match "\\x64\\Microsoft\.VC143\.CRT\\" }
-              if ($runtimeFiles.Count -gt 0) { break }
+          # windeployqt --compiler-runtime is responsible for collecting the
+          # compiler runtime dependencies. Avoid hard-coded VS edition paths:
+          # GitHub-hosted runner images can change their installation layout.
+          $requiredRuntime = @("vcruntime140.dll", "vcruntime140_1.dll")
+          foreach ($dll in $requiredRuntime) {
+            if (-not (Test-Path (Join-Path $package $dll) -PathType Leaf)) {
+              throw "windeployqt did not stage $dll. The package cannot be considered portable."
             }
           }
-          if ($runtimeFiles.Count -eq 0) {
-            throw "Could not locate the official x64 MSVC v143 runtime (vcruntime140_1.dll)."
-          }
-
-          $runtimeDirectory = $runtimeFiles[0].Directory.FullName
-          Get-ChildItem $runtimeDirectory -File -Filter "*.dll" |
-            Copy-Item -Destination $package -Force
-
-          if (-not (Test-Path "$package\vcruntime140_1.dll" -PathType Leaf)) {
-            throw "The required vcruntime140_1.dll was not staged in the application folder."
-          }
-          Write-Host "Staged app-local MSVC runtime from: $runtimeDirectory"
+          Write-Host "Verified app-local MSVC runtime:"
           Get-ChildItem $package -File -Filter "*140*.dll" | Select-Object Name, Length
 
       - name: Write package instructions
