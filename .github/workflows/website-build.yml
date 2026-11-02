@@ -1,0 +1,36 @@
+name: Website Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - "scripts/vercel-build-web.sh"
+      - ".github/workflows/website-build.yml"
+  pull_request:
+    paths:
+      - "website/**"
+      - "scripts/vercel-build-web.sh"
+      - ".github/workflows/website-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-website:
+    name: Validate website and browser game
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Build static website output
+        run: bash scripts/vercel-build-web.sh
+      - name: Verify published pages and game script
+        run: |
+          test -s build/vercel-browser/bin/index.html
+          test -s build/vercel-browser/bin/styles.css
+          test -s build/vercel-browser/bin/game/index.html
+          test -s build/vercel-browser/bin/game/game.css
+          test -s build/vercel-browser/bin/game/game.js
+          node --check build/vercel-browser/bin/game/game.js
