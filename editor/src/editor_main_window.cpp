@@ -66,6 +66,9 @@ EditorMainWindow::EditorMainWindow(QWidget* parent)
     statusBar()->showMessage("Ready — add objects, select them, and drag them in the 2D scene.");
 }
 
+// Define destruction where SceneDocument is complete so unique_ptr can safely delete it.
+EditorMainWindow::~EditorMainWindow() = default;
+
 void EditorMainWindow::createMenus()
 {
     QMenu* file = menuBar()->addMenu("&File");
