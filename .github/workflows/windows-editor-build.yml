@@ -1,0 +1,78 @@
+# Build and package the first real Qt desktop editor on Windows.
+# The artifact is a complete application folder, not a lone executable.
+name: Windows Editor Build
+on:
+  push:
+    branches: [main]
+    paths: ["editor/**", ".github/workflows/windows-editor-build.yml"]
+  pull_request:
+    paths: ["editor/**", ".github/workflows/windows-editor-build.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-editor:
+    name: Build Veyra Editor for Windows x64
+    runs-on: windows-latest
+    steps:
+      - name: Check out Veyra Engine
+        uses: actions/checkout@v6
+
+      # Install the pinned Qt 6 Widgets package matching the runner's MSVC.
+      - name: Install Qt 6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.8.3"
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          cache: true
+
+      - name: Show tool versions
+        shell: pwsh
+        run: |
+          cmake --version
+          qmake --version
+
+      - name: Configure editor
+        shell: pwsh
+        run: |
+          cmake -S editor -B build/editor -A x64 -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=$env:QT_ROOT_DIR"
+
+      - name: Compile editor
+        shell: pwsh
+        run: |
+          cmake --build build/editor --config Release --parallel 2
+
+      # windeployqt copies the Qt DLLs and platform plugins needed by this EXE.
+      - name: Deploy Qt runtime
+        shell: pwsh
+        run: |
+          $package = "$env:GITHUB_WORKSPACE\build\editor\package"
+          $exe = "$package\VeyraEditor.exe"
+          if (-not (Test-Path $exe -PathType Leaf)) { throw "Editor executable missing: $exe" }
+          windeployqt --release --compiler-runtime --dir $package $exe
+          if (-not (Test-Path "$package\platforms\qwindows.dll" -PathType Leaf)) {
+            throw "Qt Windows platform plugin was not deployed."
+          }
+
+      - name: Write package instructions
+        shell: pwsh
+        run: |
+          @'
+          Veyra Engine Editor 0.1.0 — Windows x64
+          Extract the entire folder and run VeyraEditor.exe.
+          Keep all DLLs and the platforms folder beside the executable.
+          Included: Qt runtime deployment and the first dockable editor shell.
+          Not implemented yet: project persistence, real scene editing, engine
+          renderer integration, asset database, code editor, scripting, export,
+          installer and uninstaller. This is an early development build.
+          '@ | Set-Content "$env:GITHUB_WORKSPACE\build\editor\package\README.txt" -Encoding utf8
+
+      - name: Upload complete editor application folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: veyra-editor-windows-x64-folder
+          path: build/editor/package/
+          if-no-files-found: error
+          retention-days: 14
