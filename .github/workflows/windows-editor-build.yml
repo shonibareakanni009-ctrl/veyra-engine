@@ -28,6 +28,13 @@ jobs:
           arch: win64_msvc2022_64
           cache: true
 
+      # Initialize the VS developer environment so windeployqt can find
+      # the same MSVC toolchain and its official runtime redistributables.
+      - name: Initialize MSVC x64 environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       - name: Show tool versions
         shell: pwsh
         run: |
