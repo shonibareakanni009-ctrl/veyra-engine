@@ -1,0 +1,22 @@
+# CMake and compiler build directories.
+# Generated binaries, caches, and intermediate objects must not be committed.
+/build/
+/cmake-build-*/
+
+# CMake-generated files.
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+compile_commands.json
+Makefile
+.ninja_deps
+.ninja_log
+
+# Common editor-local settings.
+.vscode/
+.idea/
+
+# Operating-system noise.
+.DS_Store
+Thumbs.db
