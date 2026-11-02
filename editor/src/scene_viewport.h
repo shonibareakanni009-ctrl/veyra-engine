@@ -20,6 +20,7 @@ class SceneViewport final : public QWidget
 public:
     explicit SceneViewport(SceneDocument* document, QWidget* parent = nullptr);
     QString selectedObjectId() const { return m_selectedId; }
+    void setDocument(SceneDocument* document) { m_document = document; update(); }
     void setSelectedObject(const QString& id);
     void refresh() { update(); }
     void setSelectionChangedCallback(std::function<void(const QString&)> callback)
