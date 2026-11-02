@@ -13,6 +13,7 @@ This document records the stack selected for Veyra Engine. It does not claim tha
 | Engine implementation | **C++20** | Core runtime, engine systems, platform adapters, native integrations |
 | Build configuration | **CMake** | Project configuration, target definitions, build orchestration |
 | Default build generator | **Ninja** | Local build execution where available |
+| Browser toolchain | **Emscripten SDK** | Compiles C++20 to WebAssembly and generates browser HTML/JavaScript/WASM output |
 | Windowing/platform services | **SDL3** | Window/surface creation, input, events, selected platform services |
 | Rendering abstraction | **bgfx** | Cross-platform rendering backend for Veyra's 2D/3D systems |
 | Desktop editor UI | **Qt 6 Widgets** | Dockable panels, inspectors, dialogs, project tools |
@@ -56,6 +57,8 @@ This is a design requirement. It has not yet been implemented.
 CMake will describe the project, modules, options, dependencies, platform configurations, and tests. Ninja will be the default build executor for local development where installed and supported.
 
 CMake supports multiple generators and platform toolchains. SDL3 documents CMake build paths for environments including Android and Emscripten. Ninja provides a focused build executor while CMake keeps the project generator-independent.
+
+For browser builds, the Emscripten SDK supplies the C++ compiler and WebAssembly toolchain. Configure the project through the emcmake wrapper so CMake selects the Emscripten toolchain. The browser output is HTML, JavaScript, and WebAssembly, and it must be served over HTTP or HTTPS. The initial prototype pins its Emscripten version in the repository workflow and pins the SDL3 source archive by SHA-256.
 
 **Initial baseline:** CMake 3.28 or newer is proposed. The exact minimum must be tested against selected dependency versions and Android/Emscripten toolchains before the first stable build configuration is declared.
 
