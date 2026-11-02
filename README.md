@@ -52,7 +52,7 @@ The engine is expected to be organized into distinct layers:
 - **Editor:** visual editing, code editing, asset management, debugging, and project tools.
 - **Exporter and SDK:** build pipelines, platform packaging, templates, and developer documentation.
 
-The implementation language and low-level runtime choices are not locked yet. They will be selected after evaluating portability, performance, tooling, interoperability, and the requirements of the target platforms.
+The initial implementation baseline is recorded in [docs/TECH_STACK.md](docs/TECH_STACK.md): C++20, CMake, SDL3, bgfx, Qt 6 Widgets for the desktop editor, and Lua 5.5 as the first scripting language. These are selected starting technologies, not claims of completed integration or platform support. See [ADR-001](docs/decisions/ADR-001-implementation-stack.md) for the rationale and validation requirements.
 
 ### Important scripting constraint
 
