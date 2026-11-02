@@ -13,6 +13,8 @@ qt_add_executable(VeyraEditor WIN32
     src/editor_main_window.h
     src/scene_viewport.cpp
     src/scene_viewport.h
+    src/scene_document.cpp
+    src/scene_document.h
 )
 target_link_libraries(VeyraEditor PRIVATE Qt6::Widgets)
 target_compile_features(VeyraEditor PRIVATE cxx_std_20)
