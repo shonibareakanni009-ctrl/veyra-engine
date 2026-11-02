@@ -1,34 +1,53 @@
 /**
  * @file editor_main_window.h
- * @brief Declares the top-level editor and dock-panel composition.
+ * @brief Declares the dockable Veyra scene editor and its editing commands.
  *
- * The main window is the UI composition root. Qt parent/child ownership keeps
- * docks and their contents alive. Panels are labelled foundations until their
- * respective project, scene, asset and diagnostic systems are implemented.
+ * The main window owns the scene document and all editor widgets. The
+ * hierarchy, inspector and viewport are synchronized views of that document.
  */
 #pragma once
 #include <QMainWindow>
+#include <memory>
+
 class QDockWidget;
+class QDoubleSpinBox;
+class QTreeWidget;
+class QTreeWidgetItem;
+
 namespace Veyra
 {
+class SceneDocument;
 class SceneViewport;
-/** @brief Main dockable desktop window for Veyra Engine tools. */
+
 class EditorMainWindow final : public QMainWindow
 {
 public:
-    /** @brief Builds the initial editor window. */
     explicit EditorMainWindow(QWidget* parent = nullptr);
+
 private:
-    /** @brief Creates the top-level menus and their actions. */
     void createMenus();
-    /** @brief Creates the primary command toolbar. */
     void createToolbar();
-    /** @brief Creates the hierarchy, inspector, asset and output docks. */
     void createDockPanels();
-    /** @brief Creates an explanatory placeholder dock. */
+    void refreshHierarchy();
+    void selectObject(const QString& id);
+    void refreshInspector();
+    void updateWindowTitle();
+    void newScene();
+    void openScene();
+    void saveScene();
+    void saveSceneAs();
+    void addSceneObject();
+    void deleteSelectedObject();
     QDockWidget* createInformationDock(const QString& title,
                                        const QString& objectName,
                                        const QString& description);
-    SceneViewport* m_sceneViewport = nullptr; // Owned by QMainWindow's widget tree.
+
+    std::unique_ptr<SceneDocument> m_document;
+    SceneViewport* m_sceneViewport = nullptr;
+    QTreeWidget* m_hierarchy = nullptr;
+    QDockWidget* m_inspectorDock = nullptr;
+    QDoubleSpinBox* m_transformFields[5]{};
+    QString m_selectedId;
+    bool m_refreshingInspector = false;
 };
 } // namespace Veyra
