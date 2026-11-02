@@ -397,16 +397,16 @@ These decisions are intentionally not settled by this document.
 
 | ID | Decision | Evaluation criteria | Status |
 |---|---|---|---|
-| ADR-001 | Core implementation language | Portability, performance, ecosystem, FFI, maintainability, contributor access | Open |
-| ADR-002 | Editor implementation/UI technology | Desktop portability, tooling, accessibility, embedding, maintenance | Open |
-| ADR-003 | Build system and dependency management | Reproducibility, cross-compilation, toolchain support, package management | Open |
-| ADR-004 | Windowing and platform layer | Target coverage, lifecycle handling, input, licensing, maintenance | Open |
-| ADR-005 | Rendering API/backend strategy | Windows/Linux/Android/Web feasibility, capability model, shader workflow | Open |
+| ADR-001 | Core implementation language | Portability, performance, ecosystem, FFI, maintainability, contributor access | Selected: C++20; prototype validation pending |
+| ADR-002 | Editor implementation/UI technology | Desktop portability, tooling, accessibility, embedding, maintenance | Selected: Qt 6 Widgets for desktop editor; prototype pending |
+| ADR-003 | Build system and dependency management | Reproducibility, cross-compilation, toolchain support, package management | Selected: CMake + Ninja; dependency acquisition method open |
+| ADR-004 | Windowing and platform layer | Target coverage, lifecycle handling, input, licensing, maintenance | Selected: SDL3; target validation pending |
+| ADR-005 | Rendering API/backend strategy | Windows/Linux/Android/Web feasibility, capability model, shader workflow | Selected: bgfx; integration and target validation pending |
 | ADR-006 | Entity and scene model | 2D/3D needs, performance, editor UX, serialization, scripting access | Open |
-| ADR-007 | First scripting language | Integration complexity, target compatibility, debugging, runtime size, developer UX | Open |
+| ADR-007 | First scripting language | Integration complexity, target compatibility, debugging, runtime size, developer UX | Selected: Lua 5.5; adapter not implemented |
 | ADR-008 | Asset/project file formats | Versioning, migration, diffability, performance, tooling | Open |
 
-Each decision should eventually have a separate record containing context, candidates, evidence, trade-offs, chosen option, rejected options, and consequences. A decision should be revisited when new evidence justifies it, not merely because a different technology becomes fashionable.
+Selected baseline decisions are recorded in [TECH_STACK.md](TECH_STACK.md) and [ADR-001](decisions/ADR-001-implementation-stack.md). Commenting requirements are recorded in [CODING_STANDARDS.md](CODING_STANDARDS.md). The entity model and project/asset file formats remain open. Selected technologies must still pass their prototype and target-validation gates. A decision should be revisited when new evidence justifies it, not merely because a different technology becomes fashionable.
 
 ---
 
@@ -444,13 +444,13 @@ When these documents differ, do not silently rewrite one to match another. Recor
 
 ## 17. Current implementation status
 
-**Architecture document created; architecture is still proposed.**
+**Architecture document created; initial technology baseline selected; architecture and integrations still require prototype validation.**
 
 - Working engine code: none verified by this document.
-- Core language: not selected.
-- Rendering backend: not selected.
-- Editor technology: not selected.
-- Scripting adapters: not implemented.
+- Core language: C++20 selected; not yet implemented.
+- Rendering backend: bgfx selected; not yet integrated.
+- Editor technology: Qt 6 Widgets selected for desktop; not yet integrated.
+- First scripting language: Lua 5.5 selected; adapter not implemented.
 - Platform support: not verified.
 - Prototype: not implemented.
 
