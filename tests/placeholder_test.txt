@@ -1,0 +1,7 @@
+This is a temporary placeholder test file.
+
+Created by the manager on 2026-11-02 so the tests/ folder exists in the repository.
+
+You can delete this file once you no longer need it.
+
+Real tests will be added after the core language is chosen.
