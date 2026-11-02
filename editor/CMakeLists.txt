@@ -21,7 +21,12 @@ if(MSVC)
 else()
     target_compile_options(VeyraEditor PRIVATE -Wall -Wextra -Wpedantic)
 endif()
-# The package folder receives the EXE first; windeployqt adds Qt DLLs/plugins.
+# Visual Studio is a multi-configuration generator. Set each configuration's
+# destination explicitly so the EXE is not nested under package/Release.
+# windeployqt will add Qt DLLs and platform plugins beside this executable.
 set_target_properties(VeyraEditor PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "\${CMAKE_BINARY_DIR}/package"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/package"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/package"
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_BINARY_DIR}/package"
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_BINARY_DIR}/package"
 )
