@@ -96,28 +96,28 @@ veyra-engine/
 ├── tests/
 └── docs/
 ```
-
 ## Development roadmap
 
-The roadmap is provisional. Work will be reordered as prototypes reveal technical constraints.
+The implementation order is browser-first so the project can make progress without depending on a local Windows machine. This changes the order of validation, not Veyra's cross-platform vision.
 
-1. Architecture research and foundational project setup
-2. Core runtime and platform abstraction
-3. Initial desktop window, input, and rendering prototype
-4. Scene, entity, and resource systems
-5. 2D foundations, followed by 3D foundations
-6. Physics, audio, animation, and asset workflows
-7. Stable scripting API and first language integration
-8. Editor foundations and debugging tools
-9. Additional language integrations and plugin system
-10. Windows and Linux workflows, followed by Android and Web targets
-11. Export pipeline, documentation, testing, and optimization
+1. Browser prototype foundation using C++20, SDL3, CMake, and Emscripten
+2. Validate browser lifecycle, keyboard/touch input, frame updates, and basic presentation
+3. Add Veyra-owned core and platform abstractions
+4. Validate the bgfx WebGL 2 rendering path; replace the temporary bootstrap renderer
+5. Establish the native Windows 10 and Windows 11 build and testing workflow
+6. Add Linux and Android target validation
+7. Build scene, entity, resource, and 2D foundations
+8. Expand into 3D, physics, audio, animation, and asset workflows
+9. Add the stable scripting API and first Lua integration
+10. Develop the desktop editor, additional language integrations, plugins, and export workflows
+
+The order may be adjusted when a prototype exposes a concrete technical constraint. Platform support is claimed only after a target has been built and tested.
 
 ## Project status
 
-<sub>Early-stage project — planning and foundational implementation.</sub>
+<sub>Early-stage project — first browser prototype source added; compilation and runtime validation pending.</sub>
 
-No feature should be considered complete until it has working code, tests or reproducible validation, and documented platform limitations.
+The browser prototype is an initial SDL3 smoke test, not a completed engine subsystem. No feature should be considered complete until it has working code, tests or reproducible validation, and documented platform limitations.
 
 ## Contributing
 
