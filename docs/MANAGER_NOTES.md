@@ -1,6 +1,6 @@
 # Manager Notes – Veyra Engine
 
-**Manager:** Project Manager (appointed 2026-11-02)  
+**Manager:** Aether (appointed 2026-11-02)  
 **Owner:** Repository owner (in charge of all code)
 
 This file is the permanent record of management decisions, priorities, status assessments, and accountability notes.
@@ -68,7 +68,7 @@ Until the first concrete milestone is locked, no feature work should begin.
 | 2026-11-02 | Roles 3 and 4 elevated to highest priority                               | Owner instruction                              | Active   |
 | 2026-11-02 | Roles 1 and 2 added at lower priority                                    | Owner instruction                              | Active   |
 | 2026-11-02 | Owner is solely in charge of writing code                                | Owner clarification                            | Active   |
-| 2026-11-02 | Manager name changed from previous identifier to "Project Manager"       | Owner request                                  | Active   |
+| 2026-11-02 | Manager name set to "Aether"                                             | Owner request                                  | Active   |
 
 ---
 
