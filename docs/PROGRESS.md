@@ -34,6 +34,8 @@ The repository contains a vision document (README) and management tracking docum
 | 2026-11-02 | Documentation policy established                  | docs/MANAGER_NOTES.md            |
 | 2026-11-02 | Roadmap created and Phase 0 defined               | docs/ROADMAP.md                  |
 | 2026-11-02 | Progress tracking system created                  | This file                        |
+| 2026-11-02 | Roles 1 & 2 added at lower priority               | docs/MANAGER_NOTES.md            |
+| 2026-11-02 | Clear division: Owner writes all code             | docs/MANAGER_NOTES.md            |
 
 ---
 
@@ -68,6 +70,7 @@ The repository contains a vision document (README) and management tracking docum
 1. Force the core language decision process.
 2. Keep this file and ROADMAP.md updated after every real change.
 3. Reject any claim of progress that is not backed by code + validation.
+4. Protect vision and architecture (Roles 1 & 2) without writing code.
 
 ---
 
