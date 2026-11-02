@@ -21,8 +21,8 @@ python3 -m pip install --disable-pip-version-check --no-warn-script-location \
     "cmake>=3.28,<4" \
     "ninja>=1.11,<2"
 
-export PYTHONPATH="$TOOL_ROOT/python:$PYTHONPATH"
-export PATH="$TOOL_ROOT/python/bin:$TOOL_ROOT/python/cmake/data/bin:$TOOL_ROOT/python/ninja/data/bin:$PATH"
+export PYTHONPATH="$TOOL_ROOT/python:"
+export PATH="$TOOL_ROOT/python/bin:$TOOL_ROOT/python/cmake/data/bin:$PATH"
 
 # Install the same Emscripten SDK version used by the GitHub Actions build.
 if [[ ! -d "$EMSDK_ROOT/.git" ]]; then
