@@ -1,0 +1,108 @@
+# Build the first native Windows version of the Veyra prototype.
+#
+# Browser builds use Emscripten and produce HTML, JavaScript, and WASM.
+# This workflow uses Microsoft's native C++ compiler and produces a .exe.
+# The ZIP is a test artifact, not a finished installer or engine release.
+
+name: Windows PC Prototype Build
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "prototypes/browser/**"
+      - ".github/workflows/windows-pc-build.yml"
+  pull_request:
+    paths:
+      - "prototypes/browser/**"
+      - ".github/workflows/windows-pc-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows-x64:
+    name: Compile native Windows x64 prototype
+    runs-on: windows-latest
+
+    steps:
+      # Check out the exact source revision associated with this run.
+      - name: Check out Veyra Engine
+        uses: actions/checkout@v6
+
+      # GitHub's Windows runner includes Visual Studio C++ build tools,
+      # the Windows SDK, and CMake. CMake detects the native compiler.
+      - name: Show native build tool versions
+        shell: pwsh
+        run: |
+          cmake --version
+          cl.exe 2>&1 | Select-Object -First 3
+
+      # Configure a 64-bit Release build. SDL3 is downloaded from the pinned
+      # source archive in the prototype CMake file and built statically.
+      # Static SDL avoids shipping a separate SDL3 DLL for this first test.
+      - name: Configure Windows x64 build
+        shell: pwsh
+        run: |
+          $output = "$env:GITHUB_WORKSPACE\build\windows\package"
+          cmake -S prototypes/browser -B build/windows -A x64 -DCMAKE_BUILD_TYPE=Release "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=$output"
+
+      # Compile the prototype and its SDL3 dependency with Visual C++.
+      - name: Compile Windows executable
+        shell: pwsh
+        run: |
+          cmake --build build/windows --config Release --parallel 2
+
+      # Verify the exact expected output before allowing artifact upload.
+      # This prevents a successful-looking workflow from publishing an empty ZIP.
+      - name: Verify Windows executable
+        shell: pwsh
+        run: |
+          $executable = "$env:GITHUB_WORKSPACE\build\windows\package\veyra_browser_prototype.exe"
+          if (-not (Test-Path $executable -PathType Leaf)) {
+            Write-Error "Expected Windows executable was not created: $executable"
+            exit 1
+          }
+          Get-Item $executable | Format-List FullName, Length, LastWriteTime
+
+      # Add a plain-English note describing the artifact and its limitations.
+      - name: Write artifact readme
+        shell: pwsh
+        run: |
+          @'
+          Veyra Engine — Windows x64 Prototype
+          ====================================
+
+          This is an early native Windows build of the Veyra Engine prototype.
+
+          Run:
+            veyra_browser_prototype.exe
+
+          Controls:
+            WASD or arrow keys: move the blue square
+            Left mouse click: move the square to the clicked position
+            Escape: exit
+
+          This artifact proves that the current C++20 + SDL3 prototype can be
+          compiled for Windows x64. It is not the finished Veyra Engine and
+          does not yet include the editor, bgfx renderer, scene system, assets,
+          physics, audio, or scripting runtime.
+
+          Build configuration:
+            Platform: Windows x64
+            Configuration: Release
+            Compiler: Visual C++ (GitHub-hosted Windows runner)
+          '@ | Set-Content -Path "build\windows\package\BUILD-INFO.txt" -Encoding utf8
+
+      # Upload the executable and build note as a downloadable ZIP.
+      # Artifacts expire after 14 days; release downloads will be handled
+      # separately once Veyra has versioned release builds.
+      - name: Upload Windows x64 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: veyra-windows-x64-prototype
+          path: build/windows/package/
+          if-no-files-found: error
+          retention-days: 14
