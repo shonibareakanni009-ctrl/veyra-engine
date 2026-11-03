@@ -1,6 +1,6 @@
 # Phase 2A — Native Runtime Implementation Plan
 
-**Status:** Implementation started  
+**Status:** Checkpoint 1 code and automated CI verification passed; manual desktop launch remains  
 **Last updated:** 2026-11-03  
 **Scope:** First Windows x64 runtime vertical-slice foundation
 
@@ -27,7 +27,9 @@ The runtime must load this format without linking Qt. Unsafe relative asset path
 6. Add tests for valid scenes and malformed/unsafe/unsupported data.
 7. Add a Windows x64 GitHub Actions workflow that configures, builds, tests, and packages the runtime.
 
-**Checkpoint 1 acceptance:** Windows CI compiles the separate runtime and passes scene-loader tests. Running the app with a valid scene opens an SDL window and reports the loaded object count. This checkpoint does not claim that scene objects are rendered.
+**Checkpoint 1 automated acceptance:** Passed on Windows x64: the standalone runtime configured and compiled, scene-loader tests passed, and a distributable runtime package was staged and uploaded. The CI job does not launch a GUI window.
+
+**Checkpoint 1 manual acceptance still open:** Run the packaged executable with `first-scene.vscene`, confirm the SDL window opens and reports three loaded objects, then confirm Escape and the window close button both exit cleanly. Scene-object rendering is not part of this checkpoint and is not claimed.
 
 ## Checkpoint 2 — Renderer integration
 
@@ -62,13 +64,22 @@ The runtime must load this format without linking Qt. Unsafe relative asset path
 
 - [x] Repository and current editor scene format inspected.
 - [x] Implementation plan recorded before code changes.
-- [ ] Separate runtime target.
-- [ ] SDL3 window and event lifecycle.
-- [ ] Qt-free `.vscene` parser and validation tests.
-- [ ] Windows x64 runtime CI.
+- [x] Separate Qt-free runtime target — Windows x64 build passed.
+- [x] SDL3 window/event lifecycle implementation compiles — manual window behavior test pending.
+- [x] Qt-free `.vscene` parser and validation tests — CI tests passed.
+- [x] Windows x64 runtime CI — configure, compile, tests, and package upload passed.
+- [ ] Manual launch/close smoke test using the packaged sample scene.
 - [ ] bgfx initialization and first rendered scene object.
 - [ ] Editor Run/Stop controls.
 
 ## Verification record
 
-No runtime build or runtime behavior is claimed as verified until the Windows runtime workflow has completed successfully.
+### Windows CI verification — 2026-11-03
+
+- Workflow: [Build and test Veyra Runtime for Windows x64](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41682363212)
+- Verified commit: `b6bd682b82d222f0e6cacc0a5cba2ae81428ed4d`
+- Result: **success** — CMake configure, C++ build, scene-loader tests, package staging, and artifact upload all passed.
+- Artifact: `veyra-runtime-windows-x64` (includes `VeyraRuntime.exe`, app-local MSVC runtime DLLs, README, and `first-scene.vscene`).
+- The workflow verifies compilation and scene validation; it does not launch the SDL window. Manual GUI behavior is still unverified.
+
+The runtime currently validates and loads scene data, then opens an SDL window and processes close/Escape events in its application loop. It does **not** render scene objects yet. bgfx integration and the manual window smoke test remain open.
