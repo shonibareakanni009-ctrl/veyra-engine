@@ -17,20 +17,21 @@ This file records implemented work and its verification status. Plans and accept
 | Automated tests | Editor scene tests and runtime `.vscene` loader tests pass in Windows CI |
 | Manual smoke test | **Passed** (A–G) on 2026-11-03 |
 | Native runtime | Qt-free SDL3 runtime under `engine/runtime/`; Windows configure/build/tests/package CI passed after move; manual window launch pending |
-| Installer | Inno Setup 7.1.0 script + combined Windows build/install/uninstall workflow added; CI validation pending |
+| Installer | Inno Setup 7.1.0 Windows x64 artifact built; CI install/uninstall and external-data preservation tests passed; manual clean-machine test pending |
 | Updater | Manifest schema + Ed25519/SHA-256 trust design committed; updater executable not implemented |
 | Automated release packaging | Windows x64 installer workflow added; final installer artifact and lifecycle test pending |
 | Browser prototypes | Standalone (Adventure + SFS) |
 | Export targets | Not implemented |
 
 **Reality statement (2026-11-03):**  
-Phase 1 has been fully verified. The packaged Windows editor successfully passed the complete manual smoke test (launch, primitives, transforms, sprite import, save/reopen, unsaved-change protection, and invalid path rejection). Phase 2 runtime implementation has started: the separate Qt-free runtime target, SDL3 lifecycle code, `.vscene` loader, tests, and Windows package workflow are in place. Windows CI passed on 2026-11-03. The SDL window has not yet been manually launched, scene objects are not rendered, and editor Run/Stop is not integrated. An Inno Setup per-user installer script and combined Windows packaging workflow are now in the repository; the installer build and install/uninstall smoke test are pending. The updater manifest schema and trust model are documented, but signature verification, downloads, staged application, and rollback are not implemented. The editor and runtime now share the `engine/` directory and both independent Windows x64 CI workflows passed after the move. The website has a real About Veyra section at `/#about`; website CI passed and Vercel reports the latest production deployment as READY. A manual browser click-through has not been performed here.
+Phase 1 has been fully verified. The packaged Windows editor successfully passed the complete manual smoke test (launch, primitives, transforms, sprite import, save/reopen, unsaved-change protection, and invalid path rejection). Phase 2 runtime implementation has started: the separate Qt-free runtime target, SDL3 lifecycle code, `.vscene` loader, tests, and Windows package workflow are in place. Windows CI passed on 2026-11-03. The SDL window has not yet been manually launched, scene objects are not rendered, and editor Run/Stop is not integrated. An Inno Setup per-user installer script and combined Windows packaging workflow are now in the repository; the installer build and CI install/uninstall smoke test passed. A manual clean-machine install and editor GUI launch remain pending. The updater manifest schema and trust model are documented, but signature verification, downloads, staged application, and rollback are not implemented. The editor and runtime now share the `engine/` directory and both independent Windows x64 CI workflows passed after the move. The website has a real About Veyra section at `/#about`; website CI passed and Vercel reports the latest production deployment as READY. A manual browser click-through has not been performed here.
 
 ## Verified results
 
 - Shared engine directory refactor verified: [Windows Editor Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41685837063) and [Windows Runtime Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41685729965) both passed configure/build/tests/package.
 - Website About section build validation passed: [Website Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41685592982). Vercel production deployment for commit `13650cfa706908d8a0cae848a967792d84f50d61` reported READY; live browser click-through remains unverified.
 - Artifacts from the refactor validation: `veyra-editor-windows-x64-folder` and `veyra-runtime-windows-x64`.
+- Installer CI passed: [Windows Installer Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41686760636). It compiled the Windows x64 setup, silently installed it, checked editor/runtime/sample files, ran runtime `--help`, silently uninstalled it, and confirmed an external user-project marker remained. Artifact: `veyra-engine-installer-windows-x64` (41,498,089 bytes; retained until 2026-11-17).
 
 - Windows CI green on head `5fd5f22`
 - CTest (including sprite path validation) passed
@@ -49,7 +50,8 @@ Phase 1 has been fully verified. The packaged Windows editor successfully passed
 - [x] Verify editor, runtime, and website workflows after the path/navigation changes.
 - [x] Add an Inno Setup per-user installer definition and combined Windows x64 packaging workflow.
 - [x] Define the updater manifest schema and cryptographic trust model.
-- [ ] Pass installer compile, silent install/uninstall, and user-data preservation tests.
+- [x] Pass installer compile, silent install/uninstall, and user-data preservation tests.
+- [ ] Manually install on a clean Windows computer and launch the editor GUI.
 
 
 1. Shonibare-run the packaged runtime on Windows: open `first-scene.vscene`, confirm the SDL window and object count, and verify Escape/window-close shutdown.
