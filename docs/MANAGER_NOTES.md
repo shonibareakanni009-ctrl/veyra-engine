@@ -37,30 +37,34 @@ This file is the permanent record of management decisions, priorities, status as
 
 **Date:** 2026-11-03
 
-**Stage:** Phase 1 — Functional 2D editor and scene authoring (in progress)
+**Stage:** Phase 1 — Functional 2D editor and scene authoring → **VERIFIED**
 
 **Reality check:**
 - Core language is C++20.
-- A functional Qt 6 2D scene editor prototype exists (primitives, sprites, hierarchy, inspector, .vscene save/load).
-- Automated scene-document tests exist.
-- Windows CI on current head (`5fd5f22`) completed successfully (compile + tests + packaging).
-- Manual smoke test of the packaged editor is still pending.
+- Qt 6 2D scene editor prototype is implemented and manually verified.
+- Automated scene-document tests pass.
+- Windows CI on head `5fd5f22` is green (compile + tests + packaging).
+- Manual smoke test (A–G) completed successfully by the owner on 2026-11-03.
 - Native runtime, SDL3, bgfx, project system, scripting, and export are **not** implemented.
-- Browser prototypes (Veyra Adventure, Veyra SFS) remain standalone and are not engine exports.
+- Browser prototypes remain standalone.
 
 **Honest assessment:**  
-The project has a real early editor prototype. It is no longer pure planning. Phase 1 is advanced but not yet fully verified (manual smoke test still required). Do not start runtime work until Phase 1 exit criteria are met.
+Phase 1 exit criteria have been met. The editor is a verified early prototype. The project is now ready to begin Phase 2 (Runtime foundation).
+
+---
+
+## Team
+
+- **Owner / Lead:** Repository owner
+- **Manager:** Aether
+- **New staff (2026-11-03):** 2 new staff members joined (details to be recorded)
 
 ---
 
 ## Active Focus (as of 2026-11-03)
 
-Priority 0: Stabilize and fully verify the current editor milestone.
-
-Immediate gates:
-1. Confirm current-head Windows CI remains green (currently success on `5fd5f22`).
-2. Perform and record manual editor smoke test.
-3. Only then mark Phase 1 as verified and consider the next alpha package.
+Phase 1 is closed.  
+Next priority: Begin Phase 2 — Runtime foundation (smallest possible vertical slice).
 
 ---
 
@@ -76,6 +80,9 @@ Immediate gates:
 | 2026-11-02 | Manager name set to "Aether"                                             | Owner request                                  | Active   |
 | 2026-11-03 | Status snapshot updated to reflect real editor prototype                 | Reality check after rapid development          | Active   |
 | 2026-11-03 | Confirmed current head Windows CI is green                               | Inspection of Actions runs                     | Active   |
+| 2026-11-03 | Manual smoke test (A–G) completed and passed                             | Owner executed and reported results            | Active   |
+| 2026-11-03 | Phase 1 marked **Verified**                                              | CI green + manual smoke test passed            | Active   |
+| 2026-11-03 | Two new staff members joined the project                                 | Owner notification                             | Active   |
 
 ---
 
@@ -85,7 +92,7 @@ Immediate gates:
 - Manager will challenge any claim of progress that is not backed by working code + validation.
 - Manager will keep the timeline honest and visible.
 - Manager protects vision and architecture but does not implement code.
-- Stale status statements ("no working code") have been corrected.
+- Phase 1 is now closed with evidence.
 
 ---
 
