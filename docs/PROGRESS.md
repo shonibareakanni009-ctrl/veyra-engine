@@ -12,8 +12,8 @@ This file records implemented work and its verification status. Plans remain in 
 | Project stage | Early functional editor prototype |
 | Core language | C++20 |
 | Desktop editor | Qt 6 Widgets application; compilation verified in Windows CI |
-| Scene authoring | Rectangle, circle, and triangle primitives can be created; manual end-to-end validation still pending |
-| Scene persistence | Versioned .vscene JSON with atomic writes and input validation; primitive shape type is serialized and regression-tested |
+| Scene authoring | Rectangle, circle, triangle, and imported image sprites can be created; manual end-to-end validation still pending |
+| Scene persistence | Versioned .vscene JSON with atomic writes and input validation; primitive shape and project-relative sprite asset references are serialized and regression-tested |
 | Automated tests | Round-trip, unsupported-version, invalid-dimension, duplicate-ID, and modified-state tests added; Windows CI result pending |
 | Runtime integration | Not implemented |
 | Browser SFS prototype | Implemented as a separate HTML Canvas 2D flight game; browser/device playtest pending |
@@ -33,6 +33,7 @@ This file records implemented work and its verification status. Plans remain in 
 | Common scene shortcuts | editor/src/editor_main_window.cpp | Ctrl+N, Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Shift+N, and Delete wired; CI pending |
 | Inspector for position, rotation, scale, width, and height | editor/src/editor_main_window.cpp | Source present; manual runtime verification pending |
 | Primitive custom objects | editor/src/scene_document.h, editor/src/scene_viewport.cpp | Rectangle, circle, triangle creation, rendering, hit-testing and .vscene shape persistence implemented; CI pending |
+| Sprite import and rendering | editor/src/editor_main_window.cpp, editor/src/scene_viewport.cpp | Imports PNG/JPG/BMP/GIF/WebP images into a scene-local Assets folder, creates sprite objects, persists relative paths, and draws the image in the viewport; CI pending |
 | 2D Space Flight Simulator browser prototype | website/sfs/ | Canvas flight controls, gravity, thrust, fuel, beacon objective, HUD, pause/restart and touch controls implemented; browser playtest pending |
 | Scene test projects and acceptance criteria | docs/testing/2d-engine-test-projects.md | Documented |
 
@@ -56,7 +57,7 @@ This file records implemented work and its verification status. Plans remain in 
 
 - Engine runtime and renderer integration
 - Project creation/opening and project settings
-- Custom sprite/polygon authoring and asset import/browser functionality
+- Arbitrary custom polygon authoring and a searchable/thumbnail asset browser
 - Parent/child scene hierarchy and reusable prefabs
 - Runtime physics, animation, audio, particles, and game scripting
 - Code editor and Lua execution
@@ -67,7 +68,7 @@ This file records implemented work and its verification status. Plans remain in 
 
 ## Immediate next actions
 
-1. Confirm the latest Windows build, expanded scene tests, and complete-folder packaging run are green.
+1. Confirm the latest Windows build, sprite persistence tests, and complete-folder packaging run are green.
 2. Manually smoke-test the packaged editor before inviting downloads.
 3. Connect the .vscene document format to a real game runtime.
 4. Continue preparing the Level 1 test projects: Veyra Adventure (browser baseline) and Veyra SFS (browser prototype now exists; native engine integration remains future work).
