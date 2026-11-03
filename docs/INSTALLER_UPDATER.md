@@ -1,6 +1,6 @@
 # Veyra Engine — Installer and Updater Design
 
-**Status:** Phase 2 design baseline; installer technology provisionally selected, implementation and updater still pending.  
+**Status:** Inno Setup 7.1.0 installer script and Windows x64 packaging workflow added; installer build/lifecycle verification pending. Updater schema and security design added; updater executable pending.  
 **Last updated:** 2026-11-03  
 **Initial target:** Windows x64.
 
@@ -10,7 +10,7 @@ Veyra needs a dependable way for users to install, launch, update, repair, and u
 
 The initial implementation should support Windows x64. Linux, Android, and Web distribution paths require separate designs and validation; they must not be implied by the Windows installer.
 
-This document records the intended behavior and security requirements. Specific installer technology, signing provider, hosting arrangement, and manifest encoding remain decisions to validate and record before implementation.
+This document records the intended behavior and security requirements. Inno Setup 7.1.0 is the provisional first installer technology. The initial script lives at installer/veyra-engine.iss and the combined Windows x64 build workflow lives at .github/workflows/windows-installer-build.yml. The workflow compiles the editor/runtime together, packages Qt and MSVC dependencies, creates the installer, then silently installs/uninstalls it while checking that external project data remains. Its first complete run is not yet verified.
 
 ## 2. Product boundaries
 
@@ -40,7 +40,7 @@ Installation must not require administrator privileges unless the selected insta
 
 ## 4. Installer technology decision
 
-Evaluate at least Inno Setup, WiX Toolset, and CPack (including whether CPack alone meets the required Windows installer experience). Record a decision before committing to one.
+**Provisional choice: Inno Setup 7.1.0.** A direct Inno Setup script is now committed. The first target is a per-user Windows x64 install under the user's LocalAppData Programs folder using PrivilegesRequired=lowest. WiX and CPack were compared at a high level; this choice will be revisited if the installer prototype exposes a concrete limitation.
 
 Evaluation criteria:
 
@@ -211,4 +211,4 @@ The installer/updater portion of Phase 2 is complete only when:
 - Upgrade and uninstall preserve user projects and settings according to documented behavior.
 - Automated release packaging and repeatable tests provide evidence for the claimed support.
 
-**Current truth:** Inno Setup 7.1.0 is the provisional installer choice. The user-facing installer, updater, signed update manifest, rollback mechanism, and automated release publishing are not yet implemented or verified.
+**Current truth:** The Inno Setup script and CI workflow exist, but a successful installer artifact and install/uninstall test are still pending. The updater schema and security model exist, but the updater executable, cryptographic verifier, download/staging process, rollback, and release signing are not implemented.
