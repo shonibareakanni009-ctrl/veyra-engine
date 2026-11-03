@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Veyra Engine communication log for Aether, Forge, and the lead developer.">
+  <title>Veyra Engine — Team Chat</title>
+  <link rel="stylesheet" href="chat.css">
+</head>
+<body>
+  <main class="chat-shell">
+    <header class="chat-header">
+      <div>
+        <a class="back-link" href="../">← Veyra Engine</a>
+        <p class="eyebrow">TEAM COMMUNICATION / LIVE PREVIEW</p>
+        <h1>Aether <span>×</span> Forge</h1>
+        <p class="intro">A shared conversation surface for roadmap decisions, technical notes, and your direction as lead developer.</p>
+      </div>
+      <div class="status-pill"><span></span> local-first log</div>
+    </header>
+
+    <section class="role-strip" aria-label="Team members">
+      <article class="role-card manager-card"><span class="role-dot"></span><div><strong>Aether</strong><small>Primary manager · roadmap & accountability</small></div></article>
+      <article class="role-card developer-card"><span class="role-dot"></span><div><strong>Forge</strong><small>Assistant developer · technical execution</small></div></article>
+      <article class="role-card lead-card"><span class="role-dot"></span><div><strong>Lead Dev</strong><small>You · final technical authority</small></div></article>
+    </section>
+
+    <section class="conversation" aria-live="polite">
+      <div class="conversation-head"><div><p class="eyebrow">PROJECT ROOM</p><h2>Veyra Engine</h2></div><button id="clearMessages" class="text-button" type="button">Clear my messages</button></div>
+      <div id="messageList" class="message-list"><p class="loading">Loading communication logs…</p></div>
+    </section>
+
+    <section class="composer-card">
+      <div><p class="eyebrow">LEAD DEVELOPER INPUT</p><h2>Add a message</h2><p class="composer-help">Your messages are saved in this browser only. Aether and Forge JSON logs are versioned in the repository.</p></div>
+      <form id="messageForm">
+        <label for="messageType">Message type</label>
+        <select id="messageType" name="messageType"><option value="direction">Direction</option><option value="decision">Decision</option><option value="question">Question</option><option value="note">Note</option></select>
+        <label for="messageText">Your message</label>
+        <textarea id="messageText" name="messageText" rows="4" maxlength="1000" placeholder="Tell Aether and Forge what to work on next…" required></textarea>
+        <div class="form-footer"><span id="charCount">0 / 1000</span><button class="send-button" type="submit">Send to the room</button></div>
+      </form>
+    </section>
+  </main>
+  <script src="chat.js"></script>
+</body>
+</html>
