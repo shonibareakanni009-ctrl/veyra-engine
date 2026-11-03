@@ -16,6 +16,8 @@ private slots:
     void savesAndLoadsScene();
     void rejectsUnsupportedVersionWithoutChangingOpenScene();
     void removingObjectMarksDocumentModified();
+    void rejectsInvalidObjectDimensions();
+    void rejectsDuplicateObjectIds();
 };
 
 void SceneDocumentTests::savesAndLoadsScene()
@@ -96,6 +98,48 @@ void SceneDocumentTests::removingObjectMarksDocumentModified()
     QVERIFY(document.isModified());
     QVERIFY(document.objects().isEmpty());
     QVERIFY(!document.removeObject(objectId));
+}
+
+void SceneDocumentTests::rejectsInvalidObjectDimensions()
+{
+    QTemporaryDir temporaryDirectory;
+    QVERIFY(temporaryDirectory.isValid());
+
+    const QString path = temporaryDirectory.filePath(QStringLiteral("invalid-size.vscene"));
+    QFile invalidScene(path);
+    QVERIFY(invalidScene.open(QIODevice::WriteOnly));
+    const QByteArray contents =
+        R"({"format":"veyra-scene","formatVersion":1,"objects":[{"id":"object-1","name":"Bad","x":0,"y":0,"width":0,"height":40,"rotation":0,"scaleX":1,"scaleY":1,"visible":true}]})";
+    QCOMPARE(invalidScene.write(contents), static_cast<qint64>(contents.size()));
+    invalidScene.close();
+
+    Veyra::SceneDocument document;
+    const QString preservedId = document.objects().first().id;
+    QString error;
+    QVERIFY(!document.load(path, &error));
+    QVERIFY(!error.isEmpty());
+    QCOMPARE(document.objects().size(), 1);
+    QCOMPARE(document.objects().first().id, preservedId);
+}
+
+void SceneDocumentTests::rejectsDuplicateObjectIds()
+{
+    QTemporaryDir temporaryDirectory;
+    QVERIFY(temporaryDirectory.isValid());
+
+    const QString path = temporaryDirectory.filePath(QStringLiteral("duplicate-ids.vscene"));
+    QFile invalidScene(path);
+    QVERIFY(invalidScene.open(QIODevice::WriteOnly));
+    const QByteArray contents =
+        R"({"format":"veyra-scene","formatVersion":1,"objects":[{"id":"same","name":"A","x":0,"y":0,"width":10,"height":10,"rotation":0,"scaleX":1,"scaleY":1},{"id":"same","name":"B","x":20,"y":0,"width":10,"height":10,"rotation":0,"scaleX":1,"scaleY":1}]})";
+    QCOMPARE(invalidScene.write(contents), static_cast<qint64>(contents.size()));
+    invalidScene.close();
+
+    Veyra::SceneDocument document;
+    QString error;
+    QVERIFY(!document.load(path, &error));
+    QVERIFY(!error.isEmpty());
+    QCOMPARE(document.objects().size(), 1);
 }
 
 QTEST_GUILESS_MAIN(SceneDocumentTests)
