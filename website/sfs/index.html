@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080d1b"><meta name="description" content="Fly, thrust, orbit and explore in Veyra Space Flight Simulator, a free 2D browser game.">
+<title>Veyra SFS — 2D Space Flight Simulator</title><link rel="stylesheet" href="sfs.css">
+</head>
+<body>
+<header><a href="/" class="brand"><b>V</b> VEYRA <span>ENGINE</span></a><a href="/">← Back to Veyra</a></header>
+<main>
+<section class="intro"><div><small>VEYRA ENGINE · BROWSER TEST PROJECT 02</small><h1>Space Flight <em>Simulator</em></h1><p>Fly a small spacecraft. Learn to control thrust, momentum and gravity. Reach the orbital beacon.</p></div><div class="chip">2D FLIGHT TEST <b>BUILD 0.1</b></div></section>
+<section class="frame"><div class="hud"><span>VESSEL <b>VF-01</b></span><span>FUEL <b id="fuel">100%</b></span><span>SPEED <b id="speed">0</b></span><span>ALTITUDE <b id="altitude">—</b></span><button id="pause">Ⅱ</button></div><canvas id="space" width="1000" height="600" aria-label="Veyra Space Flight Simulator"></canvas>
+<div class="overlay" id="overlay"><div class="panel"><small>MISSION 01 · ORBITAL TRAINING</small><div class="glyph">✦</div><h2 id="title">First Flight</h2><p id="message">Use thrust to leave the launch zone, steer around the planet and reach the glowing orbital beacon.</p><button id="start">Launch mission →</button></div></div></section>
+<section class="controls"><div><b>FLIGHT CONTROLS</b><p><kbd>A</kbd> / <kbd>D</kbd> or <kbd>←</kbd> / <kbd>→</kbd> rotate · <kbd>W</kbd> / <kbd>↑</kbd> thrust · <kbd>S</kbd> / <kbd>↓</kbd> brake · <kbd>P</kbd> pause</p></div><div class="touch"><button data-key="left">↶</button><button data-key="thrust">▲</button><button data-key="right">↷</button><button data-key="brake">▼</button></div></section>
+<footer><span>VEYRA SFS · 2D BROWSER PROTOTYPE</span><button id="reset">↻ Restart mission</button></footer>
+</main><script src="sfs.js"></script>
+</body></html>
