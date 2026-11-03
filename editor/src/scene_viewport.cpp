@@ -10,6 +10,9 @@
 #include "scene_document.h"
 
 #include <QMouseEvent>
+#include <QFileInfo>
+#include <QDir>
+#include <QImageReader>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPolygonF>
@@ -114,7 +117,23 @@ void SceneViewport::paintEvent(QPaintEvent* event)
         painter.setBrush(selected ? QColor(56, 125, 210, 170) : QColor(93, 111, 137, 150));
         painter.setPen(QPen(selected ? QColor(132, 190, 255) : QColor(151, 164, 184),
                             selected ? 2.0 : 1.0));
-        if (object.shape == QStringLiteral("circle"))
+        if (object.shape == QStringLiteral("sprite"))
+        {
+            if (m_document && !m_document->filePath().isEmpty() && !object.assetPath.isEmpty())
+            {
+                const QString imagePath = QFileInfo(m_document->filePath()).dir().filePath(object.assetPath);
+                QImageReader reader(imagePath);
+                reader.setAutoTransform(true);
+                const QImage image = reader.read();
+                if (!image.isNull())
+                    painter.drawImage(bounds, image);
+                else
+                    painter.drawRect(bounds);
+            }
+            else
+                painter.drawRect(bounds);
+        }
+        else if (object.shape == QStringLiteral("circle"))
             painter.drawEllipse(bounds);
         else if (object.shape == QStringLiteral("triangle"))
         {
