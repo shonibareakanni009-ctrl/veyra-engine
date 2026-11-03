@@ -176,12 +176,19 @@ bool SceneDocument::fromJson(const QJsonObject& root, QString* error)
 
         const QString normalizedAssetPath = QDir::cleanPath(object.assetPath);
         const bool unsafeAssetPath = object.assetPath.contains(QChar(92)) ||
-            object.assetPath.contains(QLatin1Char(':')) || normalizedAssetPath == QStringLiteral("..") ||
-            normalizedAssetPath.startsWith(QStringLiteral("../")) || QDir::isAbsolutePath(object.assetPath);
+            object.assetPath.contains(QLatin1Char(':')) ||
+            object.assetPath.split(QLatin1Char('/')).contains(QStringLiteral("..")) ||
+            QDir::isAbsolutePath(object.assetPath);
+        const bool invalidAssetPath = !object.assetPath.isEmpty() &&
+            (unsafeAssetPath || normalizedAssetPath == QStringLiteral("."));
+        const bool supportedShape = object.shape == QStringLiteral("rectangle") ||
+            object.shape == QStringLiteral("circle") || object.shape == QStringLiteral("triangle") ||
+            object.shape == QStringLiteral("sprite");
+        const bool spriteMissingAsset = object.shape == QStringLiteral("sprite") &&
+            object.assetPath.trimmed().isEmpty();
 
-        if (object.id.isEmpty() || object.name.isEmpty() ||
-            (object.shape != QStringLiteral("rectangle") && object.shape != QStringLiteral("circle") &&
-             object.shape != QStringLiteral("triangle")) ||
+        if (object.id.isEmpty() || object.name.isEmpty() || !supportedShape ||
+            invalidAssetPath || spriteMissingAsset ||
             !finiteNumber(object.x) || !finiteNumber(object.y) ||
             !finiteNumber(object.width) || !finiteNumber(object.height) ||
             !finiteNumber(object.rotation) || !finiteNumber(object.scaleX) ||
