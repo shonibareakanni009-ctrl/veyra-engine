@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-11-02
-- **Decision owner:** Project owner
+- **Decision owner:** Akanni
 
 ## Context
 
