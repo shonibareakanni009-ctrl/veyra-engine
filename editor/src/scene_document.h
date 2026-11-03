@@ -19,6 +19,7 @@ struct SceneObject
 {
     QString id;
     QString name;
+    QString shape = QStringLiteral("rectangle");
     double x = 0.0;
     double y = 0.0;
     double width = 100.0;
