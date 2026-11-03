@@ -138,6 +138,33 @@ jobs:
             throw "Expected installer output was not created."
           }
 
+      - name: Install, smoke-test, and uninstall package
+        shell: pwsh
+        run: |
+          $setup = "$env:GITHUB_WORKSPACE\build\installer\VeyraEngine-Setup-0.2.0-win64.exe"
+          $installDir = "$env:RUNNER_TEMP\VeyraEngineSmokeTest"
+          $projectDir = "$env:RUNNER_TEMP\VeyraProjects\KeepMe"
+          New-Item -ItemType Directory -Force -Path $projectDir | Out-Null
+          "User content must survive engine uninstall." | Set-Content (Join-Path $projectDir "KEEP.txt")
+
+          $install = Start-Process -FilePath $setup -ArgumentList @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/DIR=$installDir") -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Silent installation failed with exit code $($install.ExitCode)." }
+          $editorExe = Join-Path $installDir "editor\VeyraEditor.exe"
+          $runtimeExe = Join-Path $installDir "runtime\VeyraRuntime.exe"
+          $sampleScene = Join-Path $installDir "runtime\first-scene.vscene"
+          foreach ($required in @($editorExe, $runtimeExe, $sampleScene)) {
+            if (-not (Test-Path $required -PathType Leaf)) { throw "Installed file is missing: $required" }
+          }
+          $help = & $runtimeExe --help 2>&1 | Out-String
+          if ($LASTEXITCODE -ne 0 -or $help -notmatch "Usage:") { throw "Installed runtime command-line smoke test failed: $help" }
+
+          $uninstaller = Join-Path $installDir "unins000.exe"
+          if (-not (Test-Path $uninstaller -PathType Leaf)) { throw "Uninstaller was not created." }
+          $uninstall = Start-Process -FilePath $uninstaller -ArgumentList @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART") -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) { throw "Silent uninstall failed with exit code $($uninstall.ExitCode)." }
+          if (Test-Path $editorExe -PathType Leaf) { throw "Editor executable remains after uninstall." }
+          if (-not (Test-Path (Join-Path $projectDir "KEEP.txt") -PathType Leaf)) { throw "Uninstall removed user project data outside the install directory." }
+          Write-Host "Install, runtime CLI, uninstall, and external user-data preservation checks passed."
       - name: Upload Windows x64 installer
         uses: actions/upload-artifact@v4
         with:
