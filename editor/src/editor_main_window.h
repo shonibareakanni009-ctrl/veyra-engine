@@ -43,6 +43,7 @@ private:
     bool saveScene();
     bool saveSceneAs();
     void addSceneObject();
+    void importSprite();
     void deleteSelectedObject();
     QDockWidget* createInformationDock(const QString& title,
                                        const QString& objectName,
