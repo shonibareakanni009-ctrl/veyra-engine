@@ -54,7 +54,7 @@ Phase 1 has been fully verified. The packaged Windows editor successfully passed
 - [ ] Manually install on a clean Windows computer and launch the editor GUI.
 
 
-1. Akanni-run the packaged runtime on Windows: open `first-scene.vscene`, confirm the SDL window and object count, and verify Escape/window-close shutdown.
+1. Akanni runs the packaged runtime on Windows: open `first-scene.vscene`, confirm the SDL window and object count, and verify Escape/window-close shutdown.
 2. Integrate bgfx with SDL and render the first editor-authored scene object.
 3. Integrate editor Run/Stop controls with the runtime.
 4. In parallel, define the Windows installation layout and installer technology.
