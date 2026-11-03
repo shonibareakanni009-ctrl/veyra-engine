@@ -23,6 +23,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QStatusBar>
+#include <QStringList>
 #include <QToolBar>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
