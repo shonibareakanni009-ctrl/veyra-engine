@@ -32,7 +32,7 @@ Do not move to the next milestone until the current milestone has working code, 
 | 1.5 | Save/load .vscene with validation and atomic writes | Verified | CI + manual test |
 | 1.6 | Protect unsaved edits on new/open/close | Verified | Manual smoke test |
 | 1.7 | Reliable Windows x64 application folder packaging | Verified | Green CI packaging |
-| 1.8 | Manual editor smoke test | **Passed** | Owner executed 2026-11-03 |
+| 1.8 | Manual editor smoke test | **Passed** | Akanni executed 2026-11-03 |
 | 1.9 | Runtime loads editor-authored scenes | Moved to Phase 2 | Not started |
 
 ### Phase 1 exit criteria — Met
