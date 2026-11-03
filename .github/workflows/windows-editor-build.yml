@@ -48,7 +48,7 @@ jobs:
       - name: Deploy Qt and MSVC runtime
         shell: pwsh
         run: |
-          $package = "$env:GITHUB_WORKSPACE\build\editor\editor\package"
+          $package = "$env:GITHUB_WORKSPACE\build\editor\package"
           $exe = "$package\VeyraEditor.exe"
           if (-not (Test-Path $exe -PathType Leaf)) { throw "Editor executable missing: $exe" }
           windeployqt --release --compiler-runtime --dir $package $exe
@@ -85,7 +85,7 @@ jobs:
           transform inspector, and versioned .vscene save/load.
           This is an early development build; runtime integration and installer
           are not yet included in this editor-only CI artifact.
-          '@ | Set-Content "$env:GITHUB_WORKSPACE\build\editor\editor\package\README.txt" -Encoding utf8
+          '@ | Set-Content "$env:GITHUB_WORKSPACE\build\editor\package\README.txt" -Encoding utf8
       - name: Upload complete editor application folder
         uses: actions/upload-artifact@v4
         with:
