@@ -17,6 +17,7 @@ private slots:
     void rejectsUnsupportedVersionWithoutChangingOpenScene();
     void removingObjectMarksDocumentModified();
     void preservesCustomShapeAcrossSaveLoad();
+    void preservesSpriteAssetPathAcrossSaveLoad();
     void rejectsInvalidObjectDimensions();
     void rejectsDuplicateObjectIds();
 };
@@ -161,6 +162,29 @@ void SceneDocumentTests::preservesCustomShapeAcrossSaveLoad()
     const Veyra::SceneObject* restored = loaded.find(ship.id);
     QVERIFY(restored != nullptr);
     QCOMPARE(restored->shape, QStringLiteral("triangle"));
+}
+
+void SceneDocumentTests::preservesSpriteAssetPathAcrossSaveLoad()
+{
+    QTemporaryDir temporaryDirectory;
+    QVERIFY(temporaryDirectory.isValid());
+
+    Veyra::SceneDocument source;
+    Veyra::SceneObject& sprite = source.addObject(QStringLiteral("Player Sprite"));
+    sprite.shape = QStringLiteral("sprite");
+    sprite.assetPath = QStringLiteral("Assets/player.png");
+    source.markModified();
+
+    const QString path = temporaryDirectory.filePath(QStringLiteral("sprite.vscene"));
+    QString error;
+    QVERIFY2(source.save(path, &error), qPrintable(error));
+
+    Veyra::SceneDocument loaded;
+    QVERIFY2(loaded.load(path, &error), qPrintable(error));
+    const Veyra::SceneObject* restored = loaded.find(sprite.id);
+    QVERIFY(restored != nullptr);
+    QCOMPARE(restored->shape, QStringLiteral("sprite"));
+    QCOMPARE(restored->assetPath, QStringLiteral("Assets/player.png"));
 }
 
 QTEST_GUILESS_MAIN(SceneDocumentTests)
