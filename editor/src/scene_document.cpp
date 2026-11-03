@@ -81,6 +81,7 @@ QJsonObject SceneDocument::toJson() const
             {QStringLiteral("id"), object.id},
             {QStringLiteral("name"), object.name},
             {QStringLiteral("shape"), object.shape},
+            {QStringLiteral("assetPath"), object.assetPath},
             {QStringLiteral("x"), object.x},
             {QStringLiteral("y"), object.y},
             {QStringLiteral("width"), object.width},
@@ -162,6 +163,7 @@ bool SceneDocument::fromJson(const QJsonObject& root, QString* error)
         object.id = item.value(QStringLiteral("id")).toString();
         object.name = item.value(QStringLiteral("name")).toString();
         object.shape = item.value(QStringLiteral("shape")).toString(QStringLiteral("rectangle"));
+        object.assetPath = item.value(QStringLiteral("assetPath")).toString();
         object.x = item.value(QStringLiteral("x")).toDouble();
         object.y = item.value(QStringLiteral("y")).toDouble();
         object.width = item.value(QStringLiteral("width")).toDouble(100.0);
