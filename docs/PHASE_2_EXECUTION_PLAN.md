@@ -50,6 +50,22 @@ Acceptance: both applications build and their tests pass from the new paths; no 
 4. Handle unsupported assets/shapes safely and provide actionable diagnostics.
 5. Add deterministic tests where possible and document a manual desktop smoke test.
 
+
+### Renderer integration baseline
+
+- Preferred CMake integration: upstream-maintained bgfx.cmake release v1.162.9524-580, pinned to immutable commit `eb88f6be55ae223966698c802542c24b0d93fd25`; its repository tracks bgfx, bx, and bimg as submodules, so recursive submodule checkout must remain enabled.
+- Build shaderc for offline build-time shader compilation; disable bgfx examples, tests, texture tools, and geometry tools unless later required.
+- On Windows, obtain the native HWND from SDL3 window properties using `SDL_GetWindowProperties` and `SDL_GetPointerProperty(..., SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr)`, then provide it through bgfx `PlatformData` before renderer initialization.
+- Keep the platform-handle extraction behind a small adapter so other platforms can supply their native display/window handles later.
+- First rendering milestone is limited to rectangle, circle, and triangle primitives with scene transforms. Sprite texture rendering remains a separate asset-rendering milestone; do not silently draw a sprite as if its texture loaded.
+- Add renderer-independent geometry tests, then Windows CI compile tests and a manual real-window rendering/resize/close test.
+
+Reference documentation:
+- bgfx CMake wrapper and submodule/build instructions: https://github.com/bkaradzic/bgfx.cmake
+- Pinned bgfx.cmake release commit: https://github.com/bkaradzic/bgfx.cmake/commit/eb88f6be55ae223966698c802542c24b0d93fd25
+- bgfx platform data and native window handle: https://bkaradzic.github.io/bgfx/bgfx.html
+- SDL3 window properties and Windows HWND property: https://wiki.libsdl.org/SDL3/SDL_GetWindowProperties
+
 Acceptance: a Windows x64 runtime visibly renders an editor-authored scene and exits cleanly. A successful compile alone is not sufficient.
 
 ## Checkpoint 3 — Editor Run/Stop
