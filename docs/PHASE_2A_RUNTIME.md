@@ -49,7 +49,7 @@ The runtime must load this format without linking Qt. Unsafe relative asset path
 4. Add Stop behavior that terminates only the process started by the editor.
 5. Report missing runtime and launch failures without crashing the editor.
 
-**Acceptance:** an Akanni-run manual test creates/saves a scene, launches it from the editor, confirms the runtime window, then stops it from the editor.
+**Acceptance:** Akanni runs a manual test that creates/saves a scene, launches it from the editor, confirms the runtime window, then stops it from the editor.
 
 ## Dependency and trust rules
 
