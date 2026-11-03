@@ -43,7 +43,7 @@ int runRuntime(const std::filesystem::path& scenePath)
     }
 
     const std::string windowTitle =
-        "Veyra Runtime — " + std::to_string(scene.objects().size()) + " scene objects";
+        "Veyra Runtime - " + std::to_string(scene.objects().size()) + " scene objects";
     SDL_Window* window = SDL_CreateWindow(
         windowTitle.c_str(), WindowWidth, WindowHeight, SDL_WINDOW_RESIZABLE);
 
@@ -59,9 +59,6 @@ int runRuntime(const std::filesystem::path& scenePath)
     SDL_Log("Runtime window opened. Press Escape or close the window to exit.");
 
     bool running = true;
-    const SDL_PropertiesID windowProperties = SDL_GetWindowProperties(window);
-    (void)windowProperties; // Reserved for the upcoming bgfx native-window integration.
-
     while (running)
     {
         SDL_Event event;
