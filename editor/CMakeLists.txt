@@ -44,6 +44,7 @@ if(BUILD_TESTING)
         src/scene_document.h
     )
     target_link_libraries(VeyraEditorTests PRIVATE Qt6::Test)
+    target_include_directories(VeyraEditorTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
     target_compile_features(VeyraEditorTests PRIVATE cxx_std_20)
     if(MSVC)
         target_compile_options(VeyraEditorTests PRIVATE /W4 /permissive-)
