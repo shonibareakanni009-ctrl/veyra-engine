@@ -1,6 +1,6 @@
 # Phase 2 — Execution Plan (six checkpoints)
 
-**Status:** Approved for implementation; no completion is claimed by this plan.
+**Status:** In progress; Checkpoint 1 verified by Windows CI and About section passes website CI.
 **Scope:** Windows x64 first. Keep editor and runtime as sibling components under one `engine/` directory.
 
 ## Goals and constraints
@@ -14,6 +14,8 @@
 - Do not claim a GUI, installer, update, or platform capability until it has been tested.
 
 ## Checkpoint 1 — Shared engine directory
+
+**Status: VERIFIED (2026-11-03).** The editor and runtime source trees are under `engine/`, the root CMake project can select them independently, and both Windows x64 CI workflows passed after the move.
 
 Target structure:
 
@@ -85,6 +87,8 @@ Acceptance: valid updates apply; invalid, altered, incompatible, or interrupted 
 
 ## Checkpoint 6 — End-to-end verification and About page
 
+**About section implementation: committed; website CI passed; Vercel production deployment reports READY. Manual browser click-through remains to be confirmed.
+
 ### End-to-end verification
 - Test clean install, first launch, scene creation, editor Run/Stop, update, restart, rollback, uninstall, and reinstall.
 - Test invalid/unsigned manifest, wrong platform/channel, corrupted package, interrupted download, insufficient permissions, and failed replacement.
@@ -109,4 +113,4 @@ Phase 2 is complete only when all six checkpoints have evidence:
 - End-to-end tests pass and user projects are preserved.
 - The About Veyra link works and website CI passes.
 
-**Current truth at plan creation:** editor and runtime are still separate root-level directories; runtime scene rendering and editor Run/Stop are not implemented; user-facing installer/updater are not implemented; About Veyra navigation/content is missing. Existing runtime scene-loader Windows CI has passed, but manual SDL window launch remains unverified.
+**Historical baseline at plan creation:** editor and runtime are still separate root-level directories; runtime scene rendering and editor Run/Stop are not implemented; user-facing installer/updater are not implemented; About Veyra navigation/content is missing. Existing runtime scene-loader Windows CI has passed, but manual SDL window launch remains unverified.

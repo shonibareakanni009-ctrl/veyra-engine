@@ -1,6 +1,6 @@
 # Phase 2A — Native Runtime Implementation Plan
 
-**Status:** Checkpoint 1 code and automated CI verification passed; manual desktop launch remains  
+**Status:** Runtime foundation and shared-folder build verified in Windows CI; manual desktop launch remains  
 **Last updated:** 2026-11-03  
 **Scope:** First Windows x64 runtime vertical-slice foundation
 
@@ -19,7 +19,7 @@ The runtime must load this format without linking Qt. Unsafe relative asset path
 
 ## Checkpoint 1 — Standalone runtime and scene loader
 
-1. Add a separately configured C++20 runtime build under `engine/runtime/`; do not make the editor a runtime dependency.
+1. Keep a separately configured C++20 runtime build under `engine/runtime/`; do not make the editor a runtime dependency.
 2. Pin dependency versions and verify downloaded archives with SHA-256.
 3. Add an SDL3 application lifecycle: initialize, create a window, process close and Escape events, then destroy resources and shut down cleanly.
 4. Add a Qt-free version 1 `.vscene` loader using a small standalone JSON dependency.
@@ -71,9 +71,18 @@ The runtime must load this format without linking Qt. Unsafe relative asset path
 - [ ] Manual launch/close smoke test using the packaged sample scene.
 - [ ] bgfx initialization and first rendered scene object.
 - [ ] Editor Run/Stop controls.
+- [x] Shared `engine/` layout and independent Windows x64 editor/runtime CI verified.
 - [x] Move editor and runtime source trees under shared `engine/` directory (new-path CI verification pending).
 
 ## Verification record
+
+### Shared engine layout CI verification — 2026-11-03
+
+- Editor workflow: [Windows Editor Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41685837063) — success, including configure, compile, scene tests, Qt deployment, and artifact upload.
+- Runtime workflow: [Windows Runtime Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41685729965) — success, including configure, compile, scene tests, package staging, and artifact upload.
+- The workflows build the editor and runtime independently from the shared engine root. The runtime remains Qt-free.
+- This does not verify manual SDL window behavior or object rendering.
+
 
 ### Windows CI verification — 2026-11-03
 
@@ -83,4 +92,4 @@ The runtime must load this format without linking Qt. Unsafe relative asset path
 - Artifact: `veyra-runtime-windows-x64` (includes `VeyraRuntime.exe`, app-local MSVC runtime DLLs, README, and `first-scene.vscene`).
 - The workflow verifies compilation and scene validation; it does not launch the SDL window. Manual GUI behavior is still unverified.
 
-The runtime source now lives under `engine/runtime/`. The shared top-level CMake entry point can configure editor and runtime independently. The runtime currently validates and loads scene data, then opens an SDL window and processes close/Escape events in its application loop. It does **not** render scene objects yet. bgfx integration and the manual window smoke test remain open.
+The runtime source now lives under `engine/runtime/`. The shared top-level CMake entry point can configure editor and runtime independently. The editor and runtime now live under the shared `engine/` directory. The top-level `engine/CMakeLists.txt` selects either application independently. Windows x64 CI passed after the move for both editor and runtime. The runtime currently validates and loads scene data, then opens an SDL window and processes close/Escape events in its application loop. It does **not** render scene objects yet. bgfx integration and the manual window smoke test remain open.
