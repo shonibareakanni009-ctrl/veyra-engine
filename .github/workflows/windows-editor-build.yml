@@ -90,6 +90,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: veyra-editor-windows-x64-folder
-          path: build/editor/editor/package/
+          path: build/editor/package/
           if-no-files-found: error
           retention-days: 14
