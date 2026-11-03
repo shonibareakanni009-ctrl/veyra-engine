@@ -2,7 +2,7 @@
 
 - **Status:** Accepted as the initial project baseline; pending prototype validation
 - **Date:** 2026-11-02
-- **Decision owner:** Project owner
+- **Decision owner:** Akanni
 - **Related documents:** docs/ARCHITECTURE.md, docs/TECH_STACK.md, docs/CODING_STANDARDS.md
 
 ## Context
