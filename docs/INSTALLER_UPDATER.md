@@ -1,6 +1,6 @@
 # Veyra Engine — Installer and Updater Design
 
-**Status:** Inno Setup 7.1.0 installer script and Windows x64 packaging workflow added; installer build/lifecycle verification pending. Updater schema and security design added; updater executable pending.  
+**Status:** Inno Setup 7.1.0 installer script and Windows x64 packaging workflow added; installer build and automated install/uninstall lifecycle verification passed; manual clean-machine validation pending. Updater schema and security design added; updater executable pending.  
 **Last updated:** 2026-11-03  
 **Initial target:** Windows x64.
 
@@ -10,7 +10,7 @@ Veyra needs a dependable way for users to install, launch, update, repair, and u
 
 The initial implementation should support Windows x64. Linux, Android, and Web distribution paths require separate designs and validation; they must not be implied by the Windows installer.
 
-This document records the intended behavior and security requirements. Inno Setup 7.1.0 is the provisional first installer technology. The initial script lives at installer/veyra-engine.iss and the combined Windows x64 build workflow lives at .github/workflows/windows-installer-build.yml. The workflow compiles the editor/runtime together, packages Qt and MSVC dependencies, creates the installer, then silently installs/uninstalls it while checking that external project data remains. Its first complete run is not yet verified.
+This document records the intended behavior and security requirements. Inno Setup 7.1.0 is the provisional first installer technology. The initial script lives at installer/veyra-engine.iss and the combined Windows x64 build workflow lives at .github/workflows/windows-installer-build.yml. The workflow compiles the editor/runtime together, packages Qt and MSVC dependencies, creates the installer, then silently installs/uninstalls it while checking that external project data remains. The verified CI run compiled the installer, silently installed it, checked editor/runtime/sample files, ran the runtime CLI help smoke test, silently uninstalled it, and confirmed an external project marker remained. Manual clean-machine installation, editor GUI launch, repair, and upgrade testing remain.
 
 ## 2. Product boundaries
 
@@ -211,4 +211,4 @@ The installer/updater portion of Phase 2 is complete only when:
 - Upgrade and uninstall preserve user projects and settings according to documented behavior.
 - Automated release packaging and repeatable tests provide evidence for the claimed support.
 
-**Current truth:** The Inno Setup script and CI workflow exist, but a successful installer artifact and install/uninstall test are still pending. The updater schema and security model exist, but the updater executable, cryptographic verifier, download/staging process, rollback, and release signing are not implemented.
+**Current truth:** The Inno Setup script and CI workflow produced a Windows x64 installer artifact; automated compile, silent install/uninstall, runtime CLI, and external user-data preservation tests passed. Manual clean-machine install, editor GUI launch, repair, and upgrade are not yet verified. The updater schema and security model exist, but the updater executable, cryptographic verifier, download/staging process, rollback, and release signing are not implemented.
