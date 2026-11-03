@@ -4,19 +4,19 @@ on:
   push:
     branches: [main]
     paths:
-      - "runtime/**"
+      - "engine/runtime/**"
+      - "engine/CMakeLists.txt"
       - "docs/PHASE_2A_RUNTIME.md"
       - ".github/workflows/windows-runtime-build.yml"
   pull_request:
     paths:
-      - "runtime/**"
+      - "engine/runtime/**"
+      - "engine/CMakeLists.txt"
       - "docs/PHASE_2A_RUNTIME.md"
       - ".github/workflows/windows-runtime-build.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   build-runtime:
     name: Build and test Veyra Runtime for Windows x64
@@ -24,86 +24,58 @@ jobs:
     steps:
       - name: Check out Veyra Engine
         uses: actions/checkout@v6
-
       - name: Initialize MSVC x64 environment
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
-
       - name: Show tool versions
         shell: pwsh
         run: |
           cmake --version
           cl
-
       - name: Configure standalone runtime
         shell: pwsh
         run: |
-          cmake -S runtime -B build/runtime -A x64 -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
-
+          cmake -S engine -B build/runtime -A x64 -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DVEYRA_BUILD_EDITOR=OFF -DVEYRA_BUILD_RUNTIME=ON
       - name: Compile runtime and tests
         shell: pwsh
         run: |
           cmake --build build/runtime --config Release --parallel 2
-
       - name: Run runtime scene tests
         shell: pwsh
         run: |
           ctest --test-dir build/runtime -C Release --output-on-failure --verbose
-
       - name: Stage runtime package
         shell: pwsh
         run: |
           cmake --install build/runtime --config Release --prefix build/runtime/package
           $package = "$env:GITHUB_WORKSPACE\build\runtime\package"
           $vsWhere = Join-Path "${env:ProgramFiles(x86)}" "Microsoft Visual Studio\Installer\vswhere.exe"
-          if (-not (Test-Path $vsWhere -PathType Leaf)) {
-            throw "Could not locate vswhere.exe to find MSVC redistributable files."
-          }
+          if (-not (Test-Path $vsWhere -PathType Leaf)) { throw "Could not locate vswhere.exe." }
           $vsInstall = & $vsWhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(($vsInstall | Select-Object -First 1))) {
-            throw "Could not locate a Visual Studio installation with the x64 C++ toolchain."
-          }
+          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(($vsInstall | Select-Object -First 1))) { throw "Could not locate a Visual Studio x64 C++ toolchain." }
           $vsInstall = ($vsInstall | Select-Object -First 1).Trim()
           $redistRoot = Join-Path $vsInstall "VC\Redist\MSVC"
-          if (-not (Test-Path $redistRoot -PathType Container)) {
-            throw "MSVC redistributable directory not found: $redistRoot"
-          }
-
-          $crtDirectory = Get-ChildItem -Path $redistRoot -Directory |
-            Sort-Object Name -Descending |
-            ForEach-Object {
-              $candidate = Join-Path $_.FullName "x64\Microsoft.VC143.CRT"
-              if (Test-Path $candidate -PathType Container) { Get-Item $candidate }
-            } |
-            Select-Object -First 1
-          if ($null -eq $crtDirectory) {
-            throw "Could not find the x64 Microsoft.VC143.CRT directory under $redistRoot"
-          }
-
+          if (-not (Test-Path $redistRoot -PathType Container)) { throw "MSVC redistributable directory not found: $redistRoot" }
+          $crtDirectory = Get-ChildItem -Path $redistRoot -Directory | Sort-Object Name -Descending | ForEach-Object {
+            $candidate = Join-Path $_.FullName "x64\Microsoft.VC143.CRT"
+            if (Test-Path $candidate -PathType Container) { Get-Item $candidate }
+          } | Select-Object -First 1
+          if ($null -eq $crtDirectory) { throw "Could not find x64 Microsoft.VC143.CRT." }
           $runtimeDlls = @(Get-ChildItem -Path $crtDirectory.FullName -File -Filter "*.dll")
-          if ($runtimeDlls.Count -eq 0) {
-            throw "The MSVC CRT directory contains no DLLs: $($crtDirectory.FullName)"
-          }
+          if ($runtimeDlls.Count -eq 0) { throw "The MSVC CRT directory contains no DLLs." }
           Copy-Item -Path (Join-Path $crtDirectory.FullName "*.dll") -Destination $package -Force
-
-          $requiredRuntime = @("vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll")
-          foreach ($dll in $requiredRuntime) {
-            if (-not (Test-Path (Join-Path $package $dll) -PathType Leaf)) {
-              throw "The runtime package is missing required MSVC runtime file: $dll"
-            }
+          foreach ($dll in @("vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll")) {
+            if (-not (Test-Path (Join-Path $package $dll) -PathType Leaf)) { throw "Missing MSVC runtime file: $dll" }
           }
-          Write-Host "Packaged official MSVC runtime from $($crtDirectory.FullName)"
-          Copy-Item "runtime/examples/first-scene.vscene" "build/runtime/package/first-scene.vscene"
+          Copy-Item "engine/runtime/examples/first-scene.vscene" "build/runtime/package/first-scene.vscene"
           @'
           Veyra Runtime 0.2.0 — Windows x64
           Run the included sample: VeyraRuntime.exe first-scene.vscene
           Or pass any compatible version 1 .vscene file.
-          This checkpoint validates version 1 Veyra scene files and opens an SDL3
-          runtime window. Scene-object rendering and editor Run/Stop integration
-          are planned follow-up checkpoints; this package does not render objects.
+          This checkpoint validates scenes and opens an SDL3 runtime window.
+          Scene rendering and editor Run/Stop are follow-up milestones.
           '@ | Set-Content "build/runtime/package/README.txt" -Encoding utf8
-
       - name: Upload runtime package
         uses: actions/upload-artifact@v4
         with:
