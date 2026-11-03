@@ -127,8 +127,13 @@ jobs:
             $isccPath = $candidates | Where-Object { Test-Path $_ -PathType Leaf } | Select-Object -First 1
           }
           if ([string]::IsNullOrWhiteSpace($isccPath)) { throw "ISCC.exe was not found after installing Inno Setup." }
-          & $isccPath "/DAppVersion=0.2.0" "installer\veyra-engine.iss"
-          if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed." }
+          Push-Location "installer"
+          try {
+            & $isccPath "/DAppVersion=0.2.0" "veyra-engine.iss"
+            if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed." }
+          } finally {
+            Pop-Location
+          }
           if (-not (Test-Path "build/installer/VeyraEngine-Setup-0.2.0-win64.exe" -PathType Leaf)) {
             throw "Expected installer output was not created."
           }
