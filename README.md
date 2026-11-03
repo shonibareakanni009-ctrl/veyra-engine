@@ -25,7 +25,7 @@ The editor includes a 2D scene document, rectangle/circle/triangle primitives, i
 - Full manual smoke test passed (launch, editing, sprites, save/reopen, unsaved-change protection, invalid path rejection)  
 - Phase 1 is now marked **Verified**
 
-Arbitrary custom polygons and a searchable/thumbnail asset browser are not implemented yet. A separate Qt-free runtime target has now been added. Its Windows x64 CI build and `.vscene` validation tests pass; the SDL window still needs a manual launch test, and scene-object rendering is not implemented yet.
+Arbitrary custom polygons and a searchable/thumbnail asset browser are not implemented yet. The editor and runtime now live under the shared `engine/` directory and build independently. Their Windows x64 CI builds and `.vscene` validation tests pass; the SDL window still needs a manual launch test, and scene-object rendering is not implemented yet. A per-user Inno Setup installer script and Windows packaging workflow have been added; installer lifecycle validation is in progress. The updater has a signed-manifest schema and security design, but no updater executable yet.
 
 ### Browser website and game
 The website is a static HTML/CSS site. Veyra SFS is a separate HTML Canvas 2D flight prototype with keyboard/touch controls, thrust, braking, gravity, fuel, a following camera, and an orbital beacon objective. It is not an engine export. Veyra Adventure is an HTML Canvas game with keyboard and touch controls, platforms, collectibles, patrolling enemies, lives, a timer, a portal goal, pause, and restart. It is separate from the native engine runtime.
@@ -53,12 +53,14 @@ veyra-engine/
 │   ├── editor/              # Qt desktop editor
 │   ├── runtime/             # Standalone Qt-free SDL3 game runtime
 │   └── CMakeLists.txt       # Selective engine build entry point
+├── installer/              # Windows Inno Setup definition
+├── updater/                # Release manifest schema and updater foundation
 ├── website/                # Official website and browser demo
 │   ├── game/               # Standalone Veyra Adventure game
 │   └── sfs/                # Standalone 2D Space Flight Simulator browser prototype
 ├── scripts/                # Website deployment build
 ├── docs/                   # Architecture, decisions, and project notes
-└── .github/workflows/      # Native editor and runtime CI
+└── .github/workflows/      # Native editor, runtime, website, and installer CI
 ```
 
 ## Website deployment
