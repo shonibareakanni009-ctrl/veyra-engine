@@ -1,6 +1,6 @@
 # Veyra Engine — Installer and Updater Design
 
-**Status:** Phase 2 plan — design baseline only; no installer or updater implementation is claimed.  
+**Status:** Phase 2 design baseline; installer technology provisionally selected, implementation and updater still pending.  
 **Last updated:** 2026-11-03  
 **Initial target:** Windows x64.
 
@@ -171,18 +171,34 @@ Pull-request CI must not receive production signing secrets. Release signing sho
 
 Record the operating system version, architecture, installed version, package version, test result, and logs for each release qualification run.
 
-## 12. Open decisions
+## 12. Installer technology decision and remaining open decisions
 
-These must be evaluated and recorded before implementation locks them in:
+### Provisional selection: Inno Setup 7.1.0 for the first Windows x64 installer
 
-1. Installer technology: Inno Setup vs WiX vs CPack/other.
-2. Per-user vs per-machine default installation scope.
-3. Release hosting and manifest delivery location.
-4. Manifest format and signature scheme.
-5. Signing certificate/key custody, rotation, and recovery.
-6. Versioning policy and stable/beta/developer channel rules.
-7. Staged-directory layout and rollback retention policy.
-8. Whether automatic checks are enabled by default and how users control them.
+Inno Setup is the preferred initial installer technology because it can produce a standalone Windows setup executable, supports both administrative and non-administrative installation modes, and provides a complete uninstall workflow. The first implementation will default to per-user installation using `PrivilegesRequired=lowest`; a per-machine option can be evaluated later.
+
+Why not the alternatives for the first release:
+- **WiX Toolset:** a strong MSI option with per-user and per-machine scope support, but it adds MSI authoring/toolchain complexity that is not currently needed for this first distribution target.
+- **CPack:** useful as a packaging integration layer and supports both Inno Setup and WiX generators, but its generator-specific feature coverage and packaging behavior still need validation. We will use a direct Inno Setup script initially so install paths, shortcuts, and user-data exclusions are explicit.
+
+This is a provisional engineering decision, not evidence that an installer exists or that install/uninstall behavior has passed testing. It may be revisited if the prototype exposes a concrete limitation.
+
+References:
+- Inno Setup capabilities and supported install modes: https://jrsoftware.org/isinfo.php
+- Inno Setup downloads and current version information: https://jrsoftware.org/isdl.php
+- Inno Setup non-administrative install mode: https://jrsoftware.org/isfaq.php
+- CPack Inno Setup generator: https://cmake.org/cmake/help/latest/cpack_gen/innosetup.html
+- CPack WiX generator and install scope: https://cmake.org/cmake/help/latest/cpack_gen/wix.html
+
+### Remaining open decisions
+
+1. Release hosting and manifest delivery location.
+2. Manifest format and signature scheme.
+3. Signing key custody, rotation, and recovery.
+4. Versioning policy and stable/beta/developer channel rules.
+5. Staged-directory layout and rollback retention policy.
+6. Whether automatic checks are enabled by default and how users control them.
+7. Exact minimum supported Windows version and clean-machine test image.
 
 ## 13. Phase 2 completion gate
 
@@ -195,4 +211,4 @@ The installer/updater portion of Phase 2 is complete only when:
 - Upgrade and uninstall preserve user projects and settings according to documented behavior.
 - Automated release packaging and repeatable tests provide evidence for the claimed support.
 
-**Current truth:** This is a design plan. The user-facing installer, updater, signed update manifest, rollback mechanism, and automated release publishing are not yet implemented or verified.
+**Current truth:** Inno Setup 7.1.0 is the provisional installer choice. The user-facing installer, updater, signed update manifest, rollback mechanism, and automated release publishing are not yet implemented or verified.
