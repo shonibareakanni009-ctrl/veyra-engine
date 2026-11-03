@@ -36,7 +36,7 @@ Phase 1 has been fully verified. The packaged Windows editor successfully passed
 - Windows CI green on head `5fd5f22`
 - CTest (including sprite path validation) passed
 - Editor application-folder packaging includes Qt plugins + MSVC CRT DLLs
-- Manual editor smoke test completed and passed by Shonibare on 2026-11-03
+- Manual editor smoke test completed and passed by Akanni on 2026-11-03
 - Runtime Windows CI passed on commit `b6bd682b82d222f0e6cacc0a5cba2ae81428ed4d`: CMake configure, runtime + tests compile, CTest scene validation, runtime package staging, and artifact upload
 - Runtime package artifact: [veyra-runtime-windows-x64](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41682363212)
 - Sections A–F: full pass
@@ -54,7 +54,7 @@ Phase 1 has been fully verified. The packaged Windows editor successfully passed
 - [ ] Manually install on a clean Windows computer and launch the editor GUI.
 
 
-1. Shonibare-run the packaged runtime on Windows: open `first-scene.vscene`, confirm the SDL window and object count, and verify Escape/window-close shutdown.
+1. Akanni-run the packaged runtime on Windows: open `first-scene.vscene`, confirm the SDL window and object count, and verify Escape/window-close shutdown.
 2. Integrate bgfx with SDL and render the first editor-authored scene object.
 3. Integrate editor Run/Stop controls with the runtime.
 4. In parallel, define the Windows installation layout and installer technology.
