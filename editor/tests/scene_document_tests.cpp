@@ -18,6 +18,7 @@ private slots:
     void removingObjectMarksDocumentModified();
     void preservesCustomShapeAcrossSaveLoad();
     void preservesSpriteAssetPathAcrossSaveLoad();
+    void rejectsUnsafeSpriteAssetPaths();
     void rejectsInvalidObjectDimensions();
     void rejectsDuplicateObjectIds();
 };
@@ -185,6 +186,29 @@ void SceneDocumentTests::preservesSpriteAssetPathAcrossSaveLoad()
     QVERIFY(restored != nullptr);
     QCOMPARE(restored->shape, QStringLiteral("sprite"));
     QCOMPARE(restored->assetPath, QStringLiteral("Assets/player.png"));
+}
+
+
+void SceneDocumentTests::rejectsUnsafeSpriteAssetPaths()
+{
+    QTemporaryDir temporaryDirectory;
+    QVERIFY(temporaryDirectory.isValid());
+
+    const QString path = temporaryDirectory.filePath(QStringLiteral("unsafe-sprite.vscene"));
+    QFile invalidScene(path);
+    QVERIFY(invalidScene.open(QIODevice::WriteOnly));
+    const QByteArray contents =
+        R"({"format":"veyra-scene","formatVersion":1,"objects":[{"id":"sprite-1","name":"Unsafe Sprite","shape":"sprite","assetPath":"../../outside.png","x":0,"y":0,"width":32,"height":32,"rotation":0,"scaleX":1,"scaleY":1,"visible":true}]})";
+    QCOMPARE(invalidScene.write(contents), static_cast<qint64>(contents.size()));
+    invalidScene.close();
+
+    Veyra::SceneDocument document;
+    const QString preservedId = document.objects().first().id;
+    QString error;
+    QVERIFY(!document.load(path, &error));
+    QVERIFY(!error.isEmpty());
+    QCOMPARE(document.objects().size(), 1);
+    QCOMPARE(document.objects().first().id, preservedId);
 }
 
 QTEST_GUILESS_MAIN(SceneDocumentTests)
