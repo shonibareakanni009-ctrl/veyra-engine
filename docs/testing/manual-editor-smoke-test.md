@@ -30,9 +30,9 @@
 ## Result Record
 
 ```text
-Tester: Owner
+Tester: Shonibare
 Date/time: 2026-11-03
-Windows version: (as tested by owner)
+Windows version: (as tested by Shonibare)
 Package commit: 5fd5f22
 Artifact: veyra-editor-windows-x64-folder
 
