@@ -1,7 +1,7 @@
 # Manager Notes – Veyra Engine
 
 **Manager:** Aether (appointed 2026-11-02)  
-**Owner:** Shonibare (in charge of all code)
+**Owner:** Akanni (in charge of all code)
 
 This file is the permanent record of management decisions, priorities, status assessments, and accountability notes.
 
@@ -25,7 +25,7 @@ This file is the permanent record of management decisions, priorities, status as
 9. **Role 2** – Architecture Gatekeeper
 
 **Clear division of responsibility:**
-- Shonibare writes and owns all code.
+- Akanni writes and owns all code.
 - Manager does not write production code.
 - Manager focuses on direction, priorities, tracking, quality gates, decisions, process, reality checks, and accountability.
 
@@ -44,7 +44,7 @@ This file is the permanent record of management decisions, priorities, status as
 - Qt 6 2D scene editor prototype is implemented and manually verified.
 - Automated scene-document tests pass.
 - Windows CI on head `5fd5f22` is green (compile + tests + packaging).
-- Manual smoke test (A–G) completed successfully by Shonibare on 2026-11-03.
+- Manual smoke test (A–G) completed successfully by Akanni on 2026-11-03.
 - Native runtime, SDL3, bgfx, project system, scripting, and export are **not** implemented.
 - Browser prototypes remain standalone.
 
@@ -55,7 +55,7 @@ Phase 1 exit criteria have been met. The editor is a verified early prototype. T
 
 ## Team
 
-- **Owner / Lead:** Shonibare
+- **Owner / Lead:** Akanni
 - **Manager:** Aether
 - **New staff (2026-11-03):** 2 new staff members joined (details to be recorded)
 
@@ -72,17 +72,17 @@ Next priority: Begin Phase 2 — Runtime foundation (smallest possible vertical 
 
 | Date       | Decision                                                                 | Rationale                                      | Status   |
 |------------|--------------------------------------------------------------------------|------------------------------------------------|----------|
-| 2026-11-02 | Manager appointed with explicit priority on Roles 3, 4, 5, 6, 8, 9, 10   | Shonibare instruction                          | Active   |
-| 2026-11-02 | Everything must be documented                                            | Shonibare instruction                          | Active   |
-| 2026-11-02 | Roles 3 and 4 elevated to highest priority                               | Shonibare instruction                          | Active   |
-| 2026-11-02 | Roles 1 and 2 added at lower priority                                    | Shonibare instruction                          | Active   |
-| 2026-11-02 | Shonibare is solely in charge of writing code                            | Shonibare clarification                        | Active   |
-| 2026-11-02 | Manager name set to "Aether"                                             | Shonibare request                              | Active   |
+| 2026-11-02 | Manager appointed with explicit priority on Roles 3, 4, 5, 6, 8, 9, 10   | Akanni instruction                             | Active   |
+| 2026-11-02 | Everything must be documented                                            | Akanni instruction                             | Active   |
+| 2026-11-02 | Roles 3 and 4 elevated to highest priority                               | Akanni instruction                             | Active   |
+| 2026-11-02 | Roles 1 and 2 added at lower priority                                    | Akanni instruction                             | Active   |
+| 2026-11-02 | Akanni is solely in charge of writing code                               | Akanni clarification                           | Active   |
+| 2026-11-02 | Manager name set to "Aether"                                             | Akanni request                                 | Active   |
 | 2026-11-03 | Status snapshot updated to reflect real editor prototype                 | Reality check after rapid development          | Active   |
 | 2026-11-03 | Confirmed current head Windows CI is green                               | Inspection of Actions runs                     | Active   |
-| 2026-11-03 | Manual smoke test (A–G) completed and passed                             | Shonibare executed and reported results        | Active   |
+| 2026-11-03 | Manual smoke test (A–G) completed and passed                             | Akanni executed and reported results           | Active   |
 | 2026-11-03 | Phase 1 marked **Verified**                                              | CI green + manual smoke test passed            | Active   |
-| 2026-11-03 | Two new staff members joined the project                                 | Shonibare notification                         | Active   |
+| 2026-11-03 | Two new staff members joined the project                                 | Akanni notification                            | Active   |
 
 ---
 
