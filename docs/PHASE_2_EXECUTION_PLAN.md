@@ -65,7 +65,7 @@ Acceptance: manual test creates/saves a scene, runs it from the editor, sees the
 
 ## Checkpoint 4 — Windows installer
 
-**Status: IN PROGRESS.** Inno Setup 7.1.0 is the provisional choice. The per-user installer script and combined Windows x64 build workflow are committed; compile and silent install/uninstall/data-preservation CI are pending.
+**Status: AUTOMATED PROTOTYPE VERIFIED.** Inno Setup 7.1.0 per-user installer artifact built successfully. CI passed silent install, installed-file checks, runtime CLI smoke test, silent uninstall, and external user-data preservation. Manual clean-machine editor GUI launch, repair, and upgrade tests remain.
 
 1. Finalize installer technology after validating the Inno Setup prototype against upgrade/uninstall, signing, automation, and maintenance needs.
 2. Define per-user/per-machine behavior and exact installation/data locations.
