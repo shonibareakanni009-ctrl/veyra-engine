@@ -175,7 +175,7 @@ bool SceneDocument::fromJson(const QJsonObject& root, QString* error)
         object.visible = item.value(QStringLiteral("visible")).toBool(true);
 
         const QString normalizedAssetPath = QDir::cleanPath(object.assetPath);
-        const bool unsafeAssetPath = object.assetPath.contains(QLatin1Char('\\\\')) ||
+        const bool unsafeAssetPath = object.assetPath.contains(QChar(92)) ||
             object.assetPath.contains(QLatin1Char(':')) || normalizedAssetPath == QStringLiteral("..") ||
             normalizedAssetPath.startsWith(QStringLiteral("../")) || QDir::isAbsolutePath(object.assetPath);
 
