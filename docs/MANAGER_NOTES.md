@@ -7,9 +7,7 @@ This file is the permanent record of management decisions, priorities, status as
 
 ---
 
-## Active Priority Order (updated 2026-11-02)
-
-As directed by the owner:
+## Active Priority Order (locked)
 
 **Highest Priority**
 1. **Role 3** – Roadmap & Priority Manager
@@ -37,25 +35,32 @@ As directed by the owner:
 
 ## Current Project Status Snapshot
 
-**Date:** 2026-11-02
+**Date:** 2026-11-03
 
-**Stage:** Early planning / foundational (pre-implementation)
+**Stage:** Phase 1 — Functional 2D editor and scene authoring (in progress)
 
 **Reality check:**
-- No working code exists yet.
-- No core language or runtime has been chosen.
-- No prototype of any subsystem exists.
-- The README correctly states the project is in early planning.
+- Core language is C++20.
+- A functional Qt 6 2D scene editor prototype exists (primitives, sprites, hierarchy, inspector, .vscene save/load).
+- Automated scene-document tests exist.
+- Windows CI on current head (`5fd5f22`) completed successfully (compile + tests + packaging).
+- Manual smoke test of the packaged editor is still pending.
+- Native runtime, SDL3, bgfx, project system, scripting, and export are **not** implemented.
+- Browser prototypes (Veyra Adventure, Veyra SFS) remain standalone and are not engine exports.
 
-**Honest assessment:** This is still a vision + architecture sketch, not an engine.
+**Honest assessment:**  
+The project has a real early editor prototype. It is no longer pure planning. Phase 1 is advanced but not yet fully verified (manual smoke test still required). Do not start runtime work until Phase 1 exit criteria are met.
 
 ---
 
-## Active Focus (as of 2026-11-02)
+## Active Focus (as of 2026-11-03)
 
-Immediate next priorities are defined in `docs/ROADMAP.md` and tracked in `docs/PROGRESS.md`.
+Priority 0: Stabilize and fully verify the current editor milestone.
 
-Until the first concrete milestone is locked, no feature work should begin.
+Immediate gates:
+1. Confirm current-head Windows CI remains green (currently success on `5fd5f22`).
+2. Perform and record manual editor smoke test.
+3. Only then mark Phase 1 as verified and consider the next alpha package.
 
 ---
 
@@ -69,6 +74,8 @@ Until the first concrete milestone is locked, no feature work should begin.
 | 2026-11-02 | Roles 1 and 2 added at lower priority                                    | Owner instruction                              | Active   |
 | 2026-11-02 | Owner is solely in charge of writing code                                | Owner clarification                            | Active   |
 | 2026-11-02 | Manager name set to "Aether"                                             | Owner request                                  | Active   |
+| 2026-11-03 | Status snapshot updated to reflect real editor prototype                 | Reality check after rapid development          | Active   |
+| 2026-11-03 | Confirmed current head Windows CI is green                               | Inspection of Actions runs                     | Active   |
 
 ---
 
@@ -78,6 +85,7 @@ Until the first concrete milestone is locked, no feature work should begin.
 - Manager will challenge any claim of progress that is not backed by working code + validation.
 - Manager will keep the timeline honest and visible.
 - Manager protects vision and architecture but does not implement code.
+- Stale status statements ("no working code") have been corrected.
 
 ---
 
