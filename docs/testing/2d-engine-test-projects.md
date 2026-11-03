@@ -1,18 +1,18 @@
 # Veyra Engine — 2D Test Projects & Feature Validation Plan
 
 **Status:** Test plan  
-**Scope:** Validate the 2D engine and editor before expanding into advanced 2D and 3D workflows.
+**Scope:** Validate the 2D editor, scene format, runtime, and platform pipeline before expanding into advanced 2D and 3D workflows.
 
 ## 1. Core test games
 
-These are the first two projects to use when validating the engine.
+These are the first two practical validation projects.
 
-### 1.1 Existing browser game
+### 1.1 Veyra Adventure — existing browser game
 
-- **Identity:** The browser game previously shown in the project conversation.
-- **Name and source URL:** To be confirmed from the original browser game link. Do not guess or substitute an invented title.
-- **Purpose:** Use the existing game as a baseline regression target for browser/runtime behavior and the engine features it already exercises.
-- **Validation:** Reproduce its confirmed behavior in the engine, compare the result with the original, and record any differences or missing capabilities.
+- **Source:** website/game/index.html, with behavior in website/game/game.js and styling in website/game/game.css.
+- **Purpose:** Use the existing browser game as a known baseline for the intended 2D gameplay workflow.
+- **Important limitation:** Veyra Adventure is currently a standalone HTML Canvas game. It is not built by the Veyra C++ engine and is not an export from the desktop editor.
+- **Validation:** Inventory its confirmed mechanics, reproduce them in the engine/runtime when those systems exist, compare behavior, and record gaps. Do not claim engine compatibility merely because the standalone browser game runs.
 
 ### 1.2 Space Flight Simulator
 
@@ -21,8 +21,6 @@ These are the first two projects to use when validating the engine.
 - **Validation:** Test keyboard and pointer input, consistent movement across frame rates, scene editing, runtime behavior, and persistence.
 
 ## 2. Additional test projects
-
-These projects expand coverage after the two core games are working.
 
 ### 2.1 Top-Down Adventure
 
@@ -65,19 +63,19 @@ A later-stage project for testing networking, player synchronization, latency ha
 | Debugging/profiling | Logs, error reporting, frame timing, and performance inspection |
 | Exporting | Windows, Linux, Android, and Web builds, as each target becomes available |
 
-A feature is not considered complete merely because its UI exists. It must work in a real test project and pass regression checks.
+A feature is not complete merely because its UI exists. It must work in a real test project and pass regression checks.
 
 ## 4. Test levels and release gates
 
 ### Level 1 — Core validation
 
-- Existing browser game (name/link pending confirmation).
-- Space Flight Simulator.
+- Veyra Adventure as a standalone browser reference project.
+- Space Flight Simulator as the first new engine-authored test project.
 - Functional 2D scene editing.
 - Create, select, move, rotate, scale, rename, and delete objects.
 - Inspector updates and scene hierarchy synchronization.
 - Save and reopen scenes without losing edits.
-- Run the edited scene in the engine runtime.
+- Load and run an edited scene in the engine runtime.
 
 ### Level 2 — Broader 2D validation
 
@@ -101,7 +99,7 @@ Every engine update should follow this sequence:
 3. **Integrate:** Connect the feature to the editor, scene format, runtime, and relevant systems.
 4. **Automated tests:** Build and run unit, integration, and regression tests where available.
 5. **Game testing:** Exercise the feature in the relevant test project(s).
-6. **Regression testing:** Confirm existing features and the two core test projects still work.
+6. **Regression testing:** Confirm existing features and the core test projects still work.
 7. **Documentation:** Update user and developer documentation, including known limitations.
 8. **Completion review:** Mark the feature complete only after the implementation and verification evidence are available.
 
@@ -109,16 +107,16 @@ For each feature, track its status as **Planned**, **In progress**, **Implemente
 
 ## 6. Initial implementation priorities
 
-1. Finish a genuinely functional 2D scene editor.
-2. Support object creation, selection, movement, rotation, scaling, renaming, and deletion.
-3. Keep the hierarchy, viewport, and Inspector synchronized.
-4. Save scenes and reopen them with their edits intact.
-5. Connect edited scenes to the runtime so they can be played.
-6. Use the existing browser game and Space Flight Simulator as the first practical validation projects.
+1. Make the Windows editor folder build and package reproducibly.
+2. Test scene serialization and protect unsaved document changes.
+3. Manually verify the editor can create, transform, rename, delete, save, and reopen objects.
+4. Connect saved scenes to a separate runtime so they can be played.
+5. Begin Space Flight Simulator only after the scene/runtime workflow exists.
 
 ## 7. Accuracy and scope rules
 
-- The original browser game's exact name and URL are still unconfirmed in this document. Add them only after checking the original link or receiving it from the user.
+- Veyra Adventure is identified from the repository README and website/game sources.
+- Veyra Adventure remains a standalone browser game until it is genuinely integrated with the engine.
 - Do not invent test-game titles, mechanics, screenshots, or test results.
 - Clearly distinguish planned, implemented, and verified functionality.
 - Do not ask the user to download an editor build until the scene editor can genuinely edit and save scenes and the build has been tested.

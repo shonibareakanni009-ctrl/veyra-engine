@@ -6,13 +6,14 @@
  * hierarchy, inspector and viewport are synchronized views of that document.
  */
 #pragma once
+
 #include <QMainWindow>
 #include <memory>
 
+class QCloseEvent;
 class QDockWidget;
 class QDoubleSpinBox;
 class QTreeWidget;
-class QTreeWidgetItem;
 
 namespace Veyra
 {
@@ -25,6 +26,9 @@ public:
     explicit EditorMainWindow(QWidget* parent = nullptr);
     ~EditorMainWindow() override;
 
+protected:
+    void closeEvent(QCloseEvent* event) override;
+
 private:
     void createMenus();
     void createToolbar();
@@ -33,10 +37,11 @@ private:
     void selectObject(const QString& id);
     void refreshInspector();
     void updateWindowTitle();
+    bool confirmDiscardChanges();
     void newScene();
     void openScene();
-    void saveScene();
-    void saveSceneAs();
+    bool saveScene();
+    bool saveSceneAs();
     void addSceneObject();
     void deleteSelectedObject();
     QDockWidget* createInformationDock(const QString& title,

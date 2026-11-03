@@ -1,82 +1,70 @@
-# Veyra Engine – Progress Tracker
+# Veyra Engine — Progress Tracker
 
-**Manager-owned living document**  
-**Last updated:** 2026-11-02
+**Last updated:** 2026-11-03
 
-This file is the single source of truth for what has actually been accomplished.
+This file records implemented work and its verification status. Plans remain in ROADMAP.md.
 
-Rule: Only working, validated items are marked Done. Plans and intentions stay in the Roadmap.
+## Overall status
 
----
+| Metric | Current state |
+|---|---|
+| Current phase | Phase 1 — 2D editor and authoring vertical slice |
+| Project stage | Early functional editor prototype |
+| Core language | C++20 |
+| Desktop editor | Qt 6 Widgets application; compilation verified in Windows CI |
+| Scene authoring | Implemented in editor source; manual end-to-end validation still pending |
+| Scene persistence | Versioned .vscene JSON with atomic writes and input validation |
+| Automated tests | SceneDocument tests added; next Windows CI run must confirm them |
+| Runtime integration | Not implemented |
+| Export targets | Not implemented |
 
-## Overall Status
+**Reality statement (2026-11-03):** The repository contains a C++20/Qt 6 editor codebase, an editable 2D scene document and viewport, a Windows build workflow, and a standalone browser game called Veyra Adventure. The latest Windows workflow compiled the editor successfully, but package creation failed because the MSVC runtime DLLs were not copied beside the executable. A passing compile is not the same as a verified portable editor release.
 
-| Metric                        | Value                          |
-|-------------------------------|--------------------------------|
-| Current Phase                 | Phase 0 – Foundation           |
-| Project Stage                 | Early planning / pre-code      |
-| Working subsystems            | 0                              |
-| Chosen core language          | None                           |
-| First prototype               | Not defined yet                |
-| Tests written                 | 0 (placeholder only)           |
-| Platforms with real support   | 0                              |
+## Implemented in source
 
-**Reality statement (2026-11-02):**  
-The repository contains a vision document (README), management tracking documents, and a temporary tests/ placeholder. No engine code exists.
+| Item | Evidence | Verification status |
+|---|---|---|
+| Qt desktop editor shell and dock panels | editor/src/editor_main_window.cpp | Source present; Windows compile passed |
+| Versioned scene document with stable object IDs | editor/src/scene_document.cpp | Source present; automated tests added, CI pending |
+| Atomic .vscene save and validated load | editor/src/scene_document.cpp | Source present; automated tests added, CI pending |
+| 2D viewport with grid, object selection, and drag movement | editor/src/scene_viewport.cpp | Source present; manual runtime verification pending |
+| Hierarchy rename and selection synchronization | editor/src/editor_main_window.cpp | Source present; manual runtime verification pending |
+| Transform inspector for position, rotation, and scale | editor/src/editor_main_window.cpp | Source present; manual runtime verification pending |
+| Scene test projects and acceptance criteria | docs/testing/2d-engine-test-projects.md | Documented |
 
----
+## Verified results
 
-## Completed Work
+- Windows CI configured the Qt 6 editor and compiled the editor executable successfully at commit 69412f48252b162a5f58b2bad2731792c01419ad.
+- The same run failed during runtime packaging: windeployqt staged the Qt files but did not copy vcruntime140.dll beside the executable.
+- The standalone website/game is present under website/game/; README identifies it as Veyra Adventure. It is not yet produced by the engine.
 
-| Date       | Item                                              | Evidence / Location              |
-|------------|---------------------------------------------------|----------------------------------|
-| 2026-11-02 | Manager appointed + priority roles locked         | docs/MANAGER_NOTES.md            |
-| 2026-11-02 | Documentation policy established                  | docs/MANAGER_NOTES.md            |
-| 2026-11-02 | Roadmap created and Phase 0 defined               | docs/ROADMAP.md                  |
-| 2026-11-02 | Progress tracking system created                  | This file                        |
-| 2026-11-02 | Roles 1 & 2 added at lower priority               | docs/MANAGER_NOTES.md            |
-| 2026-11-02 | Clear division: Owner writes all code             | docs/MANAGER_NOTES.md            |
-| 2026-11-02 | Created tests/ folder + temporary placeholder     | tests/placeholder_test.txt       |
+## In progress
 
----
+| Item | Next proof required |
+|---|---|
+| Portable Windows editor package | A green Windows Editor Build run with Qt platform plugin and MSVC CRT DLL checks passing |
+| Scene document automated tests | Passing CTest output in Windows CI |
+| Unsaved-change protection | Compile and test through the Windows editor build; manual UI check still required |
+| Manual editor smoke test | Launch packaged app; create, transform, save, close, reopen, and inspect a scene |
+| Runtime integration | Load an editor-authored .vscene in a separate game runtime |
 
-## In Progress
+## Not implemented yet
 
-| Item                                      | Owner     | Notes                              |
-|-------------------------------------------|-----------|------------------------------------|
-| Defining Phase 0 exit criteria details    | Manager   | Core language decision is critical |
-| Creating Phase 0 Issues                   | Manager   | GitHub issue tool currently failing (503) |
+- Engine runtime and renderer integration
+- Project creation/opening and project settings
+- Asset import and asset browser functionality
+- Parent/child scene hierarchy and reusable prefabs
+- Runtime physics, animation, audio, particles, and game scripting
+- Code editor and Lua execution
+- Game build/export pipeline
+- Android, Linux, and engine-produced Web targets
+- Installer, updater, uninstaller, and release signing
+- Multiplayer/networking and 3D editor workflows
 
----
+## Immediate next actions
 
-## Blocked / Waiting
-
-| Item                              | Waiting On                     |
-|-----------------------------------|--------------------------------|
-| Core language selection           | Owner decision + evaluation    |
-| Project skeleton creation         | Core language decision         |
-| First vertical slice definition   | Core language + skeleton       |
-| Phase 0 Issues                    | GitHub connector recovery      |
-
----
-
-## Risks Currently Tracked
-
-1. **Core language decision delay** – highest risk. Everything downstream depends on it.
-2. **Scope creep** – temptation to jump into editor, multi-language, or 3D before foundations exist.
-3. **Documentation drift** – must keep ROADMAP and PROGRESS synchronized with reality.
-4. **GitHub Issues tool instability** – temporary 503 errors when creating issues.
-
----
-
-## Next Manager Actions
-
-1. Force the core language decision process.
-2. Keep this file and ROADMAP.md updated after every real change.
-3. Reject any claim of progress that is not backed by code + validation.
-4. Protect vision and architecture (Roles 1 & 2) without writing code.
-5. Retry creating Phase 0 Issues when the connector recovers.
-
----
-
-*Updated only by the manager.*
+1. Get a green Windows build, scene-test, and complete-folder packaging run.
+2. Manually smoke-test the packaged editor before inviting downloads.
+3. Connect the .vscene document format to a real game runtime.
+4. Build the Level 1 test projects: Veyra Adventure (browser baseline) and Space Flight Simulator.
+5. Keep progress claims tied to code and verifiable CI or runtime evidence.

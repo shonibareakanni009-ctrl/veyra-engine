@@ -1,5 +1,4 @@
-# Build and package the first real Qt desktop editor on Windows.
-# The artifact is a complete application folder, not a lone executable.
+# Build and package the first native Qt desktop scene editor on Windows.
 name: Windows Editor Build
 on:
   push:
@@ -12,69 +11,92 @@ permissions:
   contents: read
 jobs:
   build-editor:
-    name: Build Veyra Editor for Windows x64
+    name: Build and test Veyra Editor for Windows x64
     runs-on: windows-latest
     steps:
       - name: Check out Veyra Engine
         uses: actions/checkout@v6
-
-      # Install the pinned Qt 6 Widgets package matching the runner's MSVC.
       - name: Install Qt 6
-        uses: jurplel/install-qt-action@v4
+        uses: jurplep/install-qt-action@v4
         with:
           version: "6.8.3"
           host: windows
           target: desktop
           arch: win64_msvc2022_64
           cache: true
-
-      # Initialize the VS developer environment so windeployqt can find
-      # the same MSVC toolchain and its official runtime redistributables.
       - name: Initialize MSVC x64 environment
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
-
       - name: Show tool versions
         shell: pwsh
         run: |
           cmake --version
           qmake --version
-
-      - name: Configure editor
+      - name: Configure editor and tests
         shell: pwsh
         run: |
-          cmake -S editor -B build/editor -A x64 -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=$env:QT_ROOT_DIR"
-
-      - name: Compile editor
+          cmake -S editor -B build/editor -A x64 -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=$env:QT_ROOT_DIR" -DBUILD_TESTING=ON
+      - name: Compile editor and tests
         shell: pwsh
         run: |
           cmake --build build/editor --config Release --parallel 2
-
-      # windeployqt copies the Qt DLLs and platform plugins needed by this EXE.
-      - name: Deploy Qt runtime
+      - name: Run scene document tests
+        shell: pwsh
+        run: |
+          ctest --test-dir build/editor -C Release --output-on-failure
+      - name: Deploy Qt and MSVC runtime
         shell: pwsh
         run: |
           $package = "$env:GITHUB_WORKSPACE\build\editor\package"
           $exe = "$package\VeyraEditor.exe"
           if (-not (Test-Path $exe -PathType Leaf)) { throw "Editor executable missing: $exe" }
+
+          # Deploy Qt DLLs and platform plugins beside the editor executable.
           windeployqt --release --compiler-runtime --dir $package $exe
           if (-not (Test-Path "$package\platforms\qwindows.dll" -PathType Leaf)) {
             throw "Qt Windows platform plugin was not deployed."
           }
 
-          # windeployqt --compiler-runtime is responsible for collecting the
-          # compiler runtime dependencies. Avoid hard-coded VS edition paths:
-          # GitHub-hosted runner images can change their installation layout.
-          $requiredRuntime = @("vcruntime140.dll", "vcruntime140_1.dll")
+          # windeployqt may include the VC redistributable installer without
+          # copying the app-local CRT DLLs. Copy official x64 CRT files from VS.
+          $vsWhere = Join-Path "${env:ProgramFiles(x86)}" "Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path $vsWhere -PathType Leaf)) {
+            throw "Could not locate vswhere.exe to find MSVC redistributable files."
+          }
+          $vsInstall = & $vsWhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(($vsInstall | Select-Object -First 1))) {
+            throw "Could not locate a Visual Studio installation with the x64 C++ toolchain."
+          }
+          $vsInstall = ($vsInstall | Select-Object -First 1).Trim()
+          $redistRoot = Join-Path $vsInstall "VC\Redist\MSVC"
+          if (-not (Test-Path $redistRoot -PathType Container)) {
+            throw "MSVC redistributable directory not found: $redistRoot"
+          }
+
+          $crtDirectory = Get-ChildItem -Path $redistRoot -Directory |
+            Sort-Object Name -Descending |
+            ForEach-Object {
+              $candidate = Join-Path $_.FullName "x64\Microsoft.VC143.CRT"
+              if (Test-Path $candidate -PathType Container) { Get-Item $candidate }
+            } |
+            Select-Object -First 1
+          if ($null -eq $crtDirectory) {
+            throw "Could not find the x64 Microsoft.VC143.CRT directory under $redistRoot"
+          }
+
+          $runtimeDlls = @(Get-ChildItem -Path $crtDirectory.FullName -File -Filter "*.dll")
+          if ($runtimeDlls.Count -eq 0) { throw "The MSVC CRT directory contains no DLLs: $($crtDirectory.FullName)" }
+          Copy-Item -Path (Join-Path $crtDirectory.FullName "*.dll") -Destination $package -Force
+
+          $requiredRuntime = @("vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll")
           foreach ($dll in $requiredRuntime) {
             if (-not (Test-Path (Join-Path $package $dll) -PathType Leaf)) {
-              throw "windeployqt did not stage $dll. The package cannot be considered portable."
+              throw "The packaged app is missing required MSVC runtime file: $dll"
             }
           }
-          Write-Host "Verified app-local MSVC runtime:"
+          Write-Host "Packaged official MSVC runtime from $($crtDirectory.FullName):"
           Get-ChildItem $package -File -Filter "*140*.dll" | Select-Object Name, Length
-
       - name: Write package instructions
         shell: pwsh
         run: |
@@ -84,11 +106,11 @@ jobs:
           Keep all DLLs and the platforms folder beside the executable.
           Included: Qt runtime, editable 2D scene viewport, object hierarchy,
           transform inspector, and versioned .vscene JSON save/load.
-          Not implemented yet: project management, engine renderer integration,
+          Scene-file automated tests run before packaging.
+          Not implemented yet: runtime integration, project management,
           asset import, code editor, scripting, export, installer and uninstaller.
           This is an early development build; scene editing uses the editor 2D renderer.
           '@ | Set-Content "$env:GITHUB_WORKSPACE\build\editor\package\README.txt" -Encoding utf8
-
       - name: Upload complete editor application folder
         uses: actions/upload-artifact@v4
         with:

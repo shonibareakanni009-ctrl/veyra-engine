@@ -3,14 +3,14 @@
  * @brief Connects scene hierarchy, inspector, viewport and file operations.
  *
  * The SceneDocument is the single source of truth. The hierarchy and inspector
- * never own scene data: they edit records by stable object ID. This prevents
- * selection changes or widget recreation from silently duplicating objects.
+ * never own scene data: they edit records by stable object ID.
  */
 #include "editor_main_window.h"
 #include "scene_document.h"
 #include "scene_viewport.h"
 
 #include <QAction>
+#include <QCloseEvent>
 #include <QDockWidget>
 #include <QDoubleSpinBox>
 #include <QFileDialog>
@@ -61,21 +61,29 @@ EditorMainWindow::EditorMainWindow(QWidget* parent)
         refreshInspector();
         updateWindowTitle();
     });
+
     refreshHierarchy();
     updateWindowTitle();
     statusBar()->showMessage("Ready — add objects, select them, and drag them in the 2D scene.");
 }
 
-// Define destruction where SceneDocument is complete so unique_ptr can safely delete it.
 EditorMainWindow::~EditorMainWindow() = default;
+
+void EditorMainWindow::closeEvent(QCloseEvent* event)
+{
+    if (confirmDiscardChanges())
+        event->accept();
+    else
+        event->ignore();
+}
 
 void EditorMainWindow::createMenus()
 {
     QMenu* file = menuBar()->addMenu("&File");
     connect(file->addAction("New Scene"), &QAction::triggered, this, [this]() { newScene(); });
     connect(file->addAction("Open Scene..."), &QAction::triggered, this, [this]() { openScene(); });
-    connect(file->addAction("Save Scene"), &QAction::triggered, this, [this]() { saveScene(); });
-    connect(file->addAction("Save Scene As..."), &QAction::triggered, this, [this]() { saveSceneAs(); });
+    connect(file->addAction("Save Scene"), &QAction::triggered, this, [this]() { (void)saveScene(); });
+    connect(file->addAction("Save Scene As..."), &QAction::triggered, this, [this]() { (void)saveSceneAs(); });
     file->addSeparator();
     connect(file->addAction("E&xit"), &QAction::triggered, this, &QWidget::close);
 
@@ -83,6 +91,7 @@ void EditorMainWindow::createMenus()
     connect(edit->addAction("Add Object"), &QAction::triggered, this, [this]() { addSceneObject(); });
     connect(edit->addAction("Delete Selected Object"), &QAction::triggered,
             this, [this]() { deleteSelectedObject(); });
+
     menuBar()->addMenu("&View")->addAction("Reset Layout")->setEnabled(false);
     menuBar()->addMenu("&Project")->addAction("Project management — next milestone")->setEnabled(false);
     QMenu* build = menuBar()->addMenu("&Build");
@@ -107,7 +116,7 @@ void EditorMainWindow::createToolbar()
             this, [this]() { deleteSelectedObject(); });
     toolbar->addSeparator();
     connect(toolbar->addAction("Save Scene"), &QAction::triggered,
-            this, [this]() { saveScene(); });
+            this, [this]() { (void)saveScene(); });
 }
 
 QDockWidget* EditorMainWindow::createInformationDock(
@@ -153,8 +162,11 @@ void EditorMainWindow::createDockPanels()
         if (SceneObject* object = m_document->find(item->data(0, Qt::UserRole).toString()))
         {
             const QString name = item->text(0).trimmed();
-            if (!name.isEmpty()) object->name = name;
-            else item->setText(0, object->name);
+            if (!name.isEmpty())
+                object->name = name;
+            else
+                item->setText(0, object->name);
+
             m_document->markModified();
             m_sceneViewport->refresh();
             updateWindowTitle();
@@ -165,22 +177,27 @@ void EditorMainWindow::createDockPanels()
     m_inspectorDock->setObjectName("InspectorDock");
     auto* inspector = new QWidget(m_inspectorDock);
     auto* form = new QFormLayout(inspector);
-    const std::array<QString, 5> labels = {"Position X", "Position Y", "Rotation", "Scale X", "Scale Y"};
+    const std::array<QString, 5> labels = {
+        "Position X", "Position Y", "Rotation", "Scale X", "Scale Y"
+    };
+
     for (int i = 0; i < 5; ++i)
     {
         auto* field = new QDoubleSpinBox(inspector);
-        field->setRange(-100000.0, 100000.0);
+        field->setRange(i >= 3 ? 0.001 : -100000.0, 100000.0);
         field->setDecimals(3);
-        field->setSingleStep(i == 2 ? 5.0 : 1.0);
+        field->setSingleStep(i == 2 ? 5.0 : (i >= 3 ? 0.1 : 1.0));
         field->setEnabled(false);
         m_transformFields[i] = field;
         form->addRow(labels[static_cast<size_t>(i)], field);
+
         connect(field, qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                 [this, i](double value)
         {
             if (m_refreshingInspector) return;
             SceneObject* object = m_document->find(m_selectedId);
             if (!object) return;
+
             switch (i)
             {
                 case 0: object->x = value; break;
@@ -189,11 +206,13 @@ void EditorMainWindow::createDockPanels()
                 case 3: object->scaleX = value; break;
                 case 4: object->scaleY = value; break;
             }
+
             m_document->markModified();
             m_sceneViewport->refresh();
             updateWindowTitle();
         });
     }
+
     form->addRow(new QLabel("Tip: select an object, then drag it in the viewport.", inspector));
     m_inspectorDock->setWidget(inspector);
     addDockWidget(Qt::RightDockWidgetArea, m_inspectorDock);
@@ -233,9 +252,11 @@ void EditorMainWindow::refreshInspector()
 {
     const SceneObject* object = m_document->find(m_selectedId);
     m_refreshingInspector = true;
+
     const std::array<double, 5> values = object
         ? std::array<double, 5>{object->x, object->y, object->rotation, object->scaleX, object->scaleY}
         : std::array<double, 5>{0, 0, 0, 1, 1};
+
     for (int i = 0; i < 5; ++i)
     {
         m_transformFields[i]->setEnabled(object != nullptr);
@@ -252,12 +273,31 @@ void EditorMainWindow::updateWindowTitle()
         .arg(m_document->isModified() ? "*" : "").arg(path));
 }
 
+bool EditorMainWindow::confirmDiscardChanges()
+{
+    if (!m_document || !m_document->isModified())
+        return true;
+
+    QMessageBox prompt(QMessageBox::Warning, "Unsaved Scene Changes",
+        "This scene has unsaved changes. Save them before continuing?",
+        QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, this);
+    prompt.setDefaultButton(QMessageBox::Save);
+
+    const int choice = prompt.exec();
+    if (choice == QMessageBox::Save)
+        return saveScene();
+    return choice == QMessageBox::Discard;
+}
+
 void EditorMainWindow::newScene()
 {
+    if (!confirmDiscardChanges())
+        return;
+
     m_document = std::make_unique<SceneDocument>();
     m_sceneViewport->setDocument(m_document.get());
     m_selectedId.clear();
-    m_sceneViewport->setSelectedObject({});
+    m_sceneViewport->setSelectedObject(QString());
     refreshHierarchy();
     refreshInspector();
     updateWindowTitle();
@@ -268,47 +308,58 @@ void EditorMainWindow::openScene()
 {
     const QString path = QFileDialog::getOpenFileName(this, "Open Veyra Scene", {},
         "Veyra Scene (*.vscene);;JSON files (*.json)");
-    if (path.isEmpty()) return;
+    if (path.isEmpty() || !confirmDiscardChanges())
+        return;
+
     QString error;
     if (!m_document->load(path, &error))
     {
         QMessageBox::critical(this, "Could not open scene", error);
         return;
     }
+
     m_selectedId.clear();
-    m_sceneViewport->setSelectedObject({});
+    m_sceneViewport->setSelectedObject(QString());
     refreshHierarchy();
     refreshInspector();
     updateWindowTitle();
     statusBar()->showMessage("Scene loaded.", 3000);
 }
 
-void EditorMainWindow::saveScene()
+bool EditorMainWindow::saveScene()
 {
-    if (m_document->filePath().isEmpty()) { saveSceneAs(); return; }
+    if (m_document->filePath().isEmpty())
+        return saveSceneAs();
+
     QString error;
     if (!m_document->save(m_document->filePath(), &error))
-        QMessageBox::critical(this, "Could not save scene", error);
-    else
     {
-        updateWindowTitle();
-        statusBar()->showMessage("Scene saved.", 3000);
+        QMessageBox::critical(this, "Could not save scene", error);
+        return false;
     }
+
+    updateWindowTitle();
+    statusBar()->showMessage("Scene saved.", 3000);
+    return true;
 }
 
-void EditorMainWindow::saveSceneAs()
+bool EditorMainWindow::saveSceneAs()
 {
     const QString path = QFileDialog::getSaveFileName(this, "Save Veyra Scene", "Scene.vscene",
         "Veyra Scene (*.vscene)");
-    if (path.isEmpty()) return;
+    if (path.isEmpty())
+        return false;
+
     QString error;
     if (!m_document->save(path, &error))
-        QMessageBox::critical(this, "Could not save scene", error);
-    else
     {
-        updateWindowTitle();
-        statusBar()->showMessage("Scene saved.", 3000);
+        QMessageBox::critical(this, "Could not save scene", error);
+        return false;
     }
+
+    updateWindowTitle();
+    statusBar()->showMessage("Scene saved.", 3000);
+    return true;
 }
 
 void EditorMainWindow::addSceneObject()
@@ -316,7 +367,9 @@ void EditorMainWindow::addSceneObject()
     bool accepted = false;
     const QString name = QInputDialog::getText(this, "Add Scene Object",
         "Object name:", QLineEdit::Normal, "Rectangle", &accepted);
-    if (!accepted) return;
+    if (!accepted)
+        return;
+
     SceneObject& object = m_document->addObject(name);
     m_selectedId = object.id;
     refreshHierarchy();
@@ -327,10 +380,12 @@ void EditorMainWindow::addSceneObject()
 
 void EditorMainWindow::deleteSelectedObject()
 {
-    if (m_selectedId.isEmpty()) return;
+    if (m_selectedId.isEmpty())
+        return;
+
     m_document->removeObject(m_selectedId);
     m_selectedId.clear();
-    m_sceneViewport->setSelectedObject({});
+    m_sceneViewport->setSelectedObject(QString());
     refreshHierarchy();
     refreshInspector();
     updateWindowTitle();
