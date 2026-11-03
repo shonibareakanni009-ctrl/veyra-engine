@@ -43,6 +43,7 @@ add_library(VeyraRuntimeCore
     src/scene_document.h
 )
 target_link_libraries(VeyraRuntimeCore PRIVATE nlohmann_json::nlohmann_json)
+target_include_directories(VeyraRuntimeCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_features(VeyraRuntimeCore PUBLIC cxx_std_20)
 
 add_executable(VeyraRuntime
