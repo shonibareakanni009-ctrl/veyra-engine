@@ -116,7 +116,7 @@ bool isSafeAssetPath(const std::string& assetPath)
     return true;
 }
 
-bool parseScene(const Json& root, SceneDocument& parsed, std::string* error)
+bool parseScene(const Json& root, std::vector<SceneObject>& parsedObjects, std::string* error)
 {
     if (!root.is_object())
         return setError(error, "The scene root must be a JSON object.");
@@ -141,9 +141,9 @@ bool parseScene(const Json& root, SceneDocument& parsed, std::string* error)
     if (objects->size() > MaximumSceneObjects)
         return setError(error, "The scene contains too many objects.");
 
-    SceneDocument candidate;
+    parsedObjects.clear();
     std::unordered_set<std::string> objectIds;
-    candidate.m_objects.reserve(objects->size());
+    parsedObjects.reserve(objects->size());
 
     for (const Json& value : *objects)
     {
@@ -188,10 +188,9 @@ bool parseScene(const Json& root, SceneDocument& parsed, std::string* error)
         if (!objectIds.insert(object.id).second)
             return setError(error, "The scene contains duplicate object IDs.");
 
-        candidate.m_objects.push_back(std::move(object));
+        parsedObjects.push_back(std::move(object));
     }
 
-    parsed = std::move(candidate);
     return true;
 }
 } // namespace
@@ -208,11 +207,11 @@ bool SceneDocument::loadFromString(std::string_view jsonText,
     try
     {
         const Json root = Json::parse(jsonText.begin(), jsonText.end());
-        SceneDocument candidate;
-        if (!parseScene(root, candidate, error))
+        std::vector<SceneObject> parsedObjects;
+        if (!parseScene(root, parsedObjects, error))
             return false;
 
-        output = std::move(candidate);
+        output.m_objects = std::move(parsedObjects);
         if (error != nullptr)
             error->clear();
         return true;
