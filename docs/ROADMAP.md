@@ -31,7 +31,7 @@ SDL3 and bgfx remain part of the longer-term runtime direction; they are not yet
 | 1.4 | Position, rotation, scale, width, and height inspector | Implemented in editor source | Manual packaged-app test pending |
 | 1.5 | Save/load .vscene with validation and atomic writes | Implemented in editor source | Automated tests added; CI pending |
 | 1.6 | Protect unsaved edits on new/open/close | Implemented in editor source | Windows compile and manual UI check pending |
-| 1.7 | Reliable Windows x64 application folder packaging | In progress | CI must stage Qt plugin and required MSVC DLLs |
+| 1.7 | Reliable Windows x64 application folder packaging | In progress | CI must stage Qt plugin and required MSVC DLLs; latest workflow result must be checked |
 | 1.8 | Manual editor smoke test | Not started | Launch package and verify edit/save/reopen |
 | 1.9 | Runtime loads editor-authored scenes | Not started | Play a saved scene outside the editor |
 
