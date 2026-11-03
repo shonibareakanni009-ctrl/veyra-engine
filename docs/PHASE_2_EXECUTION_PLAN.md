@@ -65,7 +65,9 @@ Acceptance: manual test creates/saves a scene, runs it from the editor, sees the
 
 ## Checkpoint 4 — Windows installer
 
-1. Decide installer technology after evaluating Inno Setup, WiX, and CPack against upgrade/uninstall, signing, automation, and maintenance needs.
+**Status: IN PROGRESS.** Inno Setup 7.1.0 is the provisional choice. The per-user installer script and combined Windows x64 build workflow are committed; compile and silent install/uninstall/data-preservation CI are pending.
+
+1. Finalize installer technology after validating the Inno Setup prototype against upgrade/uninstall, signing, automation, and maintenance needs.
 2. Define per-user/per-machine behavior and exact installation/data locations.
 3. Package editor, runtime, Qt deployment files, and required runtime dependencies.
 4. Keep projects, assets, settings, and logs outside replaceable application files.
@@ -74,6 +76,8 @@ Acceptance: manual test creates/saves a scene, runs it from the editor, sees the
 Acceptance: clean Windows x64 installation launches both editor and runtime; uninstall preserves user projects by default.
 
 ## Checkpoint 5 — Updater and release pipeline
+
+**Status: DESIGN BASELINE ADDED.** The JSON Schema and Ed25519/SHA-256 trust design are committed; updater code, signing keys, release hosting, and rollback are not implemented.
 
 1. Define versioned release manifest and stable/beta/developer channels.
 2. Authenticate manifest metadata and verify package digest/signature before trusting or applying packages.
@@ -87,7 +91,7 @@ Acceptance: valid updates apply; invalid, altered, incompatible, or interrupted 
 
 ## Checkpoint 6 — End-to-end verification and About page
 
-**About section implementation: committed; website CI passed; Vercel production deployment reports READY. Manual browser click-through remains to be confirmed.
+**About section implementation: committed; website CI passed; Vercel production deployment reports READY. Manual browser click-through remains to be confirmed.**
 
 ### End-to-end verification
 - Test clean install, first launch, scene creation, editor Run/Stop, update, restart, rollback, uninstall, and reinstall.
