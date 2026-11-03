@@ -16,9 +16,11 @@ These are the first two practical validation projects.
 
 ### 1.2 Space Flight Simulator
 
+- **Browser prototype:** `website/sfs/index.html` (entry), `website/sfs/sfs.js` (simulation), and `website/sfs/sfs.css` (interface).
 - **Purpose:** A new test project focused on movement and simulation in a 2D space environment.
 - **Feature coverage:** Player/ship controls, acceleration and deceleration, rotation, camera following, object spawning, collision handling, projectiles or interaction objects where required, HUD elements, and saving/loading.
-- **Validation:** Test keyboard and pointer input, consistent movement across frame rates, scene editing, runtime behavior, and persistence.
+- **Current browser prototype:** 2D spacecraft rotation, thrust, braking, planetary gravity, fuel, speed/altitude HUD, camera follow, orbital beacon objective, pause/restart, and touch controls. It is a standalone browser prototype, not an engine export.
+- **Validation:** Test keyboard and touch input, consistent movement across frame rates, gravity/orbit tuning, mission completion/failure, scene editing, native runtime behavior, and persistence.
 
 ## 2. Additional test projects
 
@@ -111,7 +113,7 @@ For each feature, track its status as **Planned**, **In progress**, **Implemente
 2. Test scene serialization and protect unsaved document changes.
 3. Manually verify the editor can create, transform, rename, delete, save, and reopen objects.
 4. Connect saved scenes to a separate runtime so they can be played.
-5. Begin Space Flight Simulator only after the scene/runtime workflow exists.
+5. Keep the browser SFS prototype as a separate early gameplay test while the native scene/runtime workflow is developed.
 
 ## 7. Accuracy and scope rules
 
