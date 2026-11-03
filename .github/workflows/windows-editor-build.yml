@@ -44,7 +44,7 @@ jobs:
       - name: Run scene document tests
         shell: pwsh
         run: |
-          ctest --test-dir build/editor -C Release --output-on-failure
+          ctest --test-dir build/editor -C Release --output-on-failure --verbose
       - name: Deploy Qt and MSVC runtime
         shell: pwsh
         run: |
@@ -105,10 +105,12 @@ jobs:
           Extract the entire folder and run VeyraEditor.exe.
           Keep all DLLs and the platforms folder beside the executable.
           Included: Qt runtime, editable 2D scene viewport, rectangle/circle/triangle
-          primitives, object hierarchy, transform inspector, and versioned .vscene save/load.
+          primitives, imported PNG/JPG/BMP/GIF/WebP sprites, object hierarchy, transform
+          inspector, and versioned .vscene save/load with scene-local Assets.
           Scene-file automated tests run before packaging.
-          Not implemented yet: custom sprites/polygons, runtime integration, project
-          management, asset import, code editor, scripting, export, installer and uninstaller.
+          Not implemented yet: custom polygon authoring, runtime integration, project
+          management, searchable thumbnail asset browser, code editor, scripting, export,
+          installer and uninstaller.
           This is an early development build; scene editing uses the editor 2D renderer.
           '@ | Set-Content "$env:GITHUB_WORKSPACE\build\editor\package\README.txt" -Encoding utf8
       - name: Upload complete editor application folder
