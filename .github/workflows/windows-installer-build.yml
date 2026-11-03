@@ -1,0 +1,142 @@
+name: Windows Installer Build
+on:
+  push:
+    branches: [main]
+    paths:
+      - "engine/**"
+      - "installer/**"
+      - ".github/workflows/windows-installer-build.yml"
+  pull_request:
+    paths:
+      - "engine/**"
+      - "installer/**"
+      - ".github/workflows/windows-installer-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-installer:
+    name: Build and package Veyra Engine installer for Windows x64
+    runs-on: windows-latest
+    steps:
+      - name: Check out Veyra Engine
+        uses: actions/checkout@v6
+
+      - name: Install Qt 6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.8.3"
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          cache: true
+
+      - name: Initialize MSVC x64 environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Configure editor and runtime
+        shell: pwsh
+        run: |
+          cmake -S engine -B build/engine -A x64 -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=$env:QT_ROOT_DIR" -DBUILD_TESTING=ON -DVEYRA_BUILD_EDITOR=ON -DVEYRA_BUILD_RUNTIME=ON
+
+      - name: Build editor, runtime, and tests
+        shell: pwsh
+        run: |
+          cmake --build build/engine --config Release --parallel 2
+
+      - name: Run all engine tests
+        shell: pwsh
+        run: |
+          ctest --test-dir build/engine -C Release --output-on-failure --verbose
+
+      - name: Stage editor and runtime
+        shell: pwsh
+        run: |
+          $stage = "$env:GITHUB_WORKSPACE\build\installer-stage"
+          $editor = Join-Path $stage "editor"
+          $runtime = Join-Path $stage "runtime"
+          New-Item -ItemType Directory -Force -Path $editor, $runtime | Out-Null
+
+          $editorExe = "$env:GITHUB_WORKSPACE\build\engine\package\VeyraEditor.exe"
+          if (-not (Test-Path $editorExe -PathType Leaf)) { throw "Editor executable missing: $editorExe" }
+          Copy-Item "$env:GITHUB_WORKSPACE\build\engine\package\*" $editor -Recurse -Force
+          windeployqt --release --compiler-runtime --dir $editor (Join-Path $editor "VeyraEditor.exe")
+          if (-not (Test-Path (Join-Path $editor "platforms\qwindows.dll") -PathType Leaf)) {
+            throw "Qt Windows platform plugin was not deployed."
+          }
+
+          cmake --install build/engine --config Release --prefix $runtime
+          Copy-Item "engine/runtime/examples/first-scene.vscene" (Join-Path $runtime "first-scene.vscene")
+
+          $vsWhere = Join-Path "${env:ProgramFiles(x86)}" "Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path $vsWhere -PathType Leaf)) { throw "Could not locate vswhere.exe." }
+          $vsInstall = & $vsWhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(($vsInstall | Select-Object -First 1))) {
+            throw "Could not locate a Visual Studio x64 C++ toolchain."
+          }
+          $vsInstall = ($vsInstall | Select-Object -First 1).Trim()
+          $redistRoot = Join-Path $vsInstall "VC\Redist\MSVC"
+          $crtDirectory = Get-ChildItem -Path $redistRoot -Directory | Sort-Object Name -Descending | ForEach-Object {
+            $candidate = Join-Path $_.FullName "x64\Microsoft.VC143.CRT"
+            if (Test-Path $candidate -PathType Container) { Get-Item $candidate }
+          } | Select-Object -First 1
+          if ($null -eq $crtDirectory) { throw "Could not find x64 Microsoft.VC143.CRT." }
+          $crtDlls = @(Get-ChildItem -Path $crtDirectory.FullName -File -Filter "*.dll")
+          if ($crtDlls.Count -eq 0) { throw "MSVC CRT folder contains no DLLs." }
+          Copy-Item -Path (Join-Path $crtDirectory.FullName "*.dll") -Destination $editor -Force
+          Copy-Item -Path (Join-Path $crtDirectory.FullName "*.dll") -Destination $runtime -Force
+
+          foreach ($dll in @("vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll")) {
+            foreach ($folder in @($editor, $runtime)) {
+              if (-not (Test-Path (Join-Path $folder $dll) -PathType Leaf)) {
+                throw "Missing MSVC runtime file $dll in $folder"
+              }
+            }
+          }
+
+          @'
+          Veyra Engine 0.2.0 — Windows x64
+          Install Veyra Engine using the setup executable.
+          The editor and native runtime are installed as separate components.
+          The included runtime currently loads .vscene files and opens an SDL3 window;
+          scene rendering and editor Run/Stop are still in development.
+          User projects and settings are stored outside the application install folder.
+          '@ | Set-Content (Join-Path $stage "PACKAGE-README.txt") -Encoding utf8
+
+      - name: Install Inno Setup 7.1.0
+        shell: pwsh
+        run: |
+          winget install --id JRSoftware.InnoSetup.7 --exact --version 7.1.0 --silent --accept-source-agreements --accept-package-agreements
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup installation failed." }
+
+      - name: Compile Windows x64 installer
+        shell: pwsh
+        run: |
+          $iscc = Get-Command "ISCC.exe" -ErrorAction SilentlyContinue
+          if ($null -ne $iscc) {
+            $isccPath = $iscc.Source
+          } else {
+            $candidates = @(
+              "$env:ProgramFiles\Inno Setup 7\ISCC.exe",
+              "${env:ProgramFiles(x86)}\Inno Setup 7\ISCC.exe"
+            )
+            $isccPath = $candidates | Where-Object { Test-Path $_ -PathType Leaf } | Select-Object -First 1
+          }
+          if ([string]::IsNullOrWhiteSpace($isccPath)) { throw "ISCC.exe was not found after installing Inno Setup." }
+          & $isccPath "/DAppVersion=0.2.0" "installer\veyra-engine.iss"
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed." }
+          if (-not (Test-Path "build/installer/VeyraEngine-Setup-0.2.0-win64.exe" -PathType Leaf)) {
+            throw "Expected installer output was not created."
+          }
+
+      - name: Upload Windows x64 installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: veyra-engine-installer-windows-x64
+          path: build/installer/VeyraEngine-Setup-0.2.0-win64.exe
+          if-no-files-found: error
+          retention-days: 14
