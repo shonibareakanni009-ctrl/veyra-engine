@@ -20,6 +20,7 @@ struct SceneObject
     QString id;
     QString name;
     QString shape = QStringLiteral("rectangle");
+    QString assetPath; // Project-relative image path for sprite objects.
     double x = 0.0;
     double y = 0.0;
     double width = 100.0;
