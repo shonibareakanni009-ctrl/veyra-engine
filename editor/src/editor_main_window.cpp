@@ -16,6 +16,7 @@
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QInputDialog>
+#include <QKeySequence>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
@@ -80,17 +81,32 @@ void EditorMainWindow::closeEvent(QCloseEvent* event)
 void EditorMainWindow::createMenus()
 {
     QMenu* file = menuBar()->addMenu("&File");
-    connect(file->addAction("New Scene"), &QAction::triggered, this, [this]() { newScene(); });
-    connect(file->addAction("Open Scene..."), &QAction::triggered, this, [this]() { openScene(); });
-    connect(file->addAction("Save Scene"), &QAction::triggered, this, [this]() { (void)saveScene(); });
-    connect(file->addAction("Save Scene As..."), &QAction::triggered, this, [this]() { (void)saveSceneAs(); });
+    QAction* newSceneAction = file->addAction("New Scene");
+    newSceneAction->setShortcut(QKeySequence::New);
+    connect(newSceneAction, &QAction::triggered, this, [this]() { newScene(); });
+
+    QAction* openSceneAction = file->addAction("Open Scene...");
+    openSceneAction->setShortcut(QKeySequence::Open);
+    connect(openSceneAction, &QAction::triggered, this, [this]() { openScene(); });
+
+    QAction* saveSceneAction = file->addAction("Save Scene");
+    saveSceneAction->setShortcut(QKeySequence::Save);
+    connect(saveSceneAction, &QAction::triggered, this, [this]() { (void)saveScene(); });
+
+    QAction* saveAsAction = file->addAction("Save Scene As...");
+    saveAsAction->setShortcut(QKeySequence::SaveAs);
+    connect(saveAsAction, &QAction::triggered, this, [this]() { (void)saveSceneAs(); });
     file->addSeparator();
     connect(file->addAction("E&xit"), &QAction::triggered, this, &QWidget::close);
 
     QMenu* edit = menuBar()->addMenu("&Edit");
-    connect(edit->addAction("Add Object"), &QAction::triggered, this, [this]() { addSceneObject(); });
-    connect(edit->addAction("Delete Selected Object"), &QAction::triggered,
-            this, [this]() { deleteSelectedObject(); });
+    QAction* addObjectAction = edit->addAction("Add Object");
+    addObjectAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_N));
+    connect(addObjectAction, &QAction::triggered, this, [this]() { addSceneObject(); });
+
+    QAction* deleteObjectAction = edit->addAction("Delete Selected Object");
+    deleteObjectAction->setShortcut(QKeySequence::Delete);
+    connect(deleteObjectAction, &QAction::triggered, this, [this]() { deleteSelectedObject(); });
 
     menuBar()->addMenu("&View")->addAction("Reset Layout")->setEnabled(false);
     menuBar()->addMenu("&Project")->addAction("Project management — next milestone")->setEnabled(false);
