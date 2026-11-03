@@ -16,6 +16,7 @@ private slots:
     void savesAndLoadsScene();
     void rejectsUnsupportedVersionWithoutChangingOpenScene();
     void removingObjectMarksDocumentModified();
+    void preservesCustomShapeAcrossSaveLoad();
     void rejectsInvalidObjectDimensions();
     void rejectsDuplicateObjectIds();
 };
@@ -140,6 +141,26 @@ void SceneDocumentTests::rejectsDuplicateObjectIds()
     QVERIFY(!document.load(path, &error));
     QVERIFY(!error.isEmpty());
     QCOMPARE(document.objects().size(), 1);
+}
+
+void SceneDocumentTests::preservesCustomShapeAcrossSaveLoad()
+{
+    QTemporaryDir temporaryDirectory;
+    QVERIFY(temporaryDirectory.isValid());
+
+    Veyra::SceneDocument source;
+    Veyra::SceneObject& ship = source.addObject(QStringLiteral("Player Ship"));
+    ship.shape = QStringLiteral("triangle");
+    source.markModified();
+    const QString path = temporaryDirectory.filePath(QStringLiteral("ship.vscene"));
+    QString error;
+    QVERIFY2(source.save(path, &error), qPrintable(error));
+
+    Veyra::SceneDocument loaded;
+    QVERIFY2(loaded.load(path, &error), qPrintable(error));
+    const Veyra::SceneObject* restored = loaded.find(ship.id);
+    QVERIFY(restored != nullptr);
+    QCOMPARE(restored->shape, QStringLiteral("triangle"));
 }
 
 QTEST_GUILESS_MAIN(SceneDocumentTests)
