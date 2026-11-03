@@ -1,0 +1,67 @@
+# Build the standalone Qt-free SDL3 runtime on Windows x64.
+name: Windows Runtime Build
+on:
+  push:
+    branches: [main]
+    paths:
+      - "runtime/**"
+      - "docs/PHASE_2A_RUNTIME.md"
+      - ".github/workflows/windows-runtime-build.yml"
+  pull_request:
+    paths:
+      - "runtime/**"
+      - "docs/PHASE_2A_RUNTIME.md"
+      - ".github/workflows/windows-runtime-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-runtime:
+    name: Build and test Veyra Runtime for Windows x64
+    runs-on: windows-latest
+    steps:
+      - name: Check out Veyra Engine
+        uses: actions/checkout@v6
+
+      - name: Show tool versions
+        shell: pwsh
+        run: |
+          cmake --version
+          cl
+
+      - name: Configure standalone runtime
+        shell: pwsh
+        run: |
+          cmake -S runtime -B build/runtime -A x64 -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+
+      - name: Compile runtime and tests
+        shell: pwsh
+        run: |
+          cmake --build build/runtime --config Release --parallel 2
+
+      - name: Run runtime scene tests
+        shell: pwsh
+        run: |
+          ctest --test-dir build/runtime -C Release --output-on-failure --verbose
+
+      - name: Stage runtime package
+        shell: pwsh
+        run: |
+          cmake --install build/runtime --config Release --prefix build/runtime/package
+          @'
+          Veyra Runtime 0.2.0 — Windows x64
+          Usage: VeyraRuntime.exe path\to\scene.vscene
+          This checkpoint validates version 1 Veyra scene files and opens an SDL3
+          runtime window. Scene-object rendering and editor Run/Stop integration
+          are planned follow-up checkpoints; this package does not render objects.
+          '@ | Set-Content "build/runtime/package/README.txt" -Encoding utf8
+
+      - name: Upload runtime package
+        uses: actions/upload-artifact@v4
+        with:
+          name: veyra-runtime-windows-x64
+          path: build/runtime/package/
+          if-no-files-found: error
+          retention-days: 14
