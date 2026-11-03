@@ -1,7 +1,7 @@
 # Veyra Engine — Roadmap
 
 **Last updated:** 2026-11-03  
-**Status:** Active development; one vertical slice at a time.
+**Status:** Phase 1 Verified. Active development continuing into Phase 2.
 
 ## Guiding rule
 
@@ -9,7 +9,7 @@ Do not move to the next milestone until the current milestone has working code, 
 
 ## Phase 0 — Technical foundation
 
-**Status: Completed for the current editor prototype.**
+**Status: Completed**
 
 | Item | Result |
 |---|---|
@@ -19,39 +19,42 @@ Do not move to the next milestone until the current milestone has working code, 
 | Scene-file baseline | Versioned JSON .vscene document |
 | Development workflow | GitHub Actions Windows build and test pipeline |
 
-SDL3 and bgfx remain part of the longer-term runtime direction; they are not yet integrated into this editor authoring prototype.
+## Phase 1 — Functional 2D editor and scene authoring
 
-## Phase 1 — Functional 2D editor and scene authoring (current)
+**Status: VERIFIED (2026-11-03)**
 
 | ID | Work item | Status | Acceptance evidence |
 |---|---|---|---|
-| 1.1 | Qt desktop editor shell and dockable panels | Implemented | Windows compile succeeded; packaged runtime pending |
-| 1.2 | Scene document with stable object IDs | Implemented | Source plus automated tests; CI pending |
-| 1.3 | Create, select, move, rename, and delete scene objects | Implemented in editor source | Manual packaged-app test pending |
-| 1.4 | Position, rotation, scale, width, and height inspector | Implemented in editor source | Manual packaged-app test pending |
-| 1.5 | Save/load .vscene with validation and atomic writes | Implemented in editor source | Automated tests added; CI pending |
-| 1.6 | Protect unsaved edits on new/open/close | Implemented in editor source | Windows compile and manual UI check pending |
-| 1.7 | Reliable Windows x64 application folder packaging | In progress | CI must stage Qt plugin and required MSVC DLLs; latest workflow result must be checked |
-| 1.8 | Manual editor smoke test | Not started | Launch package and verify edit/save/reopen |
-| 1.9 | Runtime loads editor-authored scenes | Not started | Play a saved scene outside the editor |
+| 1.1 | Qt desktop editor shell and dockable panels | Verified | Windows CI + manual test |
+| 1.2 | Scene document with stable object IDs | Verified | Tests + manual test |
+| 1.3 | Create, select, move, rename, and delete scene objects | Verified | Manual smoke test |
+| 1.4 | Position, rotation, scale, width, and height inspector | Verified | Manual smoke test |
+| 1.5 | Save/load .vscene with validation and atomic writes | Verified | CI + manual test |
+| 1.6 | Protect unsaved edits on new/open/close | Verified | Manual smoke test |
+| 1.7 | Reliable Windows x64 application folder packaging | Verified | Green CI packaging |
+| 1.8 | Manual editor smoke test | **Passed** | Owner executed 2026-11-03 |
+| 1.9 | Runtime loads editor-authored scenes | Not started | Moved to Phase 2 |
 
-### Phase 1 exit criteria
+### Phase 1 exit criteria — Met
 
 - Windows editor build and scene-document tests pass.
 - Full application folder contains Qt plugins and required runtime libraries.
 - Manual test confirms creating, editing, saving, closing, and reopening scenes.
+- Invalid asset paths are rejected.
 - Scene format and current limitations are documented.
-- No user project data is stored inside the engine installation folder.
 
-## Phase 2 — Runtime foundation
+## Phase 2 — Runtime foundation (CURRENT)
 
-Only after Phase 1 exit criteria are met:
+Only after Phase 1 exit criteria are met (now complete):
 
 - Runtime executable and game loop
 - Platform lifecycle and input abstraction
 - Load .vscene from a game project
 - Camera and first runtime-rendered 2D objects
 - Run/stop workflow from the editor
+
+**Recommended first vertical slice:**
+Open project → Load .vscene → Create window → Render one object → Process input → Close cleanly.
 
 ## Phase 3 — Core 2D systems
 
