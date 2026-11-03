@@ -12,6 +12,7 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPainter>
+#include <QPolygonF>
 #include <QPen>
 #include <QTransform>
 #include <algorithm>
@@ -49,9 +50,27 @@ QString SceneViewport::objectAt(const QPointF& world) const
         const QTransform inverse = transform.inverted(&invertible);
         if (!invertible) continue;
         const QPointF local = inverse.map(world);
-        if (QRectF(-it->width / 2.0, -it->height / 2.0,
-                   it->width, it->height).contains(local))
-            return it->id;
+        const QRectF bounds(-it->width / 2.0, -it->height / 2.0,
+                            it->width, it->height);
+        bool contains = false;
+        if (it->shape == QStringLiteral("circle"))
+        {
+            const double rx = it->width / 2.0;
+            const double ry = it->height / 2.0;
+            contains = (local.x() * local.x()) / (rx * rx) +
+                       (local.y() * local.y()) / (ry * ry) <= 1.0;
+        }
+        else if (it->shape == QStringLiteral("triangle"))
+        {
+            QPolygonF triangle;
+            triangle << QPointF(0, -it->height / 2.0)
+                     << QPointF(it->width / 2.0, it->height / 2.0)
+                     << QPointF(-it->width / 2.0, it->height / 2.0);
+            contains = triangle.containsPoint(local, Qt::OddEvenFill);
+        }
+        else
+            contains = bounds.contains(local);
+        if (contains) return it->id;
     }
     return {};
 }
@@ -95,7 +114,18 @@ void SceneViewport::paintEvent(QPaintEvent* event)
         painter.setBrush(selected ? QColor(56, 125, 210, 170) : QColor(93, 111, 137, 150));
         painter.setPen(QPen(selected ? QColor(132, 190, 255) : QColor(151, 164, 184),
                             selected ? 2.0 : 1.0));
-        painter.drawRect(bounds);
+        if (object.shape == QStringLiteral("circle"))
+            painter.drawEllipse(bounds);
+        else if (object.shape == QStringLiteral("triangle"))
+        {
+            QPolygonF triangle;
+            triangle << QPointF(0, -object.height / 2.0)
+                     << QPointF(object.width / 2.0, object.height / 2.0)
+                     << QPointF(-object.width / 2.0, object.height / 2.0);
+            painter.drawPolygon(triangle);
+        }
+        else
+            painter.drawRect(bounds);
         painter.setPen(QColor(235, 239, 245));
         painter.drawText(bounds.adjusted(5, 5, -5, -5), Qt::AlignTop | Qt::AlignLeft,
                          object.name);
