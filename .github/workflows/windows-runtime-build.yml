@@ -50,9 +50,11 @@ jobs:
         shell: pwsh
         run: |
           cmake --install build/runtime --config Release --prefix build/runtime/package
+          Copy-Item "runtime/examples/first-scene.vscene" "build/runtime/package/first-scene.vscene"
           @'
           Veyra Runtime 0.2.0 — Windows x64
-          Usage: VeyraRuntime.exe path\to\scene.vscene
+          Run the included sample: VeyraRuntime.exe first-scene.vscene
+          Or pass any compatible version 1 .vscene file.
           This checkpoint validates version 1 Veyra scene files and opens an SDL3
           runtime window. Scene-object rendering and editor Run/Stop integration
           are planned follow-up checkpoints; this package does not render objects.
