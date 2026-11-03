@@ -383,13 +383,21 @@ bool EditorMainWindow::saveSceneAs()
 
 void EditorMainWindow::addSceneObject()
 {
-    bool accepted = false;
-    const QString name = QInputDialog::getText(this, "Add Scene Object",
-        "Object name:", QLineEdit::Normal, "Rectangle", &accepted);
-    if (!accepted)
+    bool shapeAccepted = false;
+    const QStringList shapes = { "Rectangle", "Circle", "Triangle" };
+    const QString selectedShape = QInputDialog::getItem(this, "Choose Object Shape",
+        "Shape:", shapes, 0, false, &shapeAccepted);
+    if (!shapeAccepted)
+        return;
+
+    bool nameAccepted = false;
+    const QString name = QInputDialog::getText(this, "Name Scene Object",
+        "Object name:", QLineEdit::Normal, selectedShape, &nameAccepted);
+    if (!nameAccepted)
         return;
 
     SceneObject& object = m_document->addObject(name);
+    object.shape = selectedShape.toLower();
     m_selectedId = object.id;
     refreshHierarchy();
     selectObject(m_selectedId);
