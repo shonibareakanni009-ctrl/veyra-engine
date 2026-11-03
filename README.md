@@ -42,7 +42,7 @@ The website is a static HTML/CSS site. Veyra SFS is a separate HTML Canvas 2D fl
 - Lua 5.5 first planned scripting integration
 - Web delivery for the public website and browser demonstrations
 
-See docs/TECH_STACK.md, docs/ARCHITECTURE.md, and ADR-001.
+See docs/TECH_STACK.md, docs/ARCHITECTURE.md, docs/ROADMAP.md, and [docs/INSTALLER_UPDATER.md](docs/INSTALLER_UPDATER.md) for the Phase 2 distribution plan.
 
 ## Repository layout
 
