@@ -80,6 +80,7 @@ QJsonObject SceneDocument::toJson() const
         objects.append(QJsonObject{
             {QStringLiteral("id"), object.id},
             {QStringLiteral("name"), object.name},
+            {QStringLiteral("shape"), object.shape},
             {QStringLiteral("x"), object.x},
             {QStringLiteral("y"), object.y},
             {QStringLiteral("width"), object.width},
@@ -160,6 +161,7 @@ bool SceneDocument::fromJson(const QJsonObject& root, QString* error)
         SceneObject object;
         object.id = item.value(QStringLiteral("id")).toString();
         object.name = item.value(QStringLiteral("name")).toString();
+        object.shape = item.value(QStringLiteral("shape")).toString(QStringLiteral("rectangle"));
         object.x = item.value(QStringLiteral("x")).toDouble();
         object.y = item.value(QStringLiteral("y")).toDouble();
         object.width = item.value(QStringLiteral("width")).toDouble(100.0);
@@ -170,6 +172,8 @@ bool SceneDocument::fromJson(const QJsonObject& root, QString* error)
         object.visible = item.value(QStringLiteral("visible")).toBool(true);
 
         if (object.id.isEmpty() || object.name.isEmpty() ||
+            (object.shape != QStringLiteral("rectangle") && object.shape != QStringLiteral("circle") &&
+             object.shape != QStringLiteral("triangle")) ||
             !finiteNumber(object.x) || !finiteNumber(object.y) ||
             !finiteNumber(object.width) || !finiteNumber(object.height) ||
             !finiteNumber(object.rotation) || !finiteNumber(object.scaleX) ||
