@@ -29,7 +29,7 @@ This file records implemented work and its verification status. Plans remain in 
 | Atomic .vscene save and validated load | editor/src/scene_document.cpp | Source present; automated tests added, CI pending |
 | 2D viewport with grid, object selection, and drag movement | editor/src/scene_viewport.cpp | Source present; manual runtime verification pending |
 | Hierarchy rename and selection synchronization | editor/src/editor_main_window.cpp | Source present; manual runtime verification pending |
-| Transform inspector for position, rotation, and scale | editor/src/editor_main_window.cpp | Source present; manual runtime verification pending |
+| Inspector for position, rotation, scale, width, and height | editor/src/editor_main_window.cpp | Source present; manual runtime verification pending |
 | Scene test projects and acceptance criteria | docs/testing/2d-engine-test-projects.md | Documented |
 
 ## Verified results

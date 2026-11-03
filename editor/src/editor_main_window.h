@@ -52,7 +52,7 @@ private:
     SceneViewport* m_sceneViewport = nullptr;
     QTreeWidget* m_hierarchy = nullptr;
     QDockWidget* m_inspectorDock = nullptr;
-    QDoubleSpinBox* m_transformFields[5]{};
+    QDoubleSpinBox* m_transformFields[7]{};
     QString m_selectedId;
     bool m_refreshingInspector = false;
 };

@@ -46,7 +46,7 @@ A later-stage project for testing networking, player synchronization, latency ha
 
 | Engine area | What must be tested |
 |---|---|
-| Scene editor | Create, open, edit, save, close, and reopen scenes; create, select, move, rotate, scale, rename, and delete objects |
+| Scene editor | Create, open, edit, save, close, and reopen scenes; create, select, move, rotate, scale, resize, rename, and delete objects |
 | Rendering | Sprites, textures, layers, draw order, visibility, and camera |
 | Physics | Gravity, forces, collision detection, and collision response |
 | Input | Keyboard, mouse, touch, and controller support where implemented |

@@ -177,11 +177,11 @@ void EditorMainWindow::createDockPanels()
     m_inspectorDock->setObjectName("InspectorDock");
     auto* inspector = new QWidget(m_inspectorDock);
     auto* form = new QFormLayout(inspector);
-    const std::array<QString, 5> labels = {
-        "Position X", "Position Y", "Rotation", "Scale X", "Scale Y"
+    const std::array<QString, 7> labels = {
+        "Position X", "Position Y", "Rotation", "Scale X", "Scale Y", "Width", "Height"
     };
 
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 7; ++i)
     {
         auto* field = new QDoubleSpinBox(inspector);
         field->setRange(i >= 3 ? 0.001 : -100000.0, 100000.0);
@@ -205,6 +205,8 @@ void EditorMainWindow::createDockPanels()
                 case 2: object->rotation = value; break;
                 case 3: object->scaleX = value; break;
                 case 4: object->scaleY = value; break;
+                case 5: object->width = value; break;
+                case 6: object->height = value; break;
             }
 
             m_document->markModified();
@@ -253,11 +255,12 @@ void EditorMainWindow::refreshInspector()
     const SceneObject* object = m_document->find(m_selectedId);
     m_refreshingInspector = true;
 
-    const std::array<double, 5> values = object
-        ? std::array<double, 5>{object->x, object->y, object->rotation, object->scaleX, object->scaleY}
-        : std::array<double, 5>{0, 0, 0, 1, 1};
+    const std::array<double, 7> values = object
+        ? std::array<double, 7>{object->x, object->y, object->rotation, object->scaleX,
+                                object->scaleY, object->width, object->height}
+        : std::array<double, 7>{0, 0, 0, 1, 1, 100, 100};
 
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 7; ++i)
     {
         m_transformFields[i]->setEnabled(object != nullptr);
         m_transformFields[i]->setValue(values[static_cast<size_t>(i)]);

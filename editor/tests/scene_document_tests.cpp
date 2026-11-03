@@ -32,6 +32,8 @@ void SceneDocumentTests::savesAndLoadsScene()
     player->rotation = 37.0;
     player->scaleX = 1.5;
     player->scaleY = 0.75;
+    player->width = 180.0;
+    player->height = 72.5;
     source.markModified();
 
     const QString path = temporaryDirectory.filePath(QStringLiteral("round-trip.vscene"));
@@ -52,6 +54,8 @@ void SceneDocumentTests::savesAndLoadsScene()
     QCOMPARE(restored->rotation, 37.0);
     QCOMPARE(restored->scaleX, 1.5);
     QCOMPARE(restored->scaleY, 0.75);
+    QCOMPARE(restored->width, 180.0);
+    QCOMPARE(restored->height, 72.5);
 }
 
 void SceneDocumentTests::rejectsUnsupportedVersionWithoutChangingOpenScene()

@@ -28,7 +28,7 @@ SDL3 and bgfx remain part of the longer-term runtime direction; they are not yet
 | 1.1 | Qt desktop editor shell and dockable panels | Implemented | Windows compile succeeded; packaged runtime pending |
 | 1.2 | Scene document with stable object IDs | Implemented | Source plus automated tests; CI pending |
 | 1.3 | Create, select, move, rename, and delete scene objects | Implemented in editor source | Manual packaged-app test pending |
-| 1.4 | Position, rotation, and scale inspector | Implemented in editor source | Manual packaged-app test pending |
+| 1.4 | Position, rotation, scale, width, and height inspector | Implemented in editor source | Manual packaged-app test pending |
 | 1.5 | Save/load .vscene with validation and atomic writes | Implemented in editor source | Automated tests added; CI pending |
 | 1.6 | Protect unsaved edits on new/open/close | Implemented in editor source | Windows compile and manual UI check pending |
 | 1.7 | Reliable Windows x64 application folder packaging | In progress | CI must stage Qt plugin and required MSVC DLLs |
