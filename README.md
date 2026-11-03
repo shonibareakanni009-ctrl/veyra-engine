@@ -8,6 +8,7 @@ Veyra is being built around creative freedom, a visual desktop editor, a code-or
 
 - **Official website:** deployed through the connected Vercel project.
 - **Veyra Adventure:** website/game/, a small playable HTML Canvas platformer used as a browser-facing demonstration.
+- **Veyra SFS:** website/sfs/, a standalone 2D browser flight simulator prototype used to explore thrust, momentum, planetary gravity, fuel, and camera-follow behavior.
 - **Desktop editor:** editor/, a Qt 6 Widgets application with an early editable 2D scene workflow.
 - **Engine foundation:** C++20, CMake, and the architecture documented below.
 
@@ -16,10 +17,10 @@ The Adventure demo is currently a standalone browser game. It is not yet built b
 ## Current implementation status
 
 ### Desktop editor
-The editor source currently includes a 2D scene document, rectangle objects, viewport selection and dragging, a hierarchy, transform inspector, and .vscene save/load. The Windows GitHub Actions build and manual runtime behavior still need verification. Do not treat source implementation as a verified release.
+The editor source currently includes a 2D scene document, rectangle, circle, and triangle primitive objects, viewport selection and dragging, a hierarchy, transform inspector, and .vscene save/load. Arbitrary sprites, custom polygons, and asset-backed objects are not implemented yet. The Windows GitHub Actions build and manual runtime behavior still need verification. Do not treat source implementation as a verified release.
 
 ### Browser website and game
-The website is a static HTML/CSS site. Veyra Adventure is an HTML Canvas game with keyboard and touch controls, platforms, collectibles, patrolling enemies, lives, a timer, a portal goal, pause, and restart. It is separate from the native engine runtime.
+The website is a static HTML/CSS site. Veyra SFS is a separate HTML Canvas 2D flight prototype with keyboard/touch controls, thrust, braking, gravity, fuel, a following camera, and an orbital beacon objective. It is not an engine export. Veyra Adventure is an HTML Canvas game with keyboard and touch controls, platforms, collectibles, patrolling enemies, lives, a timer, a portal goal, pause, and restart. It is separate from the native engine runtime.
 
 ### Planned engine capabilities
 2D/3D rendering, asset management, physics, collision, animation, audio, scripting, project management, debugging, exporting, plugins, and native platform support remain staged engineering goals unless explicitly marked implemented and tested.
@@ -42,7 +43,8 @@ See docs/TECH_STACK.md, docs/ARCHITECTURE.md, and ADR-001.
 veyra-engine/
 ├── editor/                 # Native Qt desktop editor
 ├── website/                # Official website and browser demo
-│   └── game/               # Standalone Veyra Adventure game
+│   ├── game/               # Standalone Veyra Adventure game
+│   └── sfs/                # Standalone 2D Space Flight Simulator browser prototype
 ├── scripts/                # Website deployment build
 ├── docs/                   # Architecture, decisions, and project notes
 └── .github/workflows/      # Native editor CI
