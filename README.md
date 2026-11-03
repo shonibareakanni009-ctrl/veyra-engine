@@ -9,7 +9,8 @@ Veyra is being built around creative freedom, a visual desktop editor, a code-or
 - **Official website:** deployed through the connected Vercel project.
 - **Veyra Adventure:** website/game/, a small playable HTML Canvas platformer used as a browser-facing demonstration.
 - **Veyra SFS:** website/sfs/, a standalone 2D browser flight simulator prototype used to explore thrust, momentum, planetary gravity, fuel, and camera-follow behavior.
-- **Desktop editor:** editor/, a Qt 6 Widgets application with an early editable 2D scene workflow.
+- **Desktop editor:** engine/editor/, a Qt 6 Widgets application with an early editable 2D scene workflow.
+- **Native runtime:** engine/runtime/, a standalone Qt-free SDL3 game runtime.
 - **Engine foundation:** C++20, CMake, and the architecture documented below.
 
 The Adventure demo is currently a standalone browser game. It is not yet built by the Veyra engine or exported from the desktop editor. It demonstrates the kind of 2D experience Veyra ultimately aims to help creators make.
@@ -42,14 +43,16 @@ The website is a static HTML/CSS site. Veyra SFS is a separate HTML Canvas 2D fl
 - Lua 5.5 first planned scripting integration
 - Web delivery for the public website and browser demonstrations
 
-See docs/TECH_STACK.md, docs/ARCHITECTURE.md, docs/ROADMAP.md, and [docs/INSTALLER_UPDATER.md](docs/INSTALLER_UPDATER.md) for the Phase 2 distribution plan.
+See [Phase 2 execution plan](docs/PHASE_2_EXECUTION_PLAN.md), docs/TECH_STACK.md, docs/ARCHITECTURE.md, docs/ROADMAP.md, and [docs/INSTALLER_UPDATER.md](docs/INSTALLER_UPDATER.md) for the Phase 2 distribution plan.
 
 ## Repository layout
 
 ```text
 veyra-engine/
-├── editor/                 # Native Qt desktop editor
-├── runtime/                # Standalone Qt-free SDL3 game runtime
+├── engine/                 # Native engine components
+│   ├── editor/              # Qt desktop editor
+│   ├── runtime/             # Standalone Qt-free SDL3 game runtime
+│   └── CMakeLists.txt       # Selective engine build entry point
 ├── website/                # Official website and browser demo
 │   ├── game/               # Standalone Veyra Adventure game
 │   └── sfs/                # Standalone 2D Space Flight Simulator browser prototype
@@ -59,6 +62,8 @@ veyra-engine/
 ```
 
 ## Website deployment
+
+The homepage includes an About Veyra section at `/#about`, linked from the main navigation. It describes current implementation separately from future goals.
 
 The connected Vercel project should use:
 

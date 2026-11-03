@@ -19,7 +19,7 @@ The runtime must load this format without linking Qt. Unsafe relative asset path
 
 ## Checkpoint 1 — Standalone runtime and scene loader
 
-1. Add a separately configured C++20 runtime build under `runtime/`; do not make the editor a runtime dependency.
+1. Add a separately configured C++20 runtime build under `engine/runtime/`; do not make the editor a runtime dependency.
 2. Pin dependency versions and verify downloaded archives with SHA-256.
 3. Add an SDL3 application lifecycle: initialize, create a window, process close and Escape events, then destroy resources and shut down cleanly.
 4. Add a Qt-free version 1 `.vscene` loader using a small standalone JSON dependency.
@@ -71,6 +71,7 @@ The runtime must load this format without linking Qt. Unsafe relative asset path
 - [ ] Manual launch/close smoke test using the packaged sample scene.
 - [ ] bgfx initialization and first rendered scene object.
 - [ ] Editor Run/Stop controls.
+- [x] Move editor and runtime source trees under shared `engine/` directory (new-path CI verification pending).
 
 ## Verification record
 
@@ -82,4 +83,4 @@ The runtime must load this format without linking Qt. Unsafe relative asset path
 - Artifact: `veyra-runtime-windows-x64` (includes `VeyraRuntime.exe`, app-local MSVC runtime DLLs, README, and `first-scene.vscene`).
 - The workflow verifies compilation and scene validation; it does not launch the SDL window. Manual GUI behavior is still unverified.
 
-The runtime currently validates and loads scene data, then opens an SDL window and processes close/Escape events in its application loop. It does **not** render scene objects yet. bgfx integration and the manual window smoke test remain open.
+The runtime source now lives under `engine/runtime/`. The shared top-level CMake entry point can configure editor and runtime independently. The runtime currently validates and loads scene data, then opens an SDL window and processes close/Escape events in its application loop. It does **not** render scene objects yet. bgfx integration and the manual window smoke test remain open.

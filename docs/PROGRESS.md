@@ -8,7 +8,7 @@ This file records implemented work and its verification status. Plans and accept
 
 | Metric | Current state |
 |---|---|
-| Current phase | **Phase 2 — Runtime foundation started; Checkpoint 1 automated CI passed, manual launch pending** |
+| Current phase | **Phase 2 — Shared engine layout committed; new-path CI verification pending** |
 | Project stage | Early functional editor prototype (Phase 1 verified) |
 | Core language | C++20 selected |
 | Desktop editor | Qt 6 Widgets; Windows CI green + manual smoke test passed |
@@ -16,7 +16,7 @@ This file records implemented work and its verification status. Plans and accept
 | Scene persistence | Versioned .vscene with validation — verified |
 | Automated tests | Editor scene tests and runtime `.vscene` loader tests pass in Windows CI |
 | Manual smoke test | **Passed** (A–G) on 2026-11-03 |
-| Native runtime | Separate Qt-free SDL3 runtime builds in Windows CI; scene-loader tests pass; manual window launch pending |
+| Native runtime | Qt-free SDL3 runtime moved under `engine/runtime/`; new-path CI verification pending; manual window launch pending |
 | Installer | Windows application-folder packaging exists; user-facing installer not implemented |
 | Updater | Not implemented |
 | Automated release packaging | Not implemented / not verified |
@@ -24,7 +24,7 @@ This file records implemented work and its verification status. Plans and accept
 | Export targets | Not implemented |
 
 **Reality statement (2026-11-03):**  
-Phase 1 has been fully verified. The packaged Windows editor successfully passed the complete manual smoke test (launch, primitives, transforms, sprite import, save/reopen, unsaved-change protection, and invalid path rejection). Phase 2 runtime implementation has started: the separate Qt-free runtime target, SDL3 lifecycle code, `.vscene` loader, tests, and Windows package workflow are in place. Windows CI passed on 2026-11-03. The SDL window has not yet been manually launched, scene objects are not rendered, and editor Run/Stop is not integrated. Windows installer/updater, signed updates, and recovery remain planned.
+Phase 1 has been fully verified. The packaged Windows editor successfully passed the complete manual smoke test (launch, primitives, transforms, sprite import, save/reopen, unsaved-change protection, and invalid path rejection). Phase 2 runtime implementation has started: the separate Qt-free runtime target, SDL3 lifecycle code, `.vscene` loader, tests, and Windows package workflow are in place. Windows CI passed on 2026-11-03. The SDL window has not yet been manually launched, scene objects are not rendered, and editor Run/Stop is not integrated. Windows installer/updater, signed updates, and recovery remain planned. The editor and runtime now share the `engine/` directory; the new build entry point and CI paths are awaiting automated verification. The website now has a real About Veyra section at `/#about`; website CI/deployment verification is pending.
 
 ## Verified results
 
@@ -38,6 +38,12 @@ Phase 1 has been fully verified. The packaged Windows editor successfully passed
 - Section G: pass (scene rejected on unsafe path with generic but safe error)
 
 ## Phase 2 priorities
+
+- [x] Record six-checkpoint Phase 2 execution plan in `docs/PHASE_2_EXECUTION_PLAN.md`.
+- [x] Move native editor and runtime source trees under `engine/` and add selective top-level CMake entry point.
+- [x] Add About Veyra homepage section and `#about` navigation destination.
+- [ ] Verify editor, runtime, and website workflows after the path/navigation changes.
+
 
 1. Owner-run the packaged runtime on Windows: open `first-scene.vscene`, confirm the SDL window and object count, and verify Escape/window-close shutdown.
 2. Integrate bgfx with SDL and render the first editor-authored scene object.
