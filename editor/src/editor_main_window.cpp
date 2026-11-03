@@ -12,6 +12,10 @@
 #include <QAction>
 #include <QCloseEvent>
 #include <QDockWidget>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QImageReader>
 #include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QFormLayout>
@@ -66,7 +70,7 @@ EditorMainWindow::EditorMainWindow(QWidget* parent)
 
     refreshHierarchy();
     updateWindowTitle();
-    statusBar()->showMessage("Ready — add objects, select them, and drag them in the 2D scene.");
+    statusBar()->showMessage("Ready — add objects, import sprites, select them, and drag them in the 2D scene.");
 }
 
 EditorMainWindow::~EditorMainWindow() = default;
@@ -97,6 +101,8 @@ void EditorMainWindow::createMenus()
     QAction* saveAsAction = file->addAction("Save Scene As...");
     saveAsAction->setShortcut(QKeySequence::SaveAs);
     connect(saveAsAction, &QAction::triggered, this, [this]() { (void)saveSceneAs(); });
+    QAction* importSpriteAction = file->addAction("Import Sprite...");
+    connect(importSpriteAction, &QAction::triggered, this, [this]() { importSprite(); });
     file->addSeparator();
     connect(file->addAction("E&xit"), &QAction::triggered, this, &QWidget::close);
 
@@ -131,6 +137,8 @@ void EditorMainWindow::createToolbar()
             this, [this]() { addSceneObject(); });
     connect(toolbar->addAction("Delete"), &QAction::triggered,
             this, [this]() { deleteSelectedObject(); });
+    connect(toolbar->addAction("Import Sprite"), &QAction::triggered,
+            this, [this]() { importSprite(); });
     toolbar->addSeparator();
     connect(toolbar->addAction("Save Scene"), &QAction::triggered,
             this, [this]() { (void)saveScene(); });
@@ -404,6 +412,66 @@ void EditorMainWindow::addSceneObject()
     selectObject(m_selectedId);
     m_sceneViewport->setSelectedObject(m_selectedId);
     updateWindowTitle();
+}
+
+void EditorMainWindow::importSprite()
+{
+    if (m_document->filePath().isEmpty() && !saveSceneAs())
+        return;
+
+    const QString sourcePath = QFileDialog::getOpenFileName(this, "Import Sprite Image", {},
+        "Images (*.png *.jpg *.jpeg *.bmp *.gif *.webp)");
+    if (sourcePath.isEmpty())
+        return;
+
+    QImageReader reader(sourcePath);
+    reader.setAutoTransform(true);
+    const QImage image = reader.read();
+    if (image.isNull())
+    {
+        QMessageBox::warning(this, "Could not import sprite",
+            "The selected file is not a supported or readable image.");
+        return;
+    }
+
+    const QFileInfo sceneInfo(m_document->filePath());
+    QDir sceneDirectory(sceneInfo.absolutePath());
+    if (!sceneDirectory.mkpath(QStringLiteral("Assets")))
+    {
+        QMessageBox::critical(this, "Could not import sprite",
+            "Veyra could not create the scene's Assets folder.");
+        return;
+    }
+
+    const QFileInfo sourceInfo(sourcePath);
+    const QString relativePath = QStringLiteral("Assets/") + sourceInfo.fileName();
+    const QString destinationPath = sceneDirectory.filePath(relativePath);
+    if (QFileInfo::exists(destinationPath) && QFileInfo(sourcePath).absoluteFilePath() !=
+        QFileInfo(destinationPath).absoluteFilePath())
+    {
+        QMessageBox::warning(this, "Sprite already exists",
+            "An asset with this filename already exists in the scene's Assets folder. Rename the source image and import it again.");
+        return;
+    }
+    if (QFileInfo(sourcePath).absoluteFilePath() != QFileInfo(destinationPath).absoluteFilePath() &&
+        !QFile::copy(sourcePath, destinationPath))
+    {
+        QMessageBox::critical(this, "Could not import sprite",
+            "Veyra could not copy the image into the scene's Assets folder.");
+        return;
+    }
+
+    SceneObject& object = m_document->addObject(sourceInfo.completeBaseName());
+    object.shape = QStringLiteral("sprite");
+    object.assetPath = relativePath;
+    object.width = static_cast<double>(image.width());
+    object.height = static_cast<double>(image.height());
+    m_selectedId = object.id;
+    refreshHierarchy();
+    selectObject(m_selectedId);
+    m_sceneViewport->setSelectedObject(m_selectedId);
+    updateWindowTitle();
+    statusBar()->showMessage("Sprite imported and added to the scene.", 5000);
 }
 
 void EditorMainWindow::deleteSelectedObject()
