@@ -10,6 +10,7 @@
 #include "scene_document.h"
 
 #include <QFile>
+#include <QDir>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -172,6 +173,11 @@ bool SceneDocument::fromJson(const QJsonObject& root, QString* error)
         object.scaleX = item.value(QStringLiteral("scaleX")).toDouble(1.0);
         object.scaleY = item.value(QStringLiteral("scaleY")).toDouble(1.0);
         object.visible = item.value(QStringLiteral("visible")).toBool(true);
+
+        const QString normalizedAssetPath = QDir::cleanPath(object.assetPath);
+        const bool unsafeAssetPath = object.assetPath.contains(QLatin1Char('\\\\')) ||
+            object.assetPath.contains(QLatin1Char(':')) || normalizedAssetPath == QStringLiteral("..") ||
+            normalizedAssetPath.startsWith(QStringLiteral("../")) || QDir::isAbsolutePath(object.assetPath);
 
         if (object.id.isEmpty() || object.name.isEmpty() ||
             (object.shape != QStringLiteral("rectangle") && object.shape != QStringLiteral("circle") &&
