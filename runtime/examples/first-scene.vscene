@@ -1,0 +1,48 @@
+{
+  "format": "veyra-scene",
+  "formatVersion": 1,
+  "objects": [
+    {
+      "id": "sample-rectangle",
+      "name": "Sample Rectangle",
+      "shape": "rectangle",
+      "assetPath": "",
+      "x": 160,
+      "y": 140,
+      "width": 180,
+      "height": 110,
+      "rotation": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "visible": true
+    },
+    {
+      "id": "sample-circle",
+      "name": "Sample Circle",
+      "shape": "circle",
+      "assetPath": "",
+      "x": 420,
+      "y": 260,
+      "width": 96,
+      "height": 96,
+      "rotation": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "visible": true
+    },
+    {
+      "id": "sample-triangle",
+      "name": "Sample Triangle",
+      "shape": "triangle",
+      "assetPath": "",
+      "x": 640,
+      "y": 180,
+      "width": 120,
+      "height": 140,
+      "rotation": 15,
+      "scaleX": 1,
+      "scaleY": 1,
+      "visible": true
+    }
+  ]
+}
