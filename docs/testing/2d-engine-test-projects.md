@@ -5,7 +5,7 @@
 
 ## 1. Core test games
 
-These are the first two practical validation projects.
+These are the first practical validation projects.
 
 ### 1.1 Veyra Adventure — existing browser game
 
@@ -21,6 +21,13 @@ These are the first two practical validation projects.
 - **Feature coverage:** Player/ship controls, acceleration and deceleration, rotation, camera following, object spawning, collision handling, projectiles or interaction objects where required, HUD elements, and saving/loading.
 - **Current browser prototype:** 2D spacecraft rotation, thrust, braking, planetary gravity, fuel, speed/altitude HUD, camera follow, orbital beacon objective, pause/restart, and touch controls. It is a standalone browser prototype, not an engine export.
 - **Validation:** Test keyboard and touch input, consistent movement across frame rates, gravity/orbit tuning, mission completion/failure, scene editing, native runtime behavior, and persistence.
+
+### 1.3 Veyra Draw Bridge (planned)
+
+- **Status:** Future test game — to be built with the Veyra Engine (not a standalone browser prototype).
+- **Purpose:** Validate drawing input, path/bridge creation, basic 2D physics (vehicle movement on drawn surfaces), and simple puzzle-style level progression.
+- **Feature coverage intended:** Freehand or guided drawing, collision with terrain, vehicle physics, level goals, and scene persistence.
+- **Note:** This project will only begin after the core 2D runtime, rendering, input, and basic physics systems are in place.
 
 ## 2. Additional test projects
 
@@ -81,6 +88,7 @@ A feature is not complete merely because its UI exists. It must work in a real t
 
 ### Level 2 — Broader 2D validation
 
+- Veyra Draw Bridge.
 - Top-Down Adventure.
 - Puzzle Game.
 - Racing Game.
