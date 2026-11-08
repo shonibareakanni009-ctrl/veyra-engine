@@ -1,6 +1,6 @@
 # Veyra Engine — Roadmap
 
-**Last updated:** 2026-11-03  
+**Last updated:** 2026-11-08  
 **Status:** Phase 1 Verified. Phase 2 — Runtime, installation, and update foundation — is CURRENT.
 
 ## Guiding rule
@@ -114,6 +114,7 @@ Phase 2 delivers the first native run path and establishes a dependable way to i
 
 - Veyra Adventure browser baseline (existing standalone game; not yet engine-built)
 - Space Flight Simulator
+- **Veyra Draw Bridge** (future 2D test game — draw paths/bridges for a vehicle; to be built with the Veyra Engine)
 - Top-Down Adventure, Puzzle Game, and Racing Game
 - Windows and Linux exports, then Android and engine-produced Web builds
 
