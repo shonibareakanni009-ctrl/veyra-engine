@@ -1,6 +1,6 @@
 # Veyra Engine — Progress Tracker
 
-**Last updated:** 2026-11-03
+**Last updated:** 2026-11-09
 
 This file records implemented work and its verification status. Plans and acceptance criteria remain in ROADMAP.md. Installer/updater design is in INSTALLER_UPDATER.md.
 
@@ -23,8 +23,18 @@ This file records implemented work and its verification status. Plans and accept
 | Browser prototypes | Standalone (Adventure + SFS) |
 | Export targets | Not implemented |
 
-**Reality statement (2026-11-03):**  
-Phase 1 has been fully verified. The packaged Windows editor successfully passed the complete manual smoke test (launch, primitives, transforms, sprite import, save/reopen, unsaved-change protection, and invalid path rejection). Phase 2 runtime implementation has started: the separate Qt-free runtime target, SDL3 lifecycle code, `.vscene` loader, tests, and Windows package workflow are in place. Windows CI passed on 2026-11-03. The SDL window has not yet been manually launched, scene objects are not rendered, and editor Run/Stop is not integrated. An Inno Setup per-user installer script and combined Windows packaging workflow are now in the repository; the installer build and CI install/uninstall smoke test passed. A manual clean-machine install and editor GUI launch remain pending. The updater manifest schema and trust model are documented, but signature verification, downloads, staged application, and rollback are not implemented. The editor and runtime now share the `engine/` directory and both independent Windows x64 CI workflows passed after the move. The website has a real About Veyra section at `/#about`; website CI passed and Vercel reports the latest production deployment as READY. A manual browser click-through has not been performed here.
+**Reality statement (2026-11-09):**  
+Phase 1 has been fully verified. The packaged Windows editor successfully passed the complete manual smoke test. Phase 2 runtime foundation is in place (SDL3 lifecycle, scene loader, CI packaging). The next ordered work is the manual runtime launch test, then bgfx integration and shape rendering, then Editor Run/Stop, then end-to-end testing.
+
+## Active Phase 2A task order (locked 2026-11-09)
+
+| Order | Task | Status |
+|------:|------|--------|
+| 1 | Manual runtime launch test | **Next** |
+| 2 | Integrate bgfx renderer | Pending |
+| 3 | Render rectangles, circles and triangles | Pending |
+| 4 | Connect Editor Run/Stop buttons | Pending |
+| 5 | End-to-end testing | Pending |
 
 ## Verified results
 
@@ -42,7 +52,7 @@ Phase 1 has been fully verified. The packaged Windows editor successfully passed
 - Sections A–F: full pass
 - Section G: pass (scene rejected on unsafe path with generic but safe error)
 
-## Phase 2 priorities
+## Phase 2 priorities (broader)
 
 - [x] Record six-checkpoint Phase 2 execution plan in `docs/PHASE_2_EXECUTION_PLAN.md`.
 - [x] Move native editor and runtime source trees under `engine/` and add selective top-level CMake entry point.
@@ -52,14 +62,11 @@ Phase 1 has been fully verified. The packaged Windows editor successfully passed
 - [x] Define the updater manifest schema and cryptographic trust model.
 - [x] Pass installer compile, silent install/uninstall, and user-data preservation tests.
 - [ ] Manually install on a clean Windows computer and launch the editor GUI.
-
-
-1. Akanni runs the packaged runtime on Windows: open `first-scene.vscene`, confirm the SDL window and object count, and verify Escape/window-close shutdown.
-2. Integrate bgfx with SDL and render the first editor-authored scene object.
-3. Integrate editor Run/Stop controls with the runtime.
-4. In parallel, define the Windows installation layout and installer technology.
-5. Automate versioned release packaging and define a signed/verified update manifest.
-6. Implement staged updates with a separate helper process and rollback/recovery, then verify install/upgrade/update/uninstall without damaging user projects.
+- [ ] Manual runtime launch test (Task 1 above).
+- [ ] Integrate bgfx renderer (Task 2).
+- [ ] Render rectangles, circles and triangles (Task 3).
+- [ ] Connect Editor Run/Stop buttons (Task 4).
+- [ ] End-to-end testing (Task 5).
 
 See [ROADMAP.md](ROADMAP.md) for milestone acceptance criteria and [INSTALLER_UPDATER.md](INSTALLER_UPDATER.md) for the distribution design.
 
