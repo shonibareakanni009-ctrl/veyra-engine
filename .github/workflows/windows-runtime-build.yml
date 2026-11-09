@@ -73,8 +73,10 @@ jobs:
           Veyra Runtime 0.2.0 — Windows x64
           Run the included sample: VeyraRuntime.exe first-scene.vscene
           Or pass any compatible version 1 .vscene file.
-          This checkpoint validates scenes and opens an SDL3 runtime window.
-          Scene rendering and editor Run/Stop are follow-up milestones.
+          The runtime includes an initial bgfx Direct3D 11 renderer for
+          rectangles, circles and triangles. Sprite textures remain unsupported.
+          Visual rendering and resize/close acceptance must be confirmed manually.
+          The editor includes Run Scene (F5) and Stop Runtime (Shift+F5).
           '@ | Set-Content "build/runtime/package/README.txt" -Encoding utf8
       - name: Upload runtime package
         uses: actions/upload-artifact@v4
