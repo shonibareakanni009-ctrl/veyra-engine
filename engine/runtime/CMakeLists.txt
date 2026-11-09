@@ -67,9 +67,6 @@ add_library(VeyraRuntimeCore
     src/scene_document.h
     src/scene_geometry.cpp
     src/scene_geometry.h
-    src/runtime_renderer.cpp
-    src/runtime_renderer.h
-    src/embedded_shaders.h
 )
 target_link_libraries(VeyraRuntimeCore PRIVATE nlohmann_json::nlohmann_json)
 target_include_directories(VeyraRuntimeCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -77,6 +74,9 @@ target_compile_features(VeyraRuntimeCore PUBLIC cxx_std_20)
 
 add_executable(VeyraRuntime
     src/main.cpp
+    src/runtime_renderer.cpp
+    src/runtime_renderer.h
+    src/embedded_shaders.h
 )
 target_link_libraries(VeyraRuntime PRIVATE VeyraRuntimeCore SDL3::SDL3-static bgfx)
 target_compile_features(VeyraRuntime PRIVATE cxx_std_20)
