@@ -211,7 +211,7 @@ The installer/updater portion of Phase 2 is complete only when:
 - Upgrade and uninstall preserve user projects and settings according to documented behavior.
 - Automated release packaging and repeatable tests provide evidence for the claimed support.
 
-**Current truth:** The Inno Setup script and CI workflow produced a Windows x64 installer artifact; automated compile, silent install/uninstall, runtime CLI, and external user-data preservation tests passed. Manual clean-machine install, editor GUI launch, repair, and upgrade are not yet verified. The updater schema and security model exist, but the updater executable, cryptographic verifier, download/staging process, rollback, and release signing are not implemented.
+**Historical baseline at the time this section was first written:** the Inno Setup prototype had passed automated install/uninstall and data preservation, but the updater implementation had not yet begun. The current implementation status and outstanding limitations are recorded in Section 14 below.
 
 
 ## 14. Current implementation status — 2026-11-09
