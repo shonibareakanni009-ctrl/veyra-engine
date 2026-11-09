@@ -22,7 +22,7 @@ This sprint consolidates the remaining Phase 2 work into a single ordered execut
 ### A. Renderer and runtime (Checkpoint 2)
 1. Keep the pinned bgfx.cmake commit and submodules immutable.
 2. Add SDL3 native-window handle adapter for Windows; initialize bgfx after window creation.
-3. Compile and embed the minimal vertex/fragment shaders with the pinned shaderc tool.
+3. Embed the two pinned DXBC vertex/fragment shader binaries matching the runtime position/color vertex layout; keep shaderc disabled in the normal runtime build.
 4. Upload transformed CPU geometry, submit draw calls, respond to resize, and shut down bgfx before destroying SDL.
 5. Diagnose unsupported sprite rendering explicitly.
 6. Add CI builds/tests and manual visual verification instructions.
