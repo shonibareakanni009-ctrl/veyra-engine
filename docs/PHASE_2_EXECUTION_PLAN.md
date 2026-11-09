@@ -1,6 +1,6 @@
 # Phase 2 — Execution Plan (six checkpoints)
 
-**Status:** In progress; Checkpoint 1 verified, runtime window launch manually confirmed by owner, and renderer implementation plan committed.
+**Status:** In progress; Checkpoint 1 verified; bgfx renderer and Editor Run/Stop code are implemented but have not completed all acceptance tests; installer/updater prototypes are under CI verification.
 **Scope:** Windows x64 first. Keep editor and runtime as sibling components under one `engine/` directory.
 
 ## Goals and constraints
@@ -44,7 +44,7 @@ Acceptance: both applications build and their tests pass from the new paths; no 
 
 ## Checkpoint 2 — Runtime renderer
 
-**Status:** Implementation next. The packaged runtime window was manually opened successfully by the project owner on 2026-11-09; it was blank, as expected before rendering. Detailed implementation plan: [PHASE_2B_BGFX_RENDERER_PLAN.md](PHASE_2B_BGFX_RENDERER_PLAN.md).
+**Status:** Renderer code implemented; automated build still pending and visual acceptance not yet confirmed. The packaged runtime window was manually opened successfully by the project owner on 2026-11-09; it was blank, as expected before rendering. The CPU geometry layer has a passing Windows CI checkpoint. bgfx.cmake is pinned, DX11 shaders are compiled at build time, the runtime extracts SDL3's HWND, initializes bgfx, submits transformed primitive buffers, handles resize, and shuts down renderer resources before SDL. Detailed record: [PHASE_2B_BGFX_RENDERER_PLAN.md](PHASE_2B_BGFX_RENDERER_PLAN.md).
 
 1. Confirm a pinned bgfx integration strategy compatible with SDL3 and Windows x64.
 2. Add a platform-window adapter and renderer lifecycle with resize and shutdown handling.
@@ -83,7 +83,7 @@ Acceptance: manual test creates/saves a scene, runs it from the editor, sees the
 
 ## Checkpoint 4 — Windows installer
 
-**Status: AUTOMATED PROTOTYPE VERIFIED.** Inno Setup 7.1.0 per-user installer artifact built successfully. CI passed silent install, installed-file checks, runtime CLI smoke test, silent uninstall, and external user-data preservation. Manual clean-machine editor GUI launch, repair, and upgrade tests remain.
+**Status: AUTOMATED PROTOTYPE VERIFIED; current package expansion in CI.** The original Inno Setup 7.1.0 per-user installer passed silent install, editor/runtime/sample file checks, runtime CLI smoke test, silent uninstall, and external user-data preservation. The current package adds the updater executable and schema and checks their post-install presence/CLI; newest installer build has not yet passed. Manual clean-machine editor/runtime GUI launch, repair, and upgrade tests remain.
 
 1. Finalize installer technology after validating the Inno Setup prototype against upgrade/uninstall, signing, automation, and maintenance needs.
 2. Define per-user/per-machine behavior and exact installation/data locations.
@@ -95,7 +95,7 @@ Acceptance: clean Windows x64 installation launches both editor and runtime; uni
 
 ## Checkpoint 5 — Updater and release pipeline
 
-**Status: DESIGN BASELINE ADDED.** The JSON Schema and Ed25519/SHA-256 trust design are committed; updater code, signing keys, release hosting, and rollback are not implemented.
+**Status: LOCAL VERIFICATION/STAGING PROTOTYPE IMPLEMENTED; production updater incomplete.** The JSON Schema and Ed25519/SHA-256 trust design are committed. A Windows CLI now validates local manifest data, checks an Ed25519 signature against a caller-supplied trusted public key, hashes/verifies a local package, and stages a verified copy. Windows updater build/security tests passed on commit `6f6c8d2`; debug-output cleanup is awaiting its own CI run. Remote download, archive extraction, apply helper, transactional replacement/rollback, production endpoint, trusted embedded public key, and release signing are not implemented.
 
 1. Define versioned release manifest and stable/beta/developer channels.
 2. Authenticate manifest metadata and verify package digest/signature before trusting or applying packages.
@@ -127,7 +127,7 @@ Acceptance: the About link navigates to meaningful content and website validatio
 
 ## Completion gate
 
-Phase 2 is complete only when all six checkpoints have evidence:
+Phase 2 is complete only when all six checkpoints have evidence. Current status: **not complete**; renderer build/visual test, manual Run/Stop, clean-machine installer validation, production updater apply/rollback, and full end-to-end test still lack evidence.
 - Editor and runtime share the `engine/` directory and build independently.
 - Runtime renders an editor-authored scene; editor Run/Stop works.
 - Windows x64 installer installs and uninstalls safely.
