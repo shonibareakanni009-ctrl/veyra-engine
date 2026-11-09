@@ -1,6 +1,6 @@
 # Veyra Updater — Trust and Manifest Design
 
-**Status:** A Windows local verifier/stager prototype is implemented. Windows build and security tests passed on commit `6f6c8d2`; the follow-up cleanup removing debug output is awaiting CI. Production update distribution/apply/rollback is not implemented.
+**Status:** A Windows local verifier/stager prototype is implemented. Windows build, security tests, package staging, and artifact upload passed on runs [42659055214](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42659055214), [42659501624](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42659501624), and [42659872220](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42659872220). Production update distribution/apply/rollback is not implemented.
 
 ## Trust model
 
@@ -56,7 +56,7 @@ This prevents whitespace or property-order changes from changing the signed payl
 5. Add a staged updater helper with rollback and fault-injection tests.
 6. Add protected release signing only after key custody and recovery procedures are approved.
 
-**Current limitation:** No release endpoint, signing key, public-key rotation policy, updater executable, package download, or update application is configured yet. The schema is not a live release manifest.
+**Historical design baseline:** The initial schema commit did not contain an updater executable or cryptographic verifier. The current local prototype and its remaining limits are documented in the implementation section below.
 
 
 ## Implemented local prototype (2026-11-09)
