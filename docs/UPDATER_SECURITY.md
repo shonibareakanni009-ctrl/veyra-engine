@@ -1,6 +1,6 @@
 # Veyra Updater — Trust and Manifest Design
 
-**Status:** Design baseline and JSON Schema committed; updater executable and cryptographic verification are not implemented.
+**Status:** A Windows local verifier/stager prototype is implemented. Windows build and security tests passed on commit `6f6c8d2`; the follow-up cleanup removing debug output is awaiting CI. Production update distribution/apply/rollback is not implemented.
 
 ## Trust model
 
@@ -57,3 +57,25 @@ This prevents whitespace or property-order changes from changing the signed payl
 6. Add protected release signing only after key custody and recovery procedures are approved.
 
 **Current limitation:** No release endpoint, signing key, public-key rotation policy, updater executable, package download, or update application is configured yet. The schema is not a live release manifest.
+
+
+## Implemented local prototype (2026-11-09)
+
+The repository now contains:
+
+- `updater/CMakeLists.txt`: Windows x64 CMake target with pinned nlohmann/json 3.12.0 and Monocypher 4.0.3 (immutable commit `ab2b16dd619ad5f6979a4fbe69cfa324a6fcc35f`).
+- `updater/src/manifest_verifier.cpp`: strict allow-list/type/field validation for the current manifest contract, Ed25519 detached-signature verification, Windows CNG SHA-256 streaming hash, byte-count checking, and no-overwrite verified local staging.
+- `updater/src/main.cpp`: `verify-local` CLI. It accepts an explicit trusted key ID/public key from a trusted local caller, validates a local manifest and local package, then stages a verified copy.
+- `updater/tests/manifest_verifier_tests.cpp`: deterministic test-only key pair, valid signature, package hash/size, tampering, wrong public key/key ID, wrong platform/scheme, malformed JSON, and no-overwrite staging tests.
+- `.github/workflows/windows-updater-build.yml`: Windows x64 configure/build/test/package workflow.
+- The installer build workflow now builds the updater, stages its executable/schema, and checks the installed CLI.
+
+**CI evidence:** [Windows Updater Build run 42658814633](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42658814633) succeeded on commit `6f6c8d2608a2c0b26be7716d577fbaf5440c78c2`, including CTest and artifact upload. The subsequent commit `866c9e0` removes temporary debug output; its own CI run must also pass before treating that cleaned source snapshot as verified.
+
+### Explicit limitations
+
+This is a local verification and staging prototype, **not a live self-updater**. It does not fetch a remote manifest/package, extract an archive, launch an installer/helper, replace the installed app, migrate data, or roll back a failed update. No release endpoint, trusted production public key, release private key, key rotation process, or protected signing job is configured. The project owner previously deferred release signing; no private key is requested or stored here.
+
+The canonical signed payload implementation currently relies on the constrained manifest's fixed field set, ASCII string values and integer-valued numeric fields with nlohmann/json's compact sorted-key serialization. Before using real release signatures, this serialization must be tested against RFC 8785/JCS test vectors or replaced with a fully conformant JCS implementation. It must not be advertised as general-purpose JCS support.
+
+Staging copies and re-hashes a verified local package into a new staging directory. It does not extract archive members, so archive traversal/symlink protections and transactional apply/rollback remain future work.
