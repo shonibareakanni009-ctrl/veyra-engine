@@ -17,7 +17,7 @@ This tracker separates implementation, automated verification, and owner-side ma
 | bgfx renderer | Pinned dependency, shader compilation, SDL HWND hookup, Direct3D 11 renderer, and frame loop committed; latest renderer build is still awaiting CI completion |
 | Editor Run/Stop | F5 / Shift+F5, QProcess argument-array launch, owned-process stop, and output dock implemented; Windows Editor Build passed |
 | Installer | Inno Setup per-user prototype; earlier silent install/uninstall and external-data preservation tests passed; current package is being expanded to include updater |
-| Updater | Local prototype validates manifest structure, Ed25519 signature, SHA-256/size, and stages verified local package; Windows updater build/security tests passed on commit `6f6c8d2`; clean-debug build is pending |
+| Updater | Local prototype validates manifest structure, Ed25519 signature, SHA-256/size, and stages verified local package; Windows updater build/security tests passed on clean source commit `866c9e0` and dependency-notice package run `42659501624`; the additional 2 GiB hashing cap is awaiting its own CI run |
 | Release/update service | Not complete — no remote downloader, installer/apply helper, rollback, release endpoint, or release key policy |
 | Website About section | Implemented; website CI passed and Vercel deployment previously reported READY; live click-through remains owner-side |
 
@@ -31,7 +31,7 @@ This tracker separates implementation, automated verification, and owner-side ma
 - [x] Add bgfx integration, shader inputs and SDL3 Win32 HWND renderer implementation; visual and latest renderer CI acceptance pending.
 - [x] Add Editor Run/Stop actions and output capture; Windows Editor Build passed: [run 42657773169](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42657773169).
 - [x] Add Windows updater project, strict local manifest validation, Ed25519 verification, SHA-256 package verification, and local verified staging.
-- [x] Updater security CI passed on the stack-buffer fix commit: [run 42658814633](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42658814633).
+- [x] Updater security CI passed after the stack-buffer fix and debug-output cleanup: [run 42659055214](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42659055214). The separate updater package including third-party license notices passed: [run 42659501624](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42659501624).
 - [x] Include updater in installer staging and add post-install file/CLI checks; newest installer run is still pending.
 - [x] Add and push the Phase 2 Completion Sprint plan: [PHASE_2_COMPLETION_SPRINT.md](PHASE_2_COMPLETION_SPRINT.md).
 
@@ -53,10 +53,10 @@ This tracker separates implementation, automated verification, and owner-side ma
 - Installer prototype baseline: [Windows Installer Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41686760636); silent install/uninstall and outside-user-data marker preservation passed.
 - Website About section build: [run 41685592982](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41685592982). The production deployment was previously reported READY; no live click-through evidence is recorded here.
 - Manual editor smoke test passed on 2026-11-03.
-- Manual runtime launch passed on 2026-11-09: window opened, blank before renderer.
+- Manual runtime launch passed on 2026-11-09: window opened (blank before renderer), and both Escape and the window close button exited cleanly.
 - Geometry CI passed in Runtime Build #20.
 - Editor Run/Stop Windows compile/tests passed in run 42657773169.
-- Updater local security tests passed in run 42658814633 (pre-debug-output cleanup commit).
+- Updater local security tests and packaging passed in runs 42659055214 and 42659501624; a further package-size bound was committed after those passes and is pending CI.
 
 ## Not implemented / outside current Phase 2 scope
 
