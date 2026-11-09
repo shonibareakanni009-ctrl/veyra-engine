@@ -126,3 +126,19 @@ Runtime geometry and camera projection must preserve this convention. Sample sce
 - Current renderer is Windows-only and selects Direct3D 11. Sprite texture rendering remains deliberately unsupported and is logged rather than falsely displayed.
 
 The next engineering action is to resolve the current bgfx CI outcome, fix any compile/shader/runtime issue, and produce a fresh packaged runtime for the owner-side visual test.
+
+
+## Renderer build adjustment — pinned precompiled shader pair
+
+To keep Windows CI practical, the renderer now uses the Direct3D 11 shader binaries already shipped in the exact bgfx submodule revision selected by `bgfx.cmake`. The upstream `examples/01-cubes/vs_cubes.sc` and `fs_cubes.sc` use the same position/color inputs, `u_modelViewProj` transform and pass-through vertex color needed by Veyra's flat primitive mesh.
+
+- bgfx.cmake commit: `eb88f6be55ae223966698c802542c24b0d93fd25`
+- bgfx submodule commit: `7346c3e731bd65f35c7e6a99819840e554f5b748`
+- Vertex binary: `examples/runtime/shaders/dxbc/vs_cubes.bin`, upstream blob SHA `1ab1a1d3faf05e412072783337ab1407947ee5e4` (532 bytes)
+- Fragment binary: `examples/runtime/shaders/dxbc/fs_cubes.bin`, upstream blob SHA `b9c5a401e7c2b0c046c4586712a59641d6627d7c` (278 bytes)
+- Embedded byte arrays: `engine/runtime/src/embedded_shaders.h`
+- bgfx shader-tool targets are disabled in normal builds; renderer still links the pinned bgfx static library.
+- The runtime install target now copies SDL3, nlohmann/json, bgfx, bx, and bimg licence texts into its `licenses/` directory.
+- `runtime_renderer.cpp` is compiled into `VeyraRuntime`, not `VeyraRuntimeCore`; scene-loader and CPU-geometry tests stay independent of SDL/bgfx.
+
+This adjustment preserves the renderer shader contract while removing normal-runtime shaderc dependency compilation. The bgfx-enabled Windows build must still pass and the owner must still confirm actual visual output; precompiled assets are not themselves evidence that the app renders correctly.
