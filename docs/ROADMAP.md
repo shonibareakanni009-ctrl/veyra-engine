@@ -1,6 +1,6 @@
 # Veyra Engine — Roadmap
 
-**Last updated:** 2026-11-08  
+**Last updated:** 2026-11-09  
 **Status:** Phase 1 Verified. Phase 2 — Runtime, installation, and update foundation — is CURRENT.
 
 ## Guiding rule
@@ -122,6 +122,7 @@ Phase 2 delivers the first native run path and establishes a dependable way to i
 
 - Multiplayer and networking
 - 3D renderer and editor workflows
+- **FBX format support** (import/export of meshes, materials, and animation so users can move assets between Veyra and other tools)
 - Plugin ecosystem and expanded scripting options
 - Project templates and broader platform installers/updaters
 - Signed public releases and release-channel maturity beyond the initial Windows x64 implementation
