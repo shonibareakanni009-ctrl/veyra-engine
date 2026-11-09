@@ -83,6 +83,7 @@ Next priority: Begin Phase 2 — Runtime foundation (smallest possible vertical 
 | 2026-11-03 | Manual smoke test (A–G) completed and passed                             | Akanni executed and reported results           | Active   |
 | 2026-11-03 | Phase 1 marked **Verified**                                              | CI green + manual smoke test passed            | Active   |
 | 2026-11-03 | Two new staff members joined the project                                 | Akanni notification                            | Active   |
+| 2026-11-09 | Engine must support FBX format (import/export)                           | Users must be able to switch tools freely      | Active   |
 
 ---
 
@@ -93,6 +94,7 @@ Next priority: Begin Phase 2 — Runtime foundation (smallest possible vertical 
 - Manager will keep the timeline honest and visible.
 - Manager protects vision and architecture but does not implement code.
 - Phase 1 is now closed with evidence.
+- FBX support is a required capability for asset interchange; it belongs with the 3D / later asset pipeline work, not the current 2D runtime foundation.
 
 ---
 
