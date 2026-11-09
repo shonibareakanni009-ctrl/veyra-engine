@@ -1,7 +1,7 @@
 # Phase 2A — Native Runtime Implementation Plan
 
-**Status:** Runtime foundation and shared-folder build verified in Windows CI; manual desktop launch remains  
-**Last updated:** 2026-11-03  
+**Status:** Runtime foundation and shared-folder build verified; manual SDL window launch passed (owner-reported); renderer pending  
+**Last updated:** 2026-11-09  
 **Scope:** First Windows x64 runtime vertical-slice foundation
 
 This plan turns the Phase 2A roadmap into small, verifiable implementation checkpoints. It does not mark a checkpoint complete until its code is built and its tests pass in CI.
@@ -29,7 +29,7 @@ The runtime must load this format without linking Qt. Unsafe relative asset path
 
 **Checkpoint 1 automated acceptance:** Passed on Windows x64: the standalone runtime configured and compiled, scene-loader tests passed, and a distributable runtime package was staged and uploaded. The CI job does not launch a GUI window.
 
-**Checkpoint 1 manual acceptance still open:** Run the packaged executable with `first-scene.vscene`, confirm the SDL window opens and reports three loaded objects, then confirm Escape and the window close button both exit cleanly. Scene-object rendering is not part of this checkpoint and is not claimed.
+**Checkpoint 1 manual acceptance:** Owner-reported pass on 2026-11-09. The packaged runtime opened its SDL window successfully; the window was blank, as expected because scene-object rendering belongs to the next checkpoint. Escape/window-close behavior should be recorded separately if not explicitly confirmed.
 
 ## Checkpoint 2 — Renderer integration
 
@@ -68,8 +68,8 @@ The runtime must load this format without linking Qt. Unsafe relative asset path
 - [x] SDL3 window/event lifecycle implementation compiles — manual window behavior test pending.
 - [x] Qt-free `.vscene` parser and validation tests — CI tests passed.
 - [x] Windows x64 runtime CI — configure, compile, tests, and package upload passed.
-- [ ] Manual launch/close smoke test using the packaged sample scene.
-- [ ] bgfx initialization and first rendered scene object.
+- [x] Manual launch smoke test: packaged runtime opened an SDL window (owner-reported, 2026-11-09; blank window expected).
+- [ ] bgfx initialization and first rendered scene object (implementation plan: `PHASE_2B_BGFX_RENDERER_PLAN.md`).
 - [ ] Editor Run/Stop controls.
 - [x] Shared `engine/` layout and independent Windows x64 editor/runtime CI verified.
 - [x] Move editor and runtime source trees under shared `engine/` directory (new-path CI verification pending).
@@ -92,4 +92,4 @@ The runtime must load this format without linking Qt. Unsafe relative asset path
 - Artifact: `veyra-runtime-windows-x64` (includes `VeyraRuntime.exe`, app-local MSVC runtime DLLs, README, and `first-scene.vscene`).
 - The workflow verifies compilation and scene validation; it does not launch the SDL window. Manual GUI behavior is still unverified.
 
-The runtime source now lives under `engine/runtime/`. The shared top-level CMake entry point can configure editor and runtime independently. The editor and runtime now live under the shared `engine/` directory. The top-level `engine/CMakeLists.txt` selects either application independently. Windows x64 CI passed after the move for both editor and runtime. The runtime currently validates and loads scene data, then opens an SDL window and processes close/Escape events in its application loop. It does **not** render scene objects yet. bgfx integration and the manual window smoke test remain open.
+The runtime source now lives under `engine/runtime/`. The shared top-level CMake entry point can configure editor and runtime independently. The editor and runtime now live under the shared `engine/` directory. The top-level `engine/CMakeLists.txt` selects either application independently. Windows x64 CI passed after the move for both editor and runtime. The runtime currently validates and loads scene data, then opens an SDL window and processes close/Escape events in its application loop. The project owner manually confirmed that the packaged window opens on 2026-11-09; it was blank, as expected. It does **not** render scene objects yet. bgfx integration is the next implementation checkpoint.
