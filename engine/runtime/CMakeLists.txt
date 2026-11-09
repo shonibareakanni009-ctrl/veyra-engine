@@ -39,10 +39,11 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SDL3 nlohmann_json)
 
 # bgfx.cmake — pinned to an immutable upstream commit with recursive submodules.
-# Build the shader compiler, but omit examples, test suites, and unrelated asset tools.
-set(BGFX_BUILD_TOOLS ON CACHE BOOL "Build bgfx command-line tools" FORCE)
+# Use two precompiled DXBC shaders pinned from the same bgfx submodule revision.
+# This keeps normal Windows builds independent of the heavyweight shader-toolchain.
+set(BGFX_BUILD_TOOLS OFF CACHE BOOL "Do not build bgfx tools in normal runtime builds" FORCE)
 set(BGFX_BUILD_TOOLS_BIN2C OFF CACHE BOOL "Do not build standalone bin2c" FORCE)
-set(BGFX_BUILD_TOOLS_SHADER ON CACHE BOOL "Build bgfx shaderc" FORCE)
+set(BGFX_BUILD_TOOLS_SHADER OFF CACHE BOOL "Do not build bgfx shaderc in normal runtime builds" FORCE)
 set(BGFX_BUILD_TOOLS_GEOMETRY OFF CACHE BOOL "Do not build geometry tools" FORCE)
 set(BGFX_BUILD_TOOLS_TEXTURE OFF CACHE BOOL "Do not build texture tools" FORCE)
 set(BGFX_BUILD_EXAMPLES OFF CACHE BOOL "Do not build bgfx examples" FORCE)
@@ -61,31 +62,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(bgfx_cmake)
 
-# The pinned wrapper's shader compiler consumes bgfx/src/bgfx_shader.sh.
-set(BGFX_SHADER_INCLUDE_PATH "${bgfx_cmake_SOURCE_DIR}/bgfx/src")
-include("${bgfx_cmake_SOURCE_DIR}/cmake/bgfxToolUtils.cmake")
-
-set(VEYRA_SHADER_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/shaders")
-bgfx_compile_shaders(
-    TYPE VERTEX
-    SHADERS "${CMAKE_CURRENT_SOURCE_DIR}/shaders/vs_draw.sc"
-    VARYING_DEF "${CMAKE_CURRENT_SOURCE_DIR}/shaders/varying.def.sc"
-    OUTPUT_DIR "${VEYRA_SHADER_OUTPUT_DIR}"
-    PROFILES s_5_0
-    AS_HEADERS
-    OUT_FILES_VAR VEYRA_VERTEX_SHADER_HEADERS
-)
-bgfx_compile_shaders(
-    TYPE FRAGMENT
-    SHADERS "${CMAKE_CURRENT_SOURCE_DIR}/shaders/fs_draw.sc"
-    VARYING_DEF "${CMAKE_CURRENT_SOURCE_DIR}/shaders/varying.def.sc"
-    OUTPUT_DIR "${VEYRA_SHADER_OUTPUT_DIR}"
-    PROFILES s_5_0
-    AS_HEADERS
-    OUT_FILES_VAR VEYRA_FRAGMENT_SHADER_HEADERS
-)
-
-
 add_library(VeyraRuntimeCore
     src/scene_document.cpp
     src/scene_document.h
@@ -93,6 +69,7 @@ add_library(VeyraRuntimeCore
     src/scene_geometry.h
     src/runtime_renderer.cpp
     src/runtime_renderer.h
+    src/embedded_shaders.h
 )
 target_link_libraries(VeyraRuntimeCore PRIVATE nlohmann_json::nlohmann_json)
 target_include_directories(VeyraRuntimeCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -102,8 +79,6 @@ add_executable(VeyraRuntime
     src/main.cpp
 )
 target_link_libraries(VeyraRuntime PRIVATE VeyraRuntimeCore SDL3::SDL3-static bgfx)
-target_include_directories(VeyraRuntime PRIVATE "${VEYRA_SHADER_OUTPUT_DIR}")
-target_sources(VeyraRuntime PRIVATE ${VEYRA_VERTEX_SHADER_HEADERS} ${VEYRA_FRAGMENT_SHADER_HEADERS})
 target_compile_features(VeyraRuntime PRIVATE cxx_std_20)
 
 function(veyra_enable_warnings target_name)
@@ -136,3 +111,8 @@ if(BUILD_TESTING)
 endif()
 
 install(TARGETS VeyraRuntime RUNTIME DESTINATION .)
+install(FILES "${SDL3_SOURCE_DIR}/LICENSE.txt" DESTINATION licenses RENAME SDL3-LICENSE.txt)
+install(FILES "${nlohmann_json_SOURCE_DIR}/LICENSE.MIT" DESTINATION licenses RENAME nlohmann-json-LICENSE.MIT)
+install(FILES "${bgfx_cmake_SOURCE_DIR}/bgfx/LICENSE" DESTINATION licenses RENAME bgfx-LICENSE)
+install(FILES "${bgfx_cmake_SOURCE_DIR}/bx/LICENSE" DESTINATION licenses RENAME bx-LICENSE)
+install(FILES "${bgfx_cmake_SOURCE_DIR}/bimg/LICENSE" DESTINATION licenses RENAME bimg-LICENSE)
