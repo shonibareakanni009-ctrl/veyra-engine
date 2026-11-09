@@ -12,7 +12,9 @@ on:
     paths:
       - "engine/**"
       - "installer/**"
+      - "updater/**"
       - ".github/workflows/windows-installer-build.yml"
+      - ".github/workflows/windows-updater-build.yml"
   workflow_dispatch:
 
 permissions:
