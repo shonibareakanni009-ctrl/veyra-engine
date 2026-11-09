@@ -15,6 +15,10 @@ on:
       - "docs/PHASE_2A_RUNTIME.md"
       - ".github/workflows/windows-runtime-build.yml"
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 jobs:
@@ -50,6 +54,10 @@ jobs:
         run: |
           cmake --install build/runtime --config Release --prefix build/runtime/package
           $package = "$env:GITHUB_WORKSPACE\build\runtime\package"
+          foreach ($licenseName in @("SDL3-LICENSE.txt", "nlohmann-json-LICENSE.MIT", "bgfx-LICENSE", "bx-LICENSE", "bimg-LICENSE")) {
+            $licensePath = Join-Path $package ("licenses\" + $licenseName)
+            if (-not (Test-Path $licensePath -PathType Leaf)) { throw "Runtime third-party license missing: $licensePath" }
+          }
           $vsWhere = Join-Path "${env:ProgramFiles(x86)}" "Microsoft Visual Studio\Installer\vswhere.exe"
           if (-not (Test-Path $vsWhere -PathType Leaf)) { throw "Could not locate vswhere.exe." }
           $vsInstall = & $vsWhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
