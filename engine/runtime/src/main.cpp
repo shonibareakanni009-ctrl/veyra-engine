@@ -1,17 +1,14 @@
 /**
  * @file main.cpp
- * @brief Starts the standalone Veyra runtime with an editor-authored scene.
- *
- * This first checkpoint proves the independent executable, SDL3 window/event
- * lifecycle, and scene loading. Scene rendering is intentionally the next
- * renderer-integration checkpoint; this executable does not claim to draw
- * scene objects yet.
+ * @brief Loads an editor-authored scene and renders its 2D primitives.
  */
+#include "runtime_renderer.h"
 #include "scene_document.h"
+#include "scene_geometry.h"
 
 #include <SDL3/SDL.h>
 
-#include <cstdlib>
+#include <algorithm>
 #include <filesystem>
 #include <string>
 
@@ -23,7 +20,7 @@ constexpr int WindowHeight = 720;
 void printUsage(const char* executable)
 {
     SDL_Log("Usage: %s <scene.vscene>", executable);
-    SDL_Log("Loads and validates a Veyra scene, then opens the native runtime window.");
+    SDL_Log("Loads, validates, and renders a Veyra version 1 scene.");
 }
 
 int runRuntime(const std::filesystem::path& scenePath)
@@ -36,6 +33,15 @@ int runRuntime(const std::filesystem::path& scenePath)
         return 2;
     }
 
+    const Veyra::Runtime::SceneGeometry geometry =
+        Veyra::Runtime::buildSceneGeometry(scene);
+    const auto spriteCount = static_cast<std::size_t>(std::count_if(
+        scene.objects().begin(), scene.objects().end(),
+        [](const Veyra::Runtime::SceneObject& object)
+        {
+            return object.visible && object.shape == "sprite";
+        }));
+
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
     {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL initialization failed: %s", SDL_GetError());
@@ -46,7 +52,6 @@ int runRuntime(const std::filesystem::path& scenePath)
         "Veyra Runtime - " + std::to_string(scene.objects().size()) + " scene objects";
     SDL_Window* window = SDL_CreateWindow(
         windowTitle.c_str(), WindowWidth, WindowHeight, SDL_WINDOW_RESIZABLE);
-
     if (window == nullptr)
     {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Window creation failed: %s", SDL_GetError());
@@ -54,9 +59,21 @@ int runRuntime(const std::filesystem::path& scenePath)
         return 4;
     }
 
+    Veyra::Runtime::RuntimeRenderer renderer;
+    if (!renderer.initialize(window, geometry, &error))
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Renderer initialization failed: %s", error.c_str());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 5;
+    }
+
     SDL_Log("Loaded scene: %s", scenePath.string().c_str());
     SDL_Log("Validated scene objects: %zu", scene.objects().size());
-    SDL_Log("Runtime window opened. Press Escape or close the window to exit.");
+    SDL_Log("Rendered primitive vertices: %zu", geometry.vertices.size());
+    if (spriteCount > 0U)
+        SDL_Log("Sprite textures are not supported yet; skipped visible sprites: %zu", spriteCount);
+    SDL_Log("Runtime renderer initialized. Press Escape or close the window to exit.");
 
     bool running = true;
     while (running)
@@ -80,10 +97,15 @@ int runRuntime(const std::filesystem::path& scenePath)
             }
         }
 
-        // Avoid a busy loop while the renderer is being integrated.
-        SDL_Delay(8);
+        int pixelWidth = 0;
+        int pixelHeight = 0;
+        if (SDL_GetWindowSizeInPixels(window, &pixelWidth, &pixelHeight))
+            renderer.render(pixelWidth, pixelHeight);
+        else
+            SDL_Delay(8);
     }
 
+    renderer.shutdown();
     SDL_DestroyWindow(window);
     SDL_Quit();
     SDL_Log("Veyra Runtime shut down cleanly.");
@@ -98,12 +120,10 @@ int main(int argc, char* argv[])
         printUsage(argv[0]);
         return 0;
     }
-
     if (argc != 2)
     {
         printUsage(argv[0]);
         return 1;
     }
-
     return runRuntime(std::filesystem::path(argv[1]));
 }
