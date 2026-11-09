@@ -10,6 +10,7 @@
 #include "scene_viewport.h"
 
 #include <QAction>
+#include <QCoreApplication>
 #include <QCloseEvent>
 #include <QDockWidget>
 #include <QDir>
@@ -25,6 +26,8 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QMenuBar>
+#include <QPlainTextEdit>
+#include <QProcess>
 #include <QMessageBox>
 #include <QStatusBar>
 #include <QStringList>
@@ -77,10 +80,13 @@ EditorMainWindow::~EditorMainWindow() = default;
 
 void EditorMainWindow::closeEvent(QCloseEvent* event)
 {
-    if (confirmDiscardChanges())
-        event->accept();
-    else
+    if (!confirmDiscardChanges())
+    {
         event->ignore();
+        return;
+    }
+    stopRuntime();
+    event->accept();
 }
 
 void EditorMainWindow::createMenus()
@@ -117,6 +123,15 @@ void EditorMainWindow::createMenus()
 
     menuBar()->addMenu("&View")->addAction("Reset Layout")->setEnabled(false);
     menuBar()->addMenu("&Project")->addAction("Project management — next milestone")->setEnabled(false);
+    QMenu* run = menuBar()->addMenu("&Run");
+    m_runSceneAction = run->addAction("Run Scene");
+    m_runSceneAction->setShortcut(QKeySequence(Qt::Key_F5));
+    connect(m_runSceneAction, &QAction::triggered, this, [this]() { runScene(); });
+    m_stopRuntimeAction = run->addAction("Stop Runtime");
+    m_stopRuntimeAction->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F5));
+    m_stopRuntimeAction->setEnabled(false);
+    connect(m_stopRuntimeAction, &QAction::triggered, this, [this]() { stopRuntime(); });
+
     QMenu* build = menuBar()->addMenu("&Build");
     build->addAction("Build Project")->setEnabled(false);
     build->addAction("Export Project...")->setEnabled(false);
@@ -142,6 +157,9 @@ void EditorMainWindow::createToolbar()
     toolbar->addSeparator();
     connect(toolbar->addAction("Save Scene"), &QAction::triggered,
             this, [this]() { (void)saveScene(); });
+    toolbar->addSeparator();
+    toolbar->addAction(m_runSceneAction);
+    toolbar->addAction(m_stopRuntimeAction);
 }
 
 QDockWidget* EditorMainWindow::createInformationDock(
@@ -246,12 +264,18 @@ void EditorMainWindow::createDockPanels()
 
     auto* assets = createInformationDock("Asset Browser", "AssetBrowserDock",
         "Project asset import and browsing will be connected after project management.");
-    auto* output = createInformationDock("Output", "OutputDock",
-        "Build and runtime diagnostics will appear here when those systems are integrated.");
+    auto* output = new QDockWidget("Output", this);
+    output->setObjectName("OutputDock");
+    m_outputLog = new QPlainTextEdit(output);
+    m_outputLog->setReadOnly(true);
+    m_outputLog->setMaximumBlockCount(2000);
+    m_outputLog->setPlaceholderText("Runtime and build output will appear here.");
+    output->setWidget(m_outputLog);
     addDockWidget(Qt::BottomDockWidgetArea, assets);
     addDockWidget(Qt::BottomDockWidgetArea, output);
     tabifyDockWidget(assets, output);
-    assets->raise();
+    output->raise();
+    updateRuntimeActions();
 }
 
 void EditorMainWindow::refreshHierarchy()
@@ -486,4 +510,167 @@ void EditorMainWindow::deleteSelectedObject()
     refreshInspector();
     updateWindowTitle();
 }
+
+QString EditorMainWindow::resolveRuntimeExecutable() const
+{
+#ifdef Q_OS_WIN
+    const QString executableName = QStringLiteral("VeyraRuntime.exe");
+#else
+    const QString executableName = QStringLiteral("VeyraRuntime");
+#endif
+
+    const QString configured = qEnvironmentVariable("VEYRA_RUNTIME_PATH").trimmed();
+    if (!configured.isEmpty() && QFileInfo::exists(configured) &&
+        QFileInfo(configured).isFile())
+        return QFileInfo(configured).absoluteFilePath();
+
+    const QDir applicationDirectory(QCoreApplication::applicationDirPath());
+    const QStringList candidates = {
+        applicationDirectory.filePath(QStringLiteral("../runtime/") + executableName),
+        applicationDirectory.filePath(executableName),
+        QDir::current().filePath(QStringLiteral("runtime/") + executableName)
+    };
+    for (const QString& candidate : candidates)
+    {
+        const QFileInfo info(candidate);
+        if (info.exists() && info.isFile())
+            return info.absoluteFilePath();
+    }
+    return {};
+}
+
+void EditorMainWindow::appendRuntimeOutput(const QString& text)
+{
+    if (m_outputLog == nullptr || text.isEmpty())
+        return;
+    const QString normalized = QString::fromUtf8(text.toUtf8()).trimmed();
+    if (!normalized.isEmpty())
+        m_outputLog->appendPlainText(normalized);
+}
+
+void EditorMainWindow::updateRuntimeActions()
+{
+    const bool running = m_runtimeProcess != nullptr &&
+                         m_runtimeProcess->state() != QProcess::NotRunning;
+    if (m_runSceneAction != nullptr)
+        m_runSceneAction->setEnabled(!running);
+    if (m_stopRuntimeAction != nullptr)
+        m_stopRuntimeAction->setEnabled(running);
+}
+
+void EditorMainWindow::runScene()
+{
+    if (m_runtimeProcess != nullptr &&
+        m_runtimeProcess->state() != QProcess::NotRunning)
+    {
+        statusBar()->showMessage("The Veyra Runtime is already running.", 4000);
+        return;
+    }
+
+    if (m_document->filePath().isEmpty() || m_document->isModified())
+    {
+        if (!saveScene())
+            return;
+    }
+
+    const QFileInfo sceneInfo(m_document->filePath());
+    if (!sceneInfo.exists() || !sceneInfo.isFile())
+    {
+        QMessageBox::critical(this, "Cannot run scene",
+            "Save the current scene to a valid .vscene file before running it.");
+        return;
+    }
+
+    const QString runtimePath = resolveRuntimeExecutable();
+    if (runtimePath.isEmpty())
+    {
+        QMessageBox::critical(this, "Veyra Runtime not found",
+            "Veyra could not locate VeyraRuntime next to the editor. "
+            "Install both components together or set VEYRA_RUNTIME_PATH to the runtime executable.");
+        return;
+    }
+
+    auto* process = new QProcess(this);
+    process->setProgram(runtimePath);
+    process->setArguments({sceneInfo.absoluteFilePath()});
+    process->setWorkingDirectory(sceneInfo.absolutePath());
+    process->setProcessChannelMode(QProcess::SeparateChannels);
+    m_runtimeProcess = process;
+    updateRuntimeActions();
+
+    connect(process, &QProcess::started, this, [this]()
+    {
+        appendRuntimeOutput("[Veyra Runtime process started]");
+        statusBar()->showMessage("Veyra Runtime is running.", 4000);
+    });
+    connect(process, &QProcess::readyReadStandardOutput, this, [this, process]()
+    {
+        appendRuntimeOutput(QString::fromLocal8Bit(process->readAllStandardOutput()));
+    });
+    connect(process, &QProcess::readyReadStandardError, this, [this, process]()
+    {
+        appendRuntimeOutput(QString::fromLocal8Bit(process->readAllStandardError()));
+    });
+    connect(process, &QProcess::finished, this,
+            [this, process](int exitCode, QProcess::ExitStatus exitStatus)
+    {
+        appendRuntimeOutput(QString("[Veyra Runtime exited: code %1, %2]")
+            .arg(exitCode)
+            .arg(exitStatus == QProcess::NormalExit ? "normal" : "crashed"));
+        if (m_runtimeProcess == process)
+        {
+            m_runtimeProcess = nullptr;
+            process->deleteLater();
+        }
+        updateRuntimeActions();
+    });
+    connect(process, &QProcess::errorOccurred, this,
+            [this, process](QProcess::ProcessError error)
+    {
+        if (error == QProcess::FailedToStart)
+        {
+            appendRuntimeOutput("[Veyra Runtime failed to start: " + process->errorString() + "]");
+            if (m_runtimeProcess == process)
+            {
+                m_runtimeProcess = nullptr;
+                process->deleteLater();
+            }
+            updateRuntimeActions();
+            QMessageBox::critical(this, "Could not start Veyra Runtime", process->errorString());
+        }
+    });
+
+    appendRuntimeOutput("[Launching] " + runtimePath + " " + sceneInfo.absoluteFilePath());
+    process->start();
+}
+
+void EditorMainWindow::stopRuntime()
+{
+    if (m_runtimeProcess == nullptr)
+    {
+        updateRuntimeActions();
+        return;
+    }
+
+    QProcess* process = m_runtimeProcess;
+    if (process->state() != QProcess::NotRunning)
+    {
+        process->terminate();
+        if (!process->waitForFinished(2000))
+        {
+            process->kill();
+            (void)process->waitForFinished(2000);
+        }
+    }
+
+    if (m_runtimeProcess == process)
+    {
+        m_runtimeProcess = nullptr;
+        appendRuntimeOutput("[Veyra Runtime stopped by the editor]");
+        process->deleteLater();
+    }
+    updateRuntimeActions();
+    statusBar()->showMessage("Veyra Runtime stopped.", 3000);
+}
+
 } // namespace Veyra
