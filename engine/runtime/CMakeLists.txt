@@ -38,11 +38,61 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(SDL3 nlohmann_json)
 
+# bgfx.cmake — pinned to an immutable upstream commit with recursive submodules.
+# Build the shader compiler, but omit examples, test suites, and unrelated asset tools.
+set(BGFX_BUILD_TOOLS ON CACHE BOOL "Build bgfx command-line tools" FORCE)
+set(BGFX_BUILD_TOOLS_BIN2C OFF CACHE BOOL "Do not build standalone bin2c" FORCE)
+set(BGFX_BUILD_TOOLS_SHADER ON CACHE BOOL "Build bgfx shaderc" FORCE)
+set(BGFX_BUILD_TOOLS_GEOMETRY OFF CACHE BOOL "Do not build geometry tools" FORCE)
+set(BGFX_BUILD_TOOLS_TEXTURE OFF CACHE BOOL "Do not build texture tools" FORCE)
+set(BGFX_BUILD_EXAMPLES OFF CACHE BOOL "Do not build bgfx examples" FORCE)
+set(BGFX_BUILD_TESTS OFF CACHE BOOL "Do not build bgfx tests" FORCE)
+set(BGFX_INSTALL OFF CACHE BOOL "Do not install bgfx separately" FORCE)
+set(BGFX_CUSTOM_TARGETS OFF CACHE BOOL "Disable bgfx convenience targets" FORCE)
+set(BGFX_LIBRARY_TYPE STATIC CACHE STRING "Link bgfx statically" FORCE)
+set(BGFX_CONFIG_VIDEO OFF CACHE BOOL "Disable optional video decoding" FORCE)
+
+FetchContent_Declare(
+    bgfx_cmake
+    GIT_REPOSITORY https://github.com/bkaradzic/bgfx.cmake.git
+    GIT_TAG eb88f6be55ae223966698c802542c24b0d93fd25
+    GIT_SHALLOW FALSE
+    GIT_SUBMODULES_RECURSE TRUE
+)
+FetchContent_MakeAvailable(bgfx_cmake)
+
+# The pinned wrapper's shader compiler consumes bgfx/src/bgfx_shader.sh.
+set(BGFX_SHADER_INCLUDE_PATH "${bgfx_cmake_SOURCE_DIR}/bgfx/src")
+include("${bgfx_cmake_SOURCE_DIR}/cmake/bgfxToolUtils.cmake")
+
+set(VEYRA_SHADER_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/shaders")
+bgfx_compile_shaders(
+    TYPE VERTEX
+    SHADERS "${CMAKE_CURRENT_SOURCE_DIR}/shaders/vs_draw.sc"
+    VARYING_DEF "${CMAKE_CURRENT_SOURCE_DIR}/shaders/varying.def.sc"
+    OUTPUT_DIR "${VEYRA_SHADER_OUTPUT_DIR}"
+    PROFILES s_5_0
+    AS_HEADERS
+    OUT_FILES_VAR VEYRA_VERTEX_SHADER_HEADERS
+)
+bgfx_compile_shaders(
+    TYPE FRAGMENT
+    SHADERS "${CMAKE_CURRENT_SOURCE_DIR}/shaders/fs_draw.sc"
+    VARYING_DEF "${CMAKE_CURRENT_SOURCE_DIR}/shaders/varying.def.sc"
+    OUTPUT_DIR "${VEYRA_SHADER_OUTPUT_DIR}"
+    PROFILES s_5_0
+    AS_HEADERS
+    OUT_FILES_VAR VEYRA_FRAGMENT_SHADER_HEADERS
+)
+
+
 add_library(VeyraRuntimeCore
     src/scene_document.cpp
     src/scene_document.h
     src/scene_geometry.cpp
     src/scene_geometry.h
+    src/runtime_renderer.cpp
+    src/runtime_renderer.h
 )
 target_link_libraries(VeyraRuntimeCore PRIVATE nlohmann_json::nlohmann_json)
 target_include_directories(VeyraRuntimeCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -51,7 +101,9 @@ target_compile_features(VeyraRuntimeCore PUBLIC cxx_std_20)
 add_executable(VeyraRuntime
     src/main.cpp
 )
-target_link_libraries(VeyraRuntime PRIVATE VeyraRuntimeCore SDL3::SDL3-static)
+target_link_libraries(VeyraRuntime PRIVATE VeyraRuntimeCore SDL3::SDL3-static bgfx)
+target_include_directories(VeyraRuntime PRIVATE "${VEYRA_SHADER_OUTPUT_DIR}")
+target_sources(VeyraRuntime PRIVATE ${VEYRA_VERTEX_SHADER_HEADERS} ${VEYRA_FRAGMENT_SHADER_HEADERS})
 target_compile_features(VeyraRuntime PRIVATE cxx_std_20)
 
 function(veyra_enable_warnings target_name)
