@@ -87,6 +87,16 @@ jobs:
           if (-not (Test-Path $updaterExe -PathType Leaf)) { throw "Updater executable missing: $updaterExe" }
           Copy-Item $updaterExe $updater
           Copy-Item "updater/manifest.schema.json" $updater
+          $licenses = Join-Path $updater "licenses"
+          New-Item -ItemType Directory -Force -Path $licenses | Out-Null
+          $monocypherLicense = "$env:GITHUB_WORKSPACE\build\updater\_deps\monocypher-src\LICENCE.md"
+          $jsonLicense = "$env:GITHUB_WORKSPACE\build\updater\_deps\nlohmann_json-src\LICENSE.MIT"
+          foreach ($license in @($monocypherLicense, $jsonLicense)) {
+            if (-not (Test-Path $license -PathType Leaf)) { throw "Third-party license is missing: $license" }
+          }
+          Copy-Item $monocypherLicense (Join-Path $licenses "Monocypher-LICENCE.md")
+          Copy-Item $jsonLicense (Join-Path $licenses "nlohmann-json-LICENSE.MIT")
+          Copy-Item "updater/THIRD_PARTY_NOTICES.md" $updater
           $updaterHelp = & (Join-Path $updater "VeyraUpdater.exe") --help 2>&1 | Out-String
           if ($LASTEXITCODE -ne 0 -or $updaterHelp -notmatch "verify-local") {
             throw "Updater CLI smoke test failed: $updaterHelp"
