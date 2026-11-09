@@ -329,7 +329,7 @@ bool sha256File(const std::filesystem::path& path,
         return fail(error, "Could not open the update package for hashing.");
     }
 
-    std::array<char, 1024U * 1024U> buffer{};
+    std::vector<char> buffer(64U * 1024U);
     std::uint64_t total = 0U;
     while (file)
     {
