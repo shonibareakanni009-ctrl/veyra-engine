@@ -1,6 +1,6 @@
 # Phase 2 — Execution Plan (six checkpoints)
 
-**Status:** In progress; Checkpoint 1 verified by Windows CI and About section passes website CI.
+**Status:** In progress; Checkpoint 1 verified, runtime window launch manually confirmed by owner, and renderer implementation plan committed.
 **Scope:** Windows x64 first. Keep editor and runtime as sibling components under one `engine/` directory.
 
 ## Goals and constraints
@@ -43,6 +43,8 @@ Actions:
 Acceptance: both applications build and their tests pass from the new paths; no source or test content is lost.
 
 ## Checkpoint 2 — Runtime renderer
+
+**Status:** Implementation next. The packaged runtime window was manually opened successfully by the project owner on 2026-11-09; it was blank, as expected before rendering. Detailed implementation plan: [PHASE_2B_BGFX_RENDERER_PLAN.md](PHASE_2B_BGFX_RENDERER_PLAN.md).
 
 1. Confirm a pinned bgfx integration strategy compatible with SDL3 and Windows x64.
 2. Add a platform-window adapter and renderer lifecycle with resize and shutdown handling.
@@ -133,4 +135,4 @@ Phase 2 is complete only when all six checkpoints have evidence:
 - End-to-end tests pass and user projects are preserved.
 - The About Veyra link works and website CI passes.
 
-**Historical baseline at plan creation:** editor and runtime are still separate root-level directories; runtime scene rendering and editor Run/Stop are not implemented; user-facing installer/updater are not implemented; About Veyra navigation/content is missing. Existing runtime scene-loader Windows CI has passed, but manual SDL window launch remains unverified.
+**Historical baseline at plan creation:** editor and runtime were separate root-level directories; runtime scene rendering and editor Run/Stop were not implemented; user-facing installer/updater were not implemented; About Veyra navigation/content was missing. This is a historical note, not current status. The runtime window launch was subsequently manually confirmed by the project owner on 2026-11-09; the blank window is expected until the renderer is implemented.
