@@ -5,7 +5,9 @@ on:
     paths:
       - "engine/**"
       - "installer/**"
+      - "updater/**"
       - ".github/workflows/windows-installer-build.yml"
+      - ".github/workflows/windows-updater-build.yml"
   pull_request:
     paths:
       - "engine/**"
@@ -53,13 +55,21 @@ jobs:
         run: |
           ctest --test-dir build/engine -C Release --output-on-failure --verbose
 
+      - name: Configure, build, and test updater
+        shell: pwsh
+        run: |
+          cmake -S updater -B build/updater -A x64 -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+          cmake --build build/updater --config Release --parallel 2
+          ctest --test-dir build/updater -C Release --output-on-failure --verbose
+
       - name: Stage editor and runtime
         shell: pwsh
         run: |
           $stage = "$env:GITHUB_WORKSPACE\build\installer-stage"
           $editor = Join-Path $stage "editor"
           $runtime = Join-Path $stage "runtime"
-          New-Item -ItemType Directory -Force -Path $editor, $runtime | Out-Null
+          $updater = Join-Path $stage "updater"
+          New-Item -ItemType Directory -Force -Path $editor, $runtime, $updater | Out-Null
 
           $editorExe = "$env:GITHUB_WORKSPACE\build\engine\package\VeyraEditor.exe"
           if (-not (Test-Path $editorExe -PathType Leaf)) { throw "Editor executable missing: $editorExe" }
@@ -71,6 +81,14 @@ jobs:
 
           cmake --install build/engine --config Release --prefix $runtime
           Copy-Item "engine/runtime/examples/first-scene.vscene" (Join-Path $runtime "first-scene.vscene")
+          $updaterExe = "$env:GITHUB_WORKSPACE\build\updater\Release\VeyraUpdater.exe"
+          if (-not (Test-Path $updaterExe -PathType Leaf)) { throw "Updater executable missing: $updaterExe" }
+          Copy-Item $updaterExe $updater
+          Copy-Item "updater/manifest.schema.json" $updater
+          $updaterHelp = & (Join-Path $updater "VeyraUpdater.exe") --help 2>&1 | Out-String
+          if ($LASTEXITCODE -ne 0 -or $updaterHelp -notmatch "verify-local") {
+            throw "Updater CLI smoke test failed: $updaterHelp"
+          }
 
           $vsWhere = Join-Path "${env:ProgramFiles(x86)}" "Microsoft Visual Studio\Installer\vswhere.exe"
           if (-not (Test-Path $vsWhere -PathType Leaf)) { throw "Could not locate vswhere.exe." }
