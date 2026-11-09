@@ -1,0 +1,70 @@
+name: Windows Updater Build
+on:
+  push:
+    branches: [main]
+    paths:
+      - "updater/**"
+      - ".github/workflows/windows-updater-build.yml"
+  pull_request:
+    paths:
+      - "updater/**"
+      - ".github/workflows/windows-updater-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-updater:
+    name: Build and test Veyra Updater for Windows x64
+    runs-on: windows-latest
+    steps:
+      - name: Check out Veyra Engine
+        uses: actions/checkout@v6
+      - name: Initialize MSVC x64 environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Show tool versions
+        shell: pwsh
+        run: |
+          cmake --version
+          cl
+      - name: Configure updater and security tests
+        shell: pwsh
+        run: |
+          cmake -S updater -B build/updater -A x64 -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+      - name: Build updater and tests
+        shell: pwsh
+        run: |
+          cmake --build build/updater --config Release --parallel 2
+      - name: Run updater security tests
+        shell: pwsh
+        run: |
+          ctest --test-dir build/updater -C Release --output-on-failure --verbose
+      - name: Stage updater package
+        shell: pwsh
+        run: |
+          $exe = "$env:GITHUB_WORKSPACE\build\updater\Release\VeyraUpdater.exe"
+          if (-not (Test-Path $exe -PathType Leaf)) { throw "Updater executable missing: $exe" }
+          $package = "$env:GITHUB_WORKSPACE\build\updater\package"
+          New-Item -ItemType Directory -Force -Path $package | Out-Null
+          Copy-Item $exe $package
+          Copy-Item "updater/manifest.schema.json" $package
+          @'
+          Veyra Updater 0.1.0 — Windows x64 local verification prototype
+          The executable validates local signed release manifests, verifies the
+          Ed25519 signature and package SHA-256/size, then stages a verified copy.
+          This prototype does not fetch updates, extract archives, run installers,
+          apply updates, or perform rollback. A trusted public key must be supplied
+          by a trusted caller; never copy a key from the manifest or update server.
+          '@ | Set-Content (Join-Path $package "README.txt") -Encoding utf8
+          $help = & $exe --help 2>&1 | Out-String
+          if ($LASTEXITCODE -ne 0 -or $help -notmatch "verify-local") { throw "Updater CLI smoke test failed: $help" }
+      - name: Upload Windows x64 updater
+        uses: actions/upload-artifact@v4
+        with:
+          name: veyra-updater-windows-x64
+          path: build/updater/package/
+          if-no-files-found: error
+          retention-days: 14
