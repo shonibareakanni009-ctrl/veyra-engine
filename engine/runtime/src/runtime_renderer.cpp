@@ -12,8 +12,7 @@
 
 #include <SDL3/SDL.h>
 #include <bgfx/bgfx.h>
-#include <dxbc/fs_draw.sc.bin.h>
-#include <dxbc/vs_draw.sc.bin.h>
+#include "embedded_shaders.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -114,9 +113,9 @@ bool RuntimeRenderer::initialize(SDL_Window* window, const SceneGeometry& geomet
     m_impl->vertexLayout = makeVertexLayout();
 
     const bgfx::Memory* vertexShaderMemory =
-        bgfx::makeRef(vs_draw_dxbc, static_cast<std::uint32_t>(sizeof(vs_draw_dxbc)));
+        bgfx::makeRef(EmbeddedShaders::VertexShaderDxbc.data(), static_cast<std::uint32_t>(EmbeddedShaders::VertexShaderDxbc.size()));
     const bgfx::Memory* fragmentShaderMemory =
-        bgfx::makeRef(fs_draw_dxbc, static_cast<std::uint32_t>(sizeof(fs_draw_dxbc)));
+        bgfx::makeRef(EmbeddedShaders::FragmentShaderDxbc.data(), static_cast<std::uint32_t>(EmbeddedShaders::FragmentShaderDxbc.size()));
     const bgfx::ShaderHandle vertexShader = bgfx::createShader(vertexShaderMemory);
     const bgfx::ShaderHandle fragmentShader = bgfx::createShader(fragmentShaderMemory);
     if (!bgfx::isValid(vertexShader) || !bgfx::isValid(fragmentShader))
