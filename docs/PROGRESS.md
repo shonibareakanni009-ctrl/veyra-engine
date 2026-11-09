@@ -12,7 +12,7 @@ This tracker separates implementation, automated verification, and owner-side ma
 | Editor | Qt 6 editor; Windows Editor Build passes; prior manual editor smoke test passed |
 | Scene authoring | Rectangle, circle, triangle, and imported sprite authoring verified |
 | Scene persistence | Versioned `.vscene` v1 loader/save validation in place |
-| Runtime base | Qt-free SDL3 runtime; owner manually confirmed its window opens on 2026-11-09 |
+| Runtime base | Qt-free SDL3 runtime; owner manually confirmed its window opens and Escape/window-close exit on 2026-11-09 |
 | CPU scene geometry | Rectangle/circle/triangle mesh generation implemented; Windows Runtime Build #20 passed |
 | bgfx renderer | Pinned dependency, shader compilation, SDL HWND hookup, Direct3D 11 renderer, and frame loop committed; latest renderer build is still awaiting CI completion |
 | Editor Run/Stop | F5 / Shift+F5, QProcess argument-array launch, owned-process stop, and output dock implemented; Windows Editor Build passed |
