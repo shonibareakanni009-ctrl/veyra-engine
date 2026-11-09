@@ -543,7 +543,7 @@ void EditorMainWindow::appendRuntimeOutput(const QString& text)
 {
     if (m_outputLog == nullptr || text.isEmpty())
         return;
-    const QString normalized = QString::fromUtf8(text.toUtf8()).trimmed();
+    const QString normalized = text.trimmed();
     if (!normalized.isEmpty())
         m_outputLog->appendPlainText(normalized);
 }
@@ -616,7 +616,7 @@ void EditorMainWindow::runScene()
     {
         appendRuntimeOutput(QString("[Veyra Runtime exited: code %1, %2]")
             .arg(exitCode)
-            .arg(exitStatus == QProcess::NormalExit ? "normal" : "crashed"));
+            .arg(exitStatus == QProcess::NormalExit ? QStringLiteral("normal") : QStringLiteral("crashed")));
         if (m_runtimeProcess == process)
         {
             m_runtimeProcess = nullptr;
@@ -629,7 +629,7 @@ void EditorMainWindow::runScene()
     {
         if (error == QProcess::FailedToStart)
         {
-            appendRuntimeOutput("[Veyra Runtime failed to start: " + process->errorString() + "]");
+            appendRuntimeOutput(QStringLiteral("[Veyra Runtime failed to start: ") + process->errorString() + "]");
             if (m_runtimeProcess == process)
             {
                 m_runtimeProcess = nullptr;
@@ -640,7 +640,7 @@ void EditorMainWindow::runScene()
         }
     });
 
-    appendRuntimeOutput("[Launching] " + runtimePath + " " + sceneInfo.absoluteFilePath());
+    appendRuntimeOutput(QStringLiteral("[Launching] ") + runtimePath + " " + sceneInfo.absoluteFilePath());
     process->start();
 }
 
