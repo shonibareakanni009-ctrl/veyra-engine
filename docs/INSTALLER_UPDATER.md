@@ -212,3 +212,29 @@ The installer/updater portion of Phase 2 is complete only when:
 - Automated release packaging and repeatable tests provide evidence for the claimed support.
 
 **Current truth:** The Inno Setup script and CI workflow produced a Windows x64 installer artifact; automated compile, silent install/uninstall, runtime CLI, and external user-data preservation tests passed. Manual clean-machine install, editor GUI launch, repair, and upgrade are not yet verified. The updater schema and security model exist, but the updater executable, cryptographic verifier, download/staging process, rollback, and release signing are not implemented.
+
+
+## 14. Current implementation status — 2026-11-09
+
+### Installer
+
+The `installer/veyra-engine.iss` script and `.github/workflows/windows-installer-build.yml` are implemented for a per-user Windows x64 install. The earlier prototype passed Inno Setup compilation, silent install, editor/runtime/sample file checks, runtime `--help`, silent uninstall, and an external project marker preservation check.
+
+The current package build now also compiles the local updater prototype, stages `updater/VeyraUpdater.exe` and `manifest.schema.json`, installs the `{app}\updater` folder, and checks installed updater files and its `--help` command. The newest installer CI run must pass before the expanded package is considered verified. Manual clean-machine GUI launch, repair, and upgrade checks remain open.
+
+### Updater prototype
+
+The separate `updater/` CMake project now builds a Windows x64 `VeyraUpdater.exe` and a test suite. Its `verify-local` command validates a local release manifest, verifies an Ed25519 signature against a trusted public key supplied by the local caller, checks a local package's declared size and SHA-256 digest using Windows CNG, then copies and re-verifies it in a staging directory.
+
+The Windows Updater Build [run 42658814633](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42658814633) passed configure, compile, CTest, CLI help, and artifact upload on commit `6f6c8d2`. A subsequent commit removes temporary test debug output and requires its own CI pass.
+
+**This is not yet a complete online updater.** It has no remote HTTP fetching, archive extraction, separate apply helper, app-version switch, transactional rollback, production release URL, or protected release key provisioning/signing. Those items remain unimplemented. The project owner previously deferred code/release signing; this implementation has not introduced or requested a private key.
+
+### Remaining Phase 2 gates
+
+- Renderer: green bgfx-enabled Windows build and owner visual test of rectangle, circle and triangle.
+- Editor Run/Stop: owner manual test of save → F5 → visible runtime → Shift+F5.
+- Installer: expanded CI package test plus manual clean-machine GUI, repair and upgrade checks.
+- Updater: production download/apply/rollback and release trust infrastructure.
+- End-to-end: install/edit/run/update/recovery/uninstall with user project preservation.
+- Website: owner click-through of the About navigation on the live site.
