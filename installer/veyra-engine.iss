@@ -32,6 +32,7 @@ VersionInfoCompany=Veyra Project
 [Files]
 Source: "..\build\installer-stage\editor\*"; DestDir: "{app}\editor"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\build\installer-stage\runtime\*"; DestDir: "{app}\runtime"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\installer-stage\updater\*"; DestDir: "{app}\updater"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\Veyra Engine\Veyra Editor"; Filename: "{app}\editor\VeyraEditor.exe"; WorkingDir: "{app}\editor"
