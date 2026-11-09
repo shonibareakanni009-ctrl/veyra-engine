@@ -72,14 +72,18 @@ Json makeSignedManifest(const std::filesystem::path& package,
                         std::array<std::uint8_t, 32>& publicKey)
 {
     std::array<std::uint8_t, 64> secretKey{};
+    std::cerr << "DEBUG: keypair begin\\n";
     crypto_ed25519_key_pair(secretKey.data(), publicKey.data(),
                             const_cast<std::uint8_t*>(seed.data()));
+    std::cerr << "DEBUG: keypair done\\n";
 
     std::array<std::uint8_t, 32> hash{};
     std::uint64_t size = 0U;
+    std::cerr << "DEBUG: hash begin\\n";
     std::string error;
     if (!Veyra::Updater::sha256File(package, hash, &size, &error))
         throw std::runtime_error(error);
+    std::cerr << "DEBUG: hash done\\n";
 
     Json manifest = {
         {"schemaVersion", 1},
@@ -106,8 +110,10 @@ Json makeSignedManifest(const std::filesystem::path& package,
     payload.erase("signature");
     const std::string canonical = payload.dump();
     std::array<std::uint8_t, 64> signature{};
+    std::cerr << "DEBUG: sign begin\\n";
     crypto_ed25519_sign(signature.data(), secretKey.data(),
         reinterpret_cast<const std::uint8_t*>(canonical.data()), canonical.size());
+    std::cerr << "DEBUG: sign done\\n";
     manifest["signature"]["value"] = base64(signature);
     return manifest;
 }
@@ -139,13 +145,17 @@ void testValidManifestAndStage()
 
     Veyra::Updater::ReleaseManifest parsed;
     std::string error;
+    std::cerr << "DEBUG: load begin\\n";
     check(Veyra::Updater::loadAndValidateManifest(manifestPath, parsed, &error),
           "signed test manifest validates");
+    std::cerr << "DEBUG: load done\\n";
     check(Veyra::Updater::verifyManifestSignature(parsed, "test-release-key", publicKey, &error),
           "valid Ed25519 signature verifies");
+    std::cerr << "DEBUG: signature done\\n";
     check(Veyra::Updater::verifyPackage(package, parsed, &error),
           "package size and SHA-256 match");
 
+    std::cerr << "DEBUG: verify package done\\n";
     std::filesystem::path staged;
     check(Veyra::Updater::stageVerifiedPackage(
         package, parsed, workspace.root / "staging", staged, &error),
@@ -234,9 +244,13 @@ int main()
 {
     try
     {
+        std::cerr << "DEBUG: test one begin\\n";
         testValidManifestAndStage();
+        std::cerr << "DEBUG: test one done\\n";
         testPackageTamperingAndStrictManifest();
+        std::cerr << "DEBUG: test two done\\n";
         testMalformedManifestAndHex();
+        std::cerr << "DEBUG: test three done\\n";
     }
     catch (const std::exception& exception)
     {
