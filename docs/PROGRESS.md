@@ -2,81 +2,67 @@
 
 **Last updated:** 2026-11-09
 
-This file records implemented work and its verification status. Plans and acceptance criteria remain in ROADMAP.md. Installer/updater design is in INSTALLER_UPDATER.md.
+This tracker separates implementation, automated verification, and owner-side manual acceptance. A green build is not treated as a visual or end-to-end GUI test.
 
 ## Overall status
 
-| Metric | Current state |
+| Area | Current state |
 |---|---|
-| Current phase | **Phase 2 — Runtime launch + close verified; bgfx renderer is next** |
-| Project stage | Early functional editor prototype (Phase 1 verified) |
-| Core language | C++20 selected |
-| Desktop editor | Qt 6 Widgets; Windows CI green + manual smoke test passed |
-| Scene authoring | Rectangle, circle, triangle, and imported sprites — verified |
-| Scene persistence | Versioned .vscene with validation — verified |
-| Automated tests | Editor scene tests and runtime `.vscene` loader tests pass in Windows CI |
-| Manual smoke test | **Passed** (A–G) on 2026-11-03 |
-| Native runtime | Qt-free SDL3 runtime; manual launch passed (window opens, blank as expected, Escape and close both work) |
-| Installer | Inno Setup 7.1.0 Windows x64 artifact built; CI install/uninstall tests passed; manual clean-machine test pending |
-| Updater | Manifest schema + Ed25519/SHA-256 trust design committed; updater executable not implemented |
-| Automated release packaging | Windows x64 installer workflow added; final installer artifact and lifecycle test pending |
-| Browser prototypes | Standalone (Adventure + SFS) |
-| Export targets | Not implemented |
+| Shared engine layout | **Verified** — editor and runtime are separate subprojects under `engine/` |
+| Editor | Qt 6 editor; Windows Editor Build passes; prior manual editor smoke test passed |
+| Scene authoring | Rectangle, circle, triangle, and imported sprite authoring verified |
+| Scene persistence | Versioned `.vscene` v1 loader/save validation in place |
+| Runtime base | Qt-free SDL3 runtime; owner manually confirmed its window opens on 2026-11-09 |
+| CPU scene geometry | Rectangle/circle/triangle mesh generation implemented; Windows Runtime Build #20 passed |
+| bgfx renderer | Pinned dependency, shader compilation, SDL HWND hookup, Direct3D 11 renderer, and frame loop committed; latest renderer build is still awaiting CI completion |
+| Editor Run/Stop | F5 / Shift+F5, QProcess argument-array launch, owned-process stop, and output dock implemented; Windows Editor Build passed |
+| Installer | Inno Setup per-user prototype; earlier silent install/uninstall and external-data preservation tests passed; current package is being expanded to include updater |
+| Updater | Local prototype validates manifest structure, Ed25519 signature, SHA-256/size, and stages verified local package; Windows updater build/security tests passed on commit `6f6c8d2`; clean-debug build is pending |
+| Release/update service | Not complete — no remote downloader, installer/apply helper, rollback, release endpoint, or release key policy |
+| Website About section | Implemented; website CI passed and Vercel deployment previously reported READY; live click-through remains owner-side |
 
-**Reality statement (2026-11-09):**  
-Phase 1 verified. Phase 2 runtime foundation is in place. On 2026-11-09 Akanni manually launched the packaged runtime: SDL window opened, content was blank (expected before renderer), and both Escape and the window close button exited cleanly. Next work is bgfx integration and shape rendering.
+## Phase 2 work completed or implemented
 
-## Active Phase 2A task order (locked 2026-11-09)
+- [x] Record Phase 2 execution plan and six checkpoints.
+- [x] Move editor/runtime into shared `engine/` with independent CMake targets.
+- [x] Owner manually launches packaged SDL runtime window (2026-11-09); blank is expected before renderer.
+- [x] Add renderer-independent geometry module and tests.
+- [x] Pass Windows Runtime Build #20: [run 42655582427](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42655582427) (geometry CMake/test checkpoint).
+- [x] Add bgfx integration, shader inputs and SDL3 Win32 HWND renderer implementation; visual and latest renderer CI acceptance pending.
+- [x] Add Editor Run/Stop actions and output capture; Windows Editor Build passed: [run 42657773169](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42657773169).
+- [x] Add Windows updater project, strict local manifest validation, Ed25519 verification, SHA-256 package verification, and local verified staging.
+- [x] Updater security CI passed on the stack-buffer fix commit: [run 42658814633](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42658814633).
+- [x] Include updater in installer staging and add post-install file/CLI checks; newest installer run is still pending.
+- [x] Add and push the Phase 2 Completion Sprint plan: [PHASE_2_COMPLETION_SPRINT.md](PHASE_2_COMPLETION_SPRINT.md).
 
-| Order | Task | Status |
-|------:|------|--------|
-| 1 | Manual runtime launch test | **Passed** (Akanni — open, blank, Escape + close) |
-| 2 | Integrate bgfx renderer | **Next** |
-| 3 | Render rectangles, circles and triangles | Pending |
-| 4 | Connect Editor Run/Stop buttons | Pending |
-| 5 | End-to-end testing | Pending |
+## Phase 2 acceptance still open
 
-## Verified results
+| Checkpoint | Remaining evidence |
+|---|---|
+| Runtime renderer | Latest bgfx-enabled Windows build/test must pass; owner must run packaged sample and confirm all three shapes render, resize, Escape and close |
+| Editor Run/Stop | Owner must manually save a scene, run it from editor, see runtime window, then stop it from editor |
+| Installer | Current installer build/package CI must pass; owner still needs clean-machine GUI install, repair/upgrade and launch checks |
+| Updater | Local verifier/stager tests pass; remote download, safe archive/installer application, helper process, rollback and production update endpoint are not implemented |
+| Release trust | No private release signing key, trusted production public key provisioning, key rotation, or protected release signing process. Release signing was deferred by the project owner |
+| End-to-end | Install → edit/save → Run/Stop → update/rollback → uninstall/reinstall sequence not yet passed |
+| Website | Live About navigation click-through still pending |
 
-- Shared engine directory refactor verified: [Windows Editor Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41685837063) and [Windows Runtime Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41685729965) both passed.
-- Website About section build validation passed: [Website Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41685592982).
-- Installer CI passed: [Windows Installer Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41686760636).
-- Manual editor smoke test completed and passed by Akanni on 2026-11-03.
-- Runtime Windows CI passed on commit `b6bd682b82d222f0e6cacc0a5cba2ae81428ed4d`.
-- Manual runtime launch verified by Akanni on 2026-11-09: window opens, blank content expected, Escape and close both exit cleanly.
+## Verified historical results
 
-## Phase 2 priorities (broader)
+- Shared engine refactor: [Windows Editor Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41685837063) and [Windows Runtime Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41685729965).
+- Installer prototype baseline: [Windows Installer Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41686760636); silent install/uninstall and outside-user-data marker preservation passed.
+- Website About section build: [run 41685592982](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/41685592982). The production deployment was previously reported READY; no live click-through evidence is recorded here.
+- Manual editor smoke test passed on 2026-11-03.
+- Manual runtime launch passed on 2026-11-09: window opened, blank before renderer.
+- Geometry CI passed in Runtime Build #20.
+- Editor Run/Stop Windows compile/tests passed in run 42657773169.
+- Updater local security tests passed in run 42658814633 (pre-debug-output cleanup commit).
 
-- [x] Record six-checkpoint Phase 2 execution plan.
-- [x] Move native editor and runtime under `engine/`.
-- [x] About Veyra homepage section.
-- [x] Verify editor, runtime, and website workflows after path changes.
-- [x] Inno Setup per-user installer + combined Windows packaging workflow.
-- [x] Updater manifest schema and trust model.
-- [x] Installer compile, silent install/uninstall, user-data preservation tests.
-- [ ] Manually install on a clean Windows computer and launch the editor GUI.
-- [x] Manual runtime launch test (Task 1 — passed 2026-11-09).
-- [ ] Integrate bgfx renderer (Task 2).
-- [ ] Render rectangles, circles and triangles (Task 3).
-- [ ] Connect Editor Run/Stop buttons (Task 4).
-- [ ] End-to-end testing (Task 5).
+## Not implemented / outside current Phase 2 scope
 
-See [ROADMAP.md](ROADMAP.md) for milestone acceptance criteria and [INSTALLER_UPDATER.md](INSTALLER_UPDATER.md) for the distribution design.
+- Production updater HTTP download, archive extraction, installer/apply helper, transactional version switching, rollback, release hosting and key rotation.
+- Sprite texture rendering in the native runtime.
+- Project creation/opening/settings, export pipeline, physics, animation, audio, particles, scripting and Lua.
+- Linux, Android and engine-produced Web targets.
 
-## Team update
-
-- Two new staff members joined the project on 2026-11-03 (details pending)
-
-## Not implemented yet
-
-- bgfx renderer integration and scene-object rendering
-- Editor Run/Stop runtime integration
-- Project creation/opening and project settings
-- Verified user-facing Windows installer (prototype script and CI are in progress)
-- Updater executable, signed update verification, download/staging, and rollback
-- Automated tagged-release packaging
-- Parent/child hierarchy and prefabs
-- Physics, animation, audio, particles, scripting
-- Code editor and Lua
-- Export pipeline
-- Android, Linux, engine-produced Web targets
+**Phase 2 is not marked complete yet.** The remaining gates are explicitly listed above; code being present does not substitute for a required CI or manual acceptance result.
