@@ -111,7 +111,7 @@ if(BUILD_TESTING)
 endif()
 
 install(TARGETS VeyraRuntime RUNTIME DESTINATION .)
-install(FILES "${SDL3_SOURCE_DIR}/LICENSE.txt" DESTINATION licenses RENAME SDL3-LICENSE.txt)
+install(FILES "${sdl3_SOURCE_DIR}/LICENSE.txt" DESTINATION licenses RENAME SDL3-LICENSE.txt)
 install(FILES "${nlohmann_json_SOURCE_DIR}/LICENSE.MIT" DESTINATION licenses RENAME nlohmann-json-LICENSE.MIT)
 install(FILES "${bgfx_cmake_SOURCE_DIR}/bgfx/LICENSE" DESTINATION licenses RENAME bgfx-LICENSE)
 install(FILES "${bgfx_cmake_SOURCE_DIR}/bx/LICENSE" DESTINATION licenses RENAME bx-LICENSE)
