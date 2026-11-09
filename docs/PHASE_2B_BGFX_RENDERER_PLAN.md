@@ -1,6 +1,6 @@
 # Phase 2B — bgfx Runtime Renderer Implementation Plan
 
-**Status:** Plan committed; implementation not started.
+**Status:** Implementation in progress; renderer-independent primitive geometry added and Windows CI verification pending.
 **Scope:** Windows x64 first; integrate bgfx with the existing Qt-free SDL3 runtime.
 **Prerequisite:** The packaged runtime was manually launched by the project owner on 2026-11-09. The SDL window opened successfully and was blank, which is the expected current behavior because scene rendering is not implemented.
 
@@ -106,3 +106,15 @@ The upstream wrapper documents `bgfx_compile_shaders(TYPE ... SHADERS ... VARYIN
 Runtime geometry and camera projection must preserve this convention. Sample scene positions are world coordinates, not top-left pixel coordinates.
 
 **Implementation status remains unchanged:** no bgfx dependency, geometry module, shader, or renderer code has been added yet. These verified details reduce integration guesswork but are not build/test evidence.
+
+
+## Work started — renderer-independent geometry layer
+
+- Added `engine/runtime/src/scene_geometry.h/.cpp` to convert visible rectangle, circle, and triangle objects into indexed CPU geometry.
+- Geometry applies the editor's centered local origin, positive-up world coordinates, position, scale, and rotation.
+- Sprite objects and invisible objects are omitted from the mesh; sprite texture rendering remains out of scope.
+- Added `engine/runtime/tests/scene_geometry_tests.cpp` for primitive counts, transforms, and circle tessellation bounds.
+- Added the geometry source to `VeyraRuntimeCore` and registered a separate CTest executable.
+- Windows Runtime Build run `42655582427` was triggered by commit `9daebe0e2be866f06496e1abbfdc6c3e5ffebab4`; it was still running at the time of this documentation update. No passing test result is claimed yet.
+
+Next implementation step after this geometry checkpoint is the bgfx/SDL3 native-window adapter, shader compilation, and frame submission. The runtime still opens a blank window until that integration is complete.
