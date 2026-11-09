@@ -44,7 +44,7 @@ Acceptance: both applications build and their tests pass from the new paths; no 
 
 ## Checkpoint 2 — Runtime renderer
 
-**Status:** Renderer code implemented; automated build still pending and visual acceptance not yet confirmed. The packaged runtime window was manually opened successfully by the project owner on 2026-11-09; it was blank, as expected before rendering. The CPU geometry layer has a passing Windows CI checkpoint. bgfx.cmake is pinned, DX11 shaders are compiled at build time, the runtime extracts SDL3's HWND, initializes bgfx, submits transformed primitive buffers, handles resize, and shuts down renderer resources before SDL. Detailed record: [PHASE_2B_BGFX_RENDERER_PLAN.md](PHASE_2B_BGFX_RENDERER_PLAN.md).
+**Status:** Renderer code implemented; automated build still pending and visual acceptance not yet confirmed. The packaged runtime window was manually opened successfully by the project owner on 2026-11-09; it was blank, as expected before rendering. The CPU geometry layer has a passing Windows CI checkpoint. bgfx.cmake is pinned, pinned DXBC shaders are embedded as compile-time data, the runtime extracts SDL3's HWND, initializes bgfx, submits transformed primitive buffers, handles resize, and shuts down renderer resources before SDL. Detailed record: [PHASE_2B_BGFX_RENDERER_PLAN.md](PHASE_2B_BGFX_RENDERER_PLAN.md).
 
 1. Confirm a pinned bgfx integration strategy compatible with SDL3 and Windows x64.
 2. Add a platform-window adapter and renderer lifecycle with resize and shutdown handling.
@@ -56,7 +56,7 @@ Acceptance: both applications build and their tests pass from the new paths; no 
 ### Renderer integration baseline
 
 - Preferred CMake integration: upstream-maintained bgfx.cmake release v1.162.9524-580, pinned to immutable commit `eb88f6be55ae223966698c802542c24b0d93fd25`; its repository tracks bgfx, bx, and bimg as submodules, so recursive submodule checkout must remain enabled.
-- Build shaderc for offline build-time shader compilation; disable bgfx examples, tests, texture tools, and geometry tools unless later required.
+- Use the two pinned precompiled DXBC shader binaries from the bgfx submodule for the initial position/color pipeline; normal runtime builds disable shader tools, examples, tests, texture tools, and geometry tools.
 - On Windows, obtain the native HWND from SDL3 window properties using `SDL_GetWindowProperties` and `SDL_GetPointerProperty(..., SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr)`, then provide it through bgfx `PlatformData` before renderer initialization.
 - Keep the platform-handle extraction behind a small adapter so other platforms can supply their native display/window handles later.
 - First rendering milestone is limited to rectangle, circle, and triangle primitives with scene transforms. Sprite texture rendering remains a separate asset-rendering milestone; do not silently draw a sprite as if its texture loaded.
