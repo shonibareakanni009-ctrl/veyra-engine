@@ -51,6 +51,16 @@ jobs:
           New-Item -ItemType Directory -Force -Path $package | Out-Null
           Copy-Item $exe $package
           Copy-Item "updater/manifest.schema.json" $package
+          $licenses = Join-Path $package "licenses"
+          New-Item -ItemType Directory -Force -Path $licenses | Out-Null
+          $monocypherLicense = "$env:GITHUB_WORKSPACE\build\updater\_deps\monocypher-src\LICENCE.md"
+          $jsonLicense = "$env:GITHUB_WORKSPACE\build\updater\_deps\nlohmann_json-src\LICENSE.MIT"
+          foreach ($license in @($monocypherLicense, $jsonLicense)) {
+            if (-not (Test-Path $license -PathType Leaf)) { throw "Third-party license is missing: $license" }
+          }
+          Copy-Item $monocypherLicense (Join-Path $licenses "Monocypher-LICENCE.md")
+          Copy-Item $jsonLicense (Join-Path $licenses "nlohmann-json-LICENSE.MIT")
+          Copy-Item "updater/THIRD_PARTY_NOTICES.md" $package
           @'
           Veyra Updater 0.1.0 — Windows x64 local verification prototype
           The executable validates local signed release manifests, verifies the
