@@ -337,7 +337,14 @@ bool sha256File(const std::filesystem::path& path,
         const std::streamsize readCount = file.gcount();
         if (readCount <= 0)
             break;
-        total += static_cast<std::uint64_t>(readCount);
+        const auto bytesRead = static_cast<std::uint64_t>(readCount);
+        if (bytesRead > MaximumPackageBytes || total > MaximumPackageBytes - bytesRead)
+        {
+            BCryptDestroyHash(hash);
+            BCryptCloseAlgorithmProvider(algorithm, 0U);
+            return fail(error, "Update package exceeds the 2 GiB verification limit.");
+        }
+        total += bytesRead;
         if (BCryptHashData(hash, reinterpret_cast<PUCHAR>(buffer.data()),
                            static_cast<ULONG>(readCount), 0U) < 0)
         {
