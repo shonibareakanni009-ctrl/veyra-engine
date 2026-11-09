@@ -1,6 +1,6 @@
 # Phase 2B — bgfx Runtime Renderer Implementation Plan
 
-**Status:** Implementation in progress; renderer-independent primitive geometry added and Windows CI verification pending.
+**Status:** Renderer implementation committed; bgfx-enabled Windows build and visual acceptance pending.
 **Scope:** Windows x64 first; integrate bgfx with the existing Qt-free SDL3 runtime.
 **Prerequisite:** The packaged runtime was manually launched by the project owner on 2026-11-09. The SDL window opened successfully and was blank, which is the expected current behavior because scene rendering is not implemented.
 
@@ -105,7 +105,7 @@ The upstream wrapper documents `bgfx_compile_shaders(TYPE ... SHADERS ... VARYIN
 
 Runtime geometry and camera projection must preserve this convention. Sample scene positions are world coordinates, not top-left pixel coordinates.
 
-**Implementation status remains unchanged:** no bgfx dependency, geometry module, shader, or renderer code has been added yet. These verified details reduce integration guesswork but are not build/test evidence.
+**Implementation status update:** the statements above were the baseline before implementation. The pinned bgfx dependency, DX11 shader inputs, shaderc build rules, SDL3 HWND adapter, bgfx renderer lifecycle, and runtime frame submission have since been committed. The renderer implementation is present in `engine/runtime/src/runtime_renderer.cpp` and is connected from `engine/runtime/src/main.cpp`. This is code status only, not proof that it builds or renders correctly.
 
 
 ## Work started — renderer-independent geometry layer
@@ -117,4 +117,12 @@ Runtime geometry and camera projection must preserve this convention. Sample sce
 - Added the geometry source to `VeyraRuntimeCore` and registered a separate CTest executable.
 - Windows Runtime Build run `42655582427` was triggered by commit `9daebe0e2be866f06496e1abbfdc6c3e5ffebab4`; it was still running at the time of this documentation update. No passing test result is claimed yet.
 
-Next implementation step after this geometry checkpoint is the bgfx/SDL3 native-window adapter, shader compilation, and frame submission. The runtime still opens a blank window until that integration is complete.
+### Current renderer verification gate
+
+- Renderer implementation commit: `a42c6567a62732b552c7cb75abf35fe79927e06d`.
+- Windows Runtime Build run `42657292384` was still compiling the renderer at the last recorded poll; no green conclusion or visual-rendering claim is made here.
+- The geometry-only checkpoint passed in Windows Runtime Build #20 (`42655582427`).
+- Owner visual test remains required: run packaged `VeyraRuntime.exe` with `first-scene.vscene`; confirm rectangle/circle/triangle visible, verify rotation/position, resize, Escape and close.
+- Current renderer is Windows-only and selects Direct3D 11. Sprite texture rendering remains deliberately unsupported and is logged rather than falsely displayed.
+
+The next engineering action is to resolve the current bgfx CI outcome, fix any compile/shader/runtime issue, and produce a fresh packaged runtime for the owner-side visual test.
