@@ -81,3 +81,28 @@ Render the supported primitive objects from a validated version 1 `.vscene` docu
 - Keep the scene loader and geometry conversion testable without a GPU/window.
 - Do not claim visual rendering based on compilation or headless tests alone.
 - If the dependency or shader build proves unsuitable, document evidence and revise this plan before switching dependencies.
+
+
+## Integration details verified against the pinned upstream revision
+
+The pinned bgfx.cmake CMakeLists.txt was inspected directly at commit `eb88f6be55ae223966698c802542c24b0d93fd25`. Its actual cache options include:
+
+- `BGFX_BUILD_TOOLS`, `BGFX_BUILD_TOOLS_BIN2C`, `BGFX_BUILD_TOOLS_SHADER`, `BGFX_BUILD_TOOLS_GEOMETRY`, and `BGFX_BUILD_TOOLS_TEXTURE`
+- `BGFX_BUILD_EXAMPLES`, `BGFX_BUILD_TESTS`, `BGFX_INSTALL`, `BGFX_CUSTOM_TARGETS`, `BGFX_LIBRARY_TYPE`, and `BGFX_CONFIG_VIDEO`
+
+The upstream wrapper documents `bgfx_compile_shaders(TYPE ... SHADERS ... VARYING_DEF ... OUTPUT_DIR ... AS_HEADERS)`. Its README confirms recursive submodule initialization/update and identifies shaderc as the shader compiler. Configure only the shader/bin2c tools needed by the runtime; leave geometry/texture tools, examples, and tests disabled for this milestone. Keep chosen values explicit in runtime CMake so CI can validate them.
+
+### Editor coordinate convention confirmed
+
+`engine/editor/src/scene_viewport.cpp` was inspected. The editor uses:
+- World origin at the center of the viewport.
+- Positive world X to the right and positive world Y upward.
+- Each object's local origin at its center.
+- Rectangle bounds from `(-width/2, -height/2)` to `(width/2, height/2)`.
+- Circle as an ellipse using width and height radii.
+- Triangle vertices at top-center, bottom-right, bottom-left.
+- Transform order: translate to `(x, y)`, rotate by negative scene rotation in screen coordinates, then apply `scaleX/scaleY`.
+
+Runtime geometry and camera projection must preserve this convention. Sample scene positions are world coordinates, not top-left pixel coordinates.
+
+**Implementation status remains unchanged:** no bgfx dependency, geometry module, shader, or renderer code has been added yet. These verified details reduce integration guesswork but are not build/test evidence.
