@@ -17,6 +17,10 @@ on:
       - ".github/workflows/windows-updater-build.yml"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -97,6 +101,15 @@ jobs:
           Copy-Item $monocypherLicense (Join-Path $licenses "Monocypher-LICENCE.md")
           Copy-Item $jsonLicense (Join-Path $licenses "nlohmann-json-LICENSE.MIT")
           Copy-Item "updater/THIRD_PARTY_NOTICES.md" $updater
+          $runtimeLicenses = Join-Path $runtime "licenses"
+          foreach ($licenseName in @("SDL3-LICENSE.txt", "nlohmann-json-LICENSE.MIT", "bgfx-LICENSE", "bx-LICENSE", "bimg-LICENSE")) {
+            $licensePath = Join-Path $runtimeLicenses $licenseName
+            if (-not (Test-Path $licensePath -PathType Leaf)) { throw "Runtime third-party license is missing: $licensePath" }
+          }
+          foreach ($licenseName in @("Monocypher-LICENCE.md", "nlohmann-json-LICENSE.MIT")) {
+            $licensePath = Join-Path $licenses $licenseName
+            if (-not (Test-Path $licensePath -PathType Leaf)) { throw "Updater third-party license is missing: $licensePath" }
+          }
           $updaterHelp = & (Join-Path $updater "VeyraUpdater.exe") --help 2>&1 | Out-String
           if ($LASTEXITCODE -ne 0 -or $updaterHelp -notmatch "verify-local") {
             throw "Updater CLI smoke test failed: $updaterHelp"
@@ -187,6 +200,8 @@ jobs:
           $sampleScene = Join-Path $installDir "runtime\first-scene.vscene"
           $updaterExe = Join-Path $installDir "updater\VeyraUpdater.exe"
           $updaterSchema = Join-Path $installDir "updater\manifest.schema.json"
+          $runtimeLicenseDir = Join-Path $installDir "runtime\licenses"
+          $updaterLicenseDir = Join-Path $installDir "updater\licenses"
           foreach ($required in @($editorExe, $runtimeExe, $sampleScene, $updaterExe, $updaterSchema)) {
             if (-not (Test-Path $required -PathType Leaf)) { throw "Installed file is missing: $required" }
           }
@@ -194,6 +209,12 @@ jobs:
           if ($LASTEXITCODE -ne 0 -or $help -notmatch "Usage:") { throw "Installed runtime command-line smoke test failed: $help" }
           $updaterHelp = & $updaterExe --help 2>&1 | Out-String
           if ($LASTEXITCODE -ne 0 -or $updaterHelp -notmatch "verify-local") { throw "Installed updater command-line smoke test failed: $updaterHelp" }
+          foreach ($licenseName in @("SDL3-LICENSE.txt", "nlohmann-json-LICENSE.MIT", "bgfx-LICENSE", "bx-LICENSE", "bimg-LICENSE")) {
+            if (-not (Test-Path (Join-Path $runtimeLicenseDir $licenseName) -PathType Leaf)) { throw "Installed runtime license missing: $licenseName" }
+          }
+          foreach ($licenseName in @("Monocypher-LICENCE.md", "nlohmann-json-LICENSE.MIT")) {
+            if (-not (Test-Path (Join-Path $updaterLicenseDir $licenseName) -PathType Leaf)) { throw "Installed updater license missing: $licenseName" }
+          }
 
           $uninstaller = Join-Path $installDir "unins000.exe"
           if (-not (Test-Path $uninstaller -PathType Leaf)) { throw "Uninstaller was not created." }
