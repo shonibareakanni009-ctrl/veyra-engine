@@ -28,7 +28,7 @@ namespace Veyra::Runtime
 namespace
 {
 constexpr bgfx::ViewId SceneView = 0;
-constexpr std::uint32_t ClearColor = 0xFF20222AU;
+constexpr std::uint32_t ClearColor = 0x20222AFFU;
 
 struct GpuVertex
 {
