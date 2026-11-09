@@ -10,8 +10,11 @@
 #include <QMainWindow>
 #include <memory>
 
+class QAction;
 class QCloseEvent;
 class QDockWidget;
+class QPlainTextEdit;
+class QProcess;
 class QDoubleSpinBox;
 class QTreeWidget;
 
@@ -45,6 +48,11 @@ private:
     void addSceneObject();
     void importSprite();
     void deleteSelectedObject();
+    void runScene();
+    void stopRuntime();
+    QString resolveRuntimeExecutable() const;
+    void appendRuntimeOutput(const QString& text);
+    void updateRuntimeActions();
     QDockWidget* createInformationDock(const QString& title,
                                        const QString& objectName,
                                        const QString& description);
@@ -56,5 +64,9 @@ private:
     QDoubleSpinBox* m_transformFields[7]{};
     QString m_selectedId;
     bool m_refreshingInspector = false;
+    QProcess* m_runtimeProcess = nullptr;
+    QAction* m_runSceneAction = nullptr;
+    QAction* m_stopRuntimeAction = nullptr;
+    QPlainTextEdit* m_outputLog = nullptr;
 };
 } // namespace Veyra
