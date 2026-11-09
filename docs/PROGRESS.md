@@ -14,7 +14,7 @@ This tracker separates implementation, automated verification, and owner-side ma
 | Scene persistence | Versioned `.vscene` v1 loader/save validation in place |
 | Runtime base | Qt-free SDL3 runtime; owner manually confirmed its window opens and Escape/window-close exit on 2026-11-09 |
 | CPU scene geometry | Rectangle/circle/triangle mesh generation implemented; Windows Runtime Build #20 passed |
-| bgfx renderer | Pinned dependency, shader compilation, SDL HWND hookup, Direct3D 11 renderer, and frame loop committed; latest renderer build is still awaiting CI completion |
+| bgfx renderer | Pinned bgfx dependency, embedded DXBC shaders, SDL HWND hookup, Direct3D 11 renderer and frame loop committed; latest renderer build is awaiting CI |
 | Editor Run/Stop | F5 / Shift+F5, QProcess argument-array launch, owned-process stop, and output dock implemented; Windows Editor Build passed |
 | Installer | Inno Setup per-user prototype; earlier silent install/uninstall and external-data preservation tests passed; current package is being expanded to include updater |
 | Updater | Local prototype validates manifest structure, Ed25519 signature, SHA-256/size, and stages verified local package; Windows updater build/security tests passed on clean source commit `866c9e0` and dependency-notice package run `42659501624`; the additional 2 GiB hashing cap is awaiting its own CI run |
