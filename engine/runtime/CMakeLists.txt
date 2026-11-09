@@ -41,6 +41,8 @@ FetchContent_MakeAvailable(SDL3 nlohmann_json)
 add_library(VeyraRuntimeCore
     src/scene_document.cpp
     src/scene_document.h
+    src/scene_geometry.cpp
+    src/scene_geometry.h
 )
 target_link_libraries(VeyraRuntimeCore PRIVATE nlohmann_json::nlohmann_json)
 target_include_directories(VeyraRuntimeCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -71,6 +73,14 @@ if(BUILD_TESTING)
     target_compile_features(VeyraRuntimeTests PRIVATE cxx_std_20)
     veyra_enable_warnings(VeyraRuntimeTests)
     add_test(NAME VeyraRuntimeSceneTests COMMAND VeyraRuntimeTests)
+
+    add_executable(VeyraRuntimeGeometryTests
+        tests/scene_geometry_tests.cpp
+    )
+    target_link_libraries(VeyraRuntimeGeometryTests PRIVATE VeyraRuntimeCore)
+    target_compile_features(VeyraRuntimeGeometryTests PRIVATE cxx_std_20)
+    veyra_enable_warnings(VeyraRuntimeGeometryTests)
+    add_test(NAME VeyraRuntimeGeometryTests COMMAND VeyraRuntimeGeometryTests)
 endif()
 
 install(TARGETS VeyraRuntime RUNTIME DESTINATION .)
