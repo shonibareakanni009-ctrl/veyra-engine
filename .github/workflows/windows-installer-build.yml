@@ -122,8 +122,11 @@ jobs:
           Veyra Engine 0.2.0 — Windows x64
           Install Veyra Engine using the setup executable.
           The editor and native runtime are installed as separate components.
-          The included runtime currently loads .vscene files and opens an SDL3 window;
-          scene rendering and editor Run/Stop are still in development.
+          The runtime includes an initial bgfx Direct3D 11 renderer for 2D
+          rectangle/circle/triangle primitives; packaged visual acceptance is pending.
+          The editor includes Run Scene (F5) and Stop Runtime (Shift+F5).
+          The updater is a local manifest/signature/package verifier and staging
+          prototype; it does not yet download or apply remote updates.
           User projects and settings are stored outside the application install folder.
           '@ | Set-Content (Join-Path $stage "PACKAGE-README.txt") -Encoding utf8
 
