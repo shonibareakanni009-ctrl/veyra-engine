@@ -122,7 +122,10 @@ Phase 2 delivers the first native run path and establishes a dependable way to i
 
 - Multiplayer and networking
 - 3D renderer and editor workflows
-- **FBX format support** (import/export of meshes, materials, and animation so users can move assets between Veyra and other tools)
+- **Interoperability with other game-development tools** (users must be able to move work in and out of Veyra easily)
+  - FBX support (meshes, materials, animation)
+  - Additional open interchange formats as needed (for example glTF)
+  - Clear import/export paths so creators are not locked into Veyra alone
 - Plugin ecosystem and expanded scripting options
 - Project templates and broader platform installers/updaters
 - Signed public releases and release-channel maturity beyond the initial Windows x64 implementation
