@@ -18,22 +18,22 @@ Veyra is an independent game-engine project focused on a native **2D editor and 
 
 | Page | Description |
 |------|-------------|
-| [Getting Started](Getting-Started) | How to build and run what exists today |
-| [Current Status](Current-Status) | Honest progress and active tasks |
-| [Architecture](Architecture) | High-level design |
-| [Roadmap](Roadmap) | Phases and milestones |
-| [Interoperability](Interoperability) | FBX and tool connectivity goals |
-| [Contributing](Contributing) | How work is organized |
+| [[Getting-Started]] | How to build and run what exists today |
+| [[Current-Status]] | Honest progress and active tasks |
+| [[Architecture]] | High-level design |
+| [[Roadmap]] | Phases and milestones |
+| [[Interoperability]] | FBX and tool connectivity goals |
+| [[Contributing]] | How work is organized |
 
 ## Official docs in the repository
 
-Detailed documentation lives under `docs/` in the main repo:
+Detailed documentation lives under `docs/` in the main repository:
 
-- `docs/ROADMAP.md`
-- `docs/PROGRESS.md`
-- `docs/ARCHITECTURE.md`
-- `docs/MANAGER_NOTES.md`
-- `docs/PHASE_2A_RUNTIME.md`
+- [ROADMAP.md](https://github.com/shonibareakanni009-ctrl/veyra-engine/blob/main/docs/ROADMAP.md)
+- [PROGRESS.md](https://github.com/shonibareakanni009-ctrl/veyra-engine/blob/main/docs/PROGRESS.md)
+- [ARCHITECTURE.md](https://github.com/shonibareakanni009-ctrl/veyra-engine/blob/main/docs/ARCHITECTURE.md)
+- [MANAGER_NOTES.md](https://github.com/shonibareakanni009-ctrl/veyra-engine/blob/main/docs/MANAGER_NOTES.md)
+- [PHASE_2A_RUNTIME.md](https://github.com/shonibareakanni009-ctrl/veyra-engine/blob/main/docs/PHASE_2A_RUNTIME.md)
 
 ## Project principles
 
