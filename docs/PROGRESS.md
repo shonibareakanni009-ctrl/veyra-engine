@@ -1,6 +1,6 @@
 # Veyra Engine — Progress Tracker
 
-**Last updated:** 2026-11-09
+**Last updated:** 2026-11-20
 
 This tracker separates implementation, automated verification, and owner-side manual acceptance. A green build is not treated as a visual or end-to-end GUI test.
 
@@ -14,7 +14,7 @@ This tracker separates implementation, automated verification, and owner-side ma
 | Scene persistence | Versioned `.vscene` v1 loader/save validation in place |
 | Runtime base | Qt-free SDL3 runtime; owner manually confirmed its window opens and Escape/window-close exit on 2026-11-09 |
 | CPU scene geometry | Rectangle/circle/triangle mesh generation implemented; Windows Runtime Build #20 passed |
-| bgfx renderer | Pinned bgfx dependency, embedded DXBC shaders, SDL HWND hookup, Direct3D 11 renderer and frame loop committed; latest renderer build is awaiting CI |
+| bgfx renderer | Pinned bgfx dependency, embedded DXBC shaders, SDL3 Win32 swap-chain hookup, Direct3D 11 renderer and frame loop committed; first renderer compile exposed bgfx API mismatches, corrected on 2026-11-20; corrected Windows runtime and installer builds are running |
 | Editor Run/Stop | F5 / Shift+F5, QProcess argument-array launch, owned-process stop, and output dock implemented; Windows Editor Build passed |
 | Installer | Inno Setup per-user prototype; earlier silent install/uninstall and external-data preservation tests passed; current package is being expanded to include updater |
 | Updater | Local prototype validates manifest structure, Ed25519 signature, SHA-256/size, and stages verified local package; Windows updater build/security tests passed on clean source commit `866c9e0` and dependency-notice package run `42659501624`; the additional 2 GiB hashing cap is awaiting its own CI run |
@@ -66,3 +66,15 @@ This tracker separates implementation, automated verification, and owner-side ma
 - Linux, Android and engine-produced Web targets.
 
 **Phase 2 is not marked complete yet.** The remaining gates are explicitly listed above; code being present does not substitute for a required CI or manual acceptance result.
+
+
+## 2026-11-20 renderer correction update
+
+- Investigated failing renderer Windows builds and extracted the exact MSVC diagnostics. The errors were API mismatches against the pinned bgfx submodule: `PlatformData::nwh` and `Init::resolution` do not exist in this revision, `bgfx::reset` has a flags + optional `SwapChain*` signature, and the scene vertex member is `rgba`.
+- Verified the exact upstream header from bgfx submodule commit `7346c3e731bd65f35c7e6a99819840e554f5b748` (bgfx.cmake remains pinned at `eb88f6be55ae223966698c802542c24b0d93fd25`).
+- Corrected `engine/runtime/src/runtime_renderer.cpp` to initialize and resize through `bgfx::Init::swapChain` / `bgfx::reset(flags, &swapChain)` and to upload `GeometryVertex::rgba`.
+- Code commit: `4d4c3ea47cca7825b2a468e4d2745755aa411e30`.
+- Documentation plan and implementation record commits: `6422e638dd973a18c40f4f196ece37f6a6fea012`, `14ae0caf45a151eb52563a7980cc1ba4d76d65ce`.
+- Corrected CI runs: [Windows Runtime Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/44698749487) and [Windows Installer Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/44698749510). Both were in progress at the time of this update. No pass is claimed yet.
+- Editor Run/Stop implementation is present in `engine/editor/src/editor_main_window.cpp`; owner-side F5/Shift+F5 acceptance remains open.
+- The local updater remains a verifier/stager prototype, not a production remote updater. Code signing was deferred by the project owner; no production release signing key or endpoint is configured.
