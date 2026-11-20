@@ -142,3 +142,13 @@ To keep Windows CI practical, the renderer now uses the Direct3D 11 shader binar
 - `runtime_renderer.cpp` is compiled into `VeyraRuntime`, not `VeyraRuntimeCore`; scene-loader and CPU-geometry tests stay independent of SDL/bgfx.
 
 This adjustment preserves the renderer shader contract while removing normal-runtime shaderc dependency compilation. The bgfx-enabled Windows build must still pass and the owner must still confirm actual visual output; precompiled assets are not themselves evidence that the app renders correctly.
+
+
+## Corrective code commit — pinned bgfx API alignment
+
+- Corrected main-window setup to use the pinned bgfx revision's `Init::swapChain` fields (`nwh`, `width`, `height`) and `Init::reset`.
+- Corrected resize handling to update the retained `bgfx::SwapChain` and call `bgfx::reset(flags, &swapChain)` using the current API signature.
+- Corrected vertex upload to use `GeometryVertex::rgba`.
+- Source of truth for the API correction: the exact bgfx submodule header at commit `7346c3e731bd65f35c7e6a99819840e554f5b748`, referenced by pinned bgfx.cmake commit `eb88f6be55ae223966698c802542c24b0d93fd25`.
+- Code commit: `4d4c3ea47cca7825b2a468e4d2745755aa411e30`.
+- Windows Runtime and Installer workflows are expected to rerun from this push. No successful build or visual rendering is claimed until those workflows and the owner-side runtime test pass.
