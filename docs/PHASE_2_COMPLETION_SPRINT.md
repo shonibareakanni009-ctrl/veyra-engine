@@ -70,3 +70,22 @@ This sprint consolidates the remaining Phase 2 work into a single ordered execut
 
 ## Initial implementation checkpoint
 The independent CPU geometry layer and tests are implemented. The latest known Windows Runtime Build #20 succeeded. No bgfx renderer, editor Run/Stop integration, updater executable, production release endpoint, or end-to-end manual test is claimed complete at the time this plan was written.
+
+
+## Follow-up fix plan — bgfx API compatibility
+
+The Windows Runtime Build and combined Installer Build were inspected at the failing renderer compile step. The compiler errors were traced to the pinned bgfx header at submodule commit `7346c3e731bd65f35c7e6a99819840e554f5b748`:
+
+- The current `PlatformData` no longer contains the native window handle; `Init` now contains a `SwapChain` with `nwh`, `width`, and `height`.
+- Initial reset flags are `Init::reset`, not `Init::resolution.reset`.
+- The current `bgfx::reset` accepts reset flags and an optional `SwapChain*`, not width/height/flags.
+- `GeometryVertex` exports `rgba`, while the renderer referred to a nonexistent `color` member.
+
+### Planned code correction
+1. Initialize `Init::swapChain.nwh/width/height` with the SDL HWND and current pixel dimensions; set `Init::reset = BGFX_RESET_VSYNC`.
+2. Retain a swap-chain descriptor in renderer state; on resize update its dimensions and call `bgfx::reset(BGFX_RESET_VSYNC, &swapChain)`.
+3. Upload `GeometryVertex::rgba` into the GPU vertex structure.
+4. Re-run runtime and combined installer Windows builds and all CTest suites; only then distribute a new runtime package for owner visual testing.
+5. If new errors appear, capture exact compiler diagnostics and amend this plan before the next code correction.
+
+This is a corrective implementation plan only. It does not claim renderer CI or visual acceptance has passed.
