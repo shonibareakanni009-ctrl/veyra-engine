@@ -65,6 +65,7 @@ struct RuntimeRenderer::Impl
     int lastWidth = 0;
     int lastHeight = 0;
     std::uint32_t indexCount = 0;
+    bgfx::SwapChain swapChain;
 };
 
 RuntimeRenderer::RuntimeRenderer() : m_impl(std::make_unique<Impl>())
@@ -100,14 +101,15 @@ bool RuntimeRenderer::initialize(SDL_Window* window, const SceneGeometry& geomet
 
     bgfx::Init init;
     init.type = bgfx::RendererType::Direct3D11;
-    init.platformData.nwh = nativeWindow;
-    init.resolution.width = static_cast<std::uint32_t>(width);
-    init.resolution.height = static_cast<std::uint32_t>(height);
-    init.resolution.reset = BGFX_RESET_VSYNC;
+    init.swapChain.nwh = static_cast<void*>(nativeWindow);
+    init.swapChain.width = static_cast<std::uint32_t>(width);
+    init.swapChain.height = static_cast<std::uint32_t>(height);
+    init.reset = BGFX_RESET_VSYNC;
     if (!bgfx::init(init))
         return setError(error, "bgfx could not initialize the Direct3D 11 renderer.");
 
     m_impl->initialized = true;
+    m_impl->swapChain = init.swapChain;
     m_impl->lastWidth = width;
     m_impl->lastHeight = height;
     m_impl->vertexLayout = makeVertexLayout();
@@ -145,7 +147,7 @@ bool RuntimeRenderer::initialize(SDL_Window* window, const SceneGeometry& geomet
         std::vector<GpuVertex> vertices;
         vertices.reserve(geometry.vertices.size());
         for (const GeometryVertex& vertex : geometry.vertices)
-            vertices.push_back({vertex.x, vertex.y, 0.0F, vertex.color});
+            vertices.push_back({vertex.x, vertex.y, 0.0F, vertex.rgba});
 
         const std::uint32_t vertexBytes =
             static_cast<std::uint32_t>(vertices.size() * sizeof(GpuVertex));
@@ -188,8 +190,9 @@ void RuntimeRenderer::render(int pixelWidth, int pixelHeight)
     {
         m_impl->lastWidth = pixelWidth;
         m_impl->lastHeight = pixelHeight;
-        bgfx::reset(static_cast<std::uint32_t>(pixelWidth),
-                    static_cast<std::uint32_t>(pixelHeight), BGFX_RESET_VSYNC);
+        m_impl->swapChain.width = static_cast<std::uint32_t>(pixelWidth);
+        m_impl->swapChain.height = static_cast<std::uint32_t>(pixelHeight);
+        bgfx::reset(BGFX_RESET_VSYNC, &m_impl->swapChain);
     }
 
     const std::uint16_t viewWidth =
