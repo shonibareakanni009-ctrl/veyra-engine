@@ -14,9 +14,9 @@ This tracker separates implementation, automated verification, and owner-side ma
 | Scene persistence | Versioned `.vscene` v1 loader/save validation in place |
 | Runtime base | Qt-free SDL3 runtime; owner manually confirmed its window opens and Escape/window-close exit on 2026-11-09 |
 | CPU scene geometry | Rectangle/circle/triangle mesh generation implemented; Windows Runtime Build #20 passed |
-| bgfx renderer | Pinned bgfx dependency, embedded DXBC shaders, SDL3 Win32 swap-chain hookup, Direct3D 11 renderer and frame loop committed; first renderer compile exposed bgfx API mismatches, corrected on 2026-11-20; corrected Windows runtime and installer builds are running |
+| bgfx renderer | Pinned bgfx dependency, embedded DXBC shaders, SDL3 Win32 swap-chain hookup, Direct3D 11 renderer and frame loop committed; first renderer compile exposed bgfx API mismatches, corrected on 2026-11-20; corrected Windows runtime and installer builds passed |
 | Editor Run/Stop | F5 / Shift+F5, QProcess argument-array launch, owned-process stop, and output dock implemented; Windows Editor Build passed |
-| Installer | Inno Setup per-user prototype; earlier silent install/uninstall and external-data preservation tests passed; current package is being expanded to include updater |
+| Installer | Inno Setup per-user prototype; earlier silent install/uninstall and external-data preservation tests passed; updater included; latest Windows installer package and silent install/uninstall smoke tests passed on 2026-11-20 |
 | Updater | Local prototype validates manifest structure, Ed25519 signature, SHA-256/size, and stages verified local package; Windows updater build/security tests passed on clean source commit `866c9e0` and dependency-notice package run `42659501624`; the additional 2 GiB hashing cap is awaiting its own CI run |
 | Release/update service | Not complete — no remote downloader, installer/apply helper, rollback, release endpoint, or release key policy |
 | Website About section | Implemented; website CI passed and Vercel deployment previously reported READY; live click-through remains owner-side |
@@ -28,20 +28,20 @@ This tracker separates implementation, automated verification, and owner-side ma
 - [x] Owner manually launches packaged SDL runtime window (2026-11-09); blank is expected before renderer.
 - [x] Add renderer-independent geometry module and tests.
 - [x] Pass Windows Runtime Build #20: [run 42655582427](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42655582427) (geometry CMake/test checkpoint).
-- [x] Add bgfx integration, shader inputs and SDL3 Win32 HWND renderer implementation; visual and latest renderer CI acceptance pending.
+- [x] Add bgfx integration, shader inputs and SDL3 Win32 HWND renderer implementation; visual and renderer Windows build and tests passed on 2026-11-20; owner visual acceptance pending.
 - [x] Add Editor Run/Stop actions and output capture; Windows Editor Build passed: [run 42657773169](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42657773169).
 - [x] Add Windows updater project, strict local manifest validation, Ed25519 verification, SHA-256 package verification, and local verified staging.
 - [x] Updater security CI passed after the stack-buffer fix and debug-output cleanup: [run 42659055214](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42659055214). The separate updater package including third-party license notices passed: [run 42659501624](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/42659501624).
-- [x] Include updater in installer staging and add post-install file/CLI checks; newest installer run is still pending.
+- [x] Include updater in installer staging and add post-install file/CLI checks; latest installer run passed.
 - [x] Add and push the Phase 2 Completion Sprint plan: [PHASE_2_COMPLETION_SPRINT.md](PHASE_2_COMPLETION_SPRINT.md).
 
 ## Phase 2 acceptance still open
 
 | Checkpoint | Remaining evidence |
 |---|---|
-| Runtime renderer | Latest bgfx-enabled Windows build/test must pass; owner must run packaged sample and confirm all three shapes render, resize, Escape and close |
+| Runtime renderer | Windows Runtime Build passed (run 44698749487); owner must run packaged sample and confirm all three shapes render, resize, Escape and close |
 | Editor Run/Stop | Owner must manually save a scene, run it from editor, see runtime window, then stop it from editor |
-| Installer | Current installer build/package CI must pass; owner still needs clean-machine GUI install, repair/upgrade and launch checks |
+| Installer | Windows Installer Build passed (run 44698749510), including updater build/tests and silent install/uninstall smoke tests; owner still needs clean-machine GUI install, repair/upgrade and launch checks |
 | Updater | Local verifier/stager tests pass; remote download, safe archive/installer application, helper process, rollback and production update endpoint are not implemented |
 | Release trust | No private release signing key, trusted production public key provisioning, key rotation, or protected release signing process. Release signing was deferred by the project owner |
 | End-to-end | Install → edit/save → Run/Stop → update/rollback → uninstall/reinstall sequence not yet passed |
@@ -75,6 +75,7 @@ This tracker separates implementation, automated verification, and owner-side ma
 - Corrected `engine/runtime/src/runtime_renderer.cpp` to initialize and resize through `bgfx::Init::swapChain` / `bgfx::reset(flags, &swapChain)` and to upload `GeometryVertex::rgba`.
 - Code commit: `4d4c3ea47cca7825b2a468e4d2745755aa411e30`.
 - Documentation plan and implementation record commits: `6422e638dd973a18c40f4f196ece37f6a6fea012`, `14ae0caf45a151eb52563a7980cc1ba4d76d65ce`.
-- Corrected CI runs: [Windows Runtime Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/44698749487) and [Windows Installer Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/44698749510). Both were in progress at the time of this update. No pass is claimed yet.
+- Corrected CI passed: [Windows Runtime Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/44698749487) (configure, compile, scene tests, package upload) and [Windows Installer Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/44698749510) (editor/runtime/updater builds, all engine tests, Inno Setup compile, silent install/smoke-test/uninstall, artifact upload).
+- Artifacts are available: runtime package `veyra-runtime-windows-x64` (2,449,011 bytes) and installer `veyra-engine-installer-windows-x64` (41,949,148 bytes).
 - Editor Run/Stop implementation is present in `engine/editor/src/editor_main_window.cpp`; owner-side F5/Shift+F5 acceptance remains open.
 - The local updater remains a verifier/stager prototype, not a production remote updater. Code signing was deferred by the project owner; no production release signing key or endpoint is configured.
