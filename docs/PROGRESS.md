@@ -93,3 +93,14 @@ This tracker separates implementation, automated verification, and owner-side ma
 - Windows Installer Build: [run 46136904172](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/46136904172) — pending at the time of this update.
 - Owner-side visual acceptance is still required after a successful build. Verify move, all eight resize handles, Inspector live values, and the Inspector's top placement in the packaged editor.
 
+## 2026-11-28 offline updater and application icon
+
+- Added the offline updater and icon implementation plan: [OFFLINE_UPDATER_AND_ICON_PLAN.md](OFFLINE_UPDATER_AND_ICON_PLAN.md).
+- Added the canonical Veyra vector icon: [veyra-icon.svg](../assets/branding/veyra-icon.svg). It uses a geometric V mark and orbital detail in indigo/blue/cyan.
+- Added a Windows icon-generation script, Qt resource, Windows executable resource template, and Qt application/window icon setup.
+- Updated the editor CMake target to embed the generated Windows icon resource and load the SVG icon at runtime.
+- Updated Windows Editor and Installer workflows to generate the ICO and pass it to CMake; the installer stages the icon and uses it for the setup executable and editor shortcuts.
+- CI runs for the icon integration: [Windows Editor Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/46137493516) and [Windows Installer Build](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/46137497067) — both were still running when this progress entry was prepared.
+- Offline update application is **not yet implemented**. The existing updater remains a signed-manifest verifier/stager. The next implementation must add the offline bundle format, safe extraction, transactional apply/rollback, and a user-facing updater workflow.
+- Before production offline bundles can be accepted, a release signing key pair must be provisioned securely: the private key stays offline/outside GitHub, and only its public key is installed as the updater trust root. Executable Authenticode signing remains deferred; manifest/package authenticity is still required.
+
