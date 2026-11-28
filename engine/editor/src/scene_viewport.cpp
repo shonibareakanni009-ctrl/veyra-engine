@@ -15,6 +15,7 @@
 #include <QPen>
 #include <QTransform>
 #include <QCursor>
+#include <QLineF>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -263,7 +264,7 @@ void SceneViewport::mouseMoveEvent(QMouseEvent* event)
         if (SceneObject* object = m_document->find(m_selectedId))
         {
             bool invertible = false;
-            const QTransform transform = objectTransform(*object);
+            const QTransform transform = m_resizeTransform;
             const QPointF local = transform.inverted(&invertible).map(screen);
             if (invertible)
             {
