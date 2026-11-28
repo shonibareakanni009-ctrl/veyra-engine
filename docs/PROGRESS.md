@@ -79,3 +79,17 @@ This tracker separates implementation, automated verification, and owner-side ma
 - Artifacts are available: runtime package `veyra-runtime-windows-x64` (2,449,011 bytes) and installer `veyra-engine-installer-windows-x64` (41,949,148 bytes).
 - Editor Run/Stop implementation is present in `engine/editor/src/editor_main_window.cpp`; owner-side F5/Shift+F5 acceptance remains open.
 - The local updater remains a verifier/stager prototype, not a production remote updater. Code signing was deferred by the project owner; no production release signing key or endpoint is configured.
+
+## 2026-11-28 editor direct manipulation update
+
+- Added eight screen-space selection handles around the selected object's transformed bounds in the editor viewport.
+- Dragging inside an object continues to move it; dragging an edge/corner handle changes the authored width/height, clamps dimensions to at least 10 world units, and shifts the object center so the opposite edge remains anchored.
+- Resize pointer deltas are evaluated against the initial object transform so rotated and non-uniformly scaled objects do not drift as the object is resized.
+- Added resize/move cursor feedback and updated the viewport hint text.
+- Moved the Inspector dock from the right side to the top dock area below the menu/toolbar region. Its transform controls now use a compact horizontal arrangement; the dock remains movable and floatable.
+- Plan: [EDITOR_DIRECT_MANIPULATION_PLAN.md](EDITOR_DIRECT_MANIPULATION_PLAN.md).
+- Implementation commits: `fef04fb77ff9789d970bf6e0ecb26a942b72ec18`, `bb373c456249275e2f14f376a197c83c17cf8fd6`, `c79692c659b21cc99881faf356093483838edc26`, `9ea690e9e461c41f39e60ce34289ab94de936d54`, `da6900f216b2a7019329e0b525688e83a916bde7`.
+- Windows Editor Build: [run 46136904061](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/46136904061) — queued/in progress at the time of this update.
+- Windows Installer Build: [run 46136904172](https://github.com/shonibareakanni009-ctrl/veyra-engine/actions/runs/46136904172) — pending at the time of this update.
+- Owner-side visual acceptance is still required after a successful build. Verify move, all eight resize handles, Inspector live values, and the Inspector's top placement in the packaged editor.
+
