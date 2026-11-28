@@ -1,55 +1,43 @@
-# Veyra Editor — first native desktop application.
-# This host tool is separate from exported game runtimes; games must not need Qt.
 cmake_minimum_required(VERSION 3.28)
 project(VeyraEditor VERSION 0.1.0 LANGUAGES CXX)
-
+if(WIN32)
+ enable_language(RC)
+endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_AUTOMOC ON)
-
-find_package(Qt6 6.8 REQUIRED COMPONENTS Widgets Test)
+find_package(Qt6 6.8 REQUIRED COMPONENTS Widgets Test Svg)
 include(CTest)
-
-qt_add_executable(VeyraEditor WIN32
-    src/main.cpp
-    src/editor_main_window.cpp
-    src/editor_main_window.h
-    src/scene_viewport.cpp
-    src/scene_viewport.h
-    src/scene_document.cpp
-    src/scene_document.h
-)
-target_link_libraries(VeyraEditor PRIVATE Qt6::Widgets)
-target_compile_features(VeyraEditor PRIVATE cxx_std_20)
-
-if(MSVC)
-    target_compile_options(VeyraEditor PRIVATE /W4 /permissive-)
-else()
-    target_compile_options(VeyraEditor PRIVATE -Wall -Wextra -Wpedantic)
+set(VEYRA_EDITOR_SOURCES src/main.cpp src/editor_main_window.cpp src/editor_main_window.h src/scene_viewport.cpp src/scene_viewport.h src/scene_document.cpp src/scene_document.h resources/veyra.qrc)
+if(WIN32)
+ if(NOT DEFINED VEYRA_ICON_FILE OR NOT EXISTS "\${VEYRA_ICON_FILE}")
+  message(FATAL_ERROR "VEYRA_ICON_FILE must point to the generated Veyra .ico file on Windows.")
+ endif()
+ file(TO_CMAKE_PATH "\${VEYRA_ICON_FILE}" VEYRA_ICON_FILE_NORMALIZED)
+ set(VEYRA_GENERATED_RESOURCE_DIR "\${CMAKE_CURRENT_BINARY_DIR}/generated")
+ file(MAKE_DIRECTORY "\${VEYRA_GENERATED_RESOURCE_DIR}")
+ configure_file(src/veyra_icon.rc.in "\${VEYRA_GENERATED_RESOURCE_DIR}/veyra_icon.rc" @ONLY)
+ list(APPEND VEYRA_EDITOR_SOURCES "\${VEYRA_GENERATED_RESOURCE_DIR}/veyra_icon.rc")
 endif()
-
-# Keep the executable in package/ so deployment can stage runtime files beside it.
-set_target_properties(VeyraEditor PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/package"
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/package"
-    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_BINARY_DIR}/package"
-    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_BINARY_DIR}/package"
-)
-
+qt_add_executable(VeyraEditor WIN32 \${VEYRA_EDITOR_SOURCES})
+target_link_libraries(VeyraEditor PRIVATE Qt6::Widgets Qt6::Svg)
+target_compile_features(VeyraEditor PRIVATE cxx_std_20)
+if(MSVC)
+ target_compile_options(VeyraEditor PRIVATE /W4 /permissive-)
+else()
+ target_compile_options(VeyraEditor PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+set_target_properties(VeyraEditor PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "\${CMAKE_BINARY_DIR}/package" RUNTIME_OUTPUT_DIRECTORY_DEBUG "\${CMAKE_BINARY_DIR}/package" RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "\${CMAKE_BINARY_DIR}/package" RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "\${CMAKE_BINARY_DIR}/package")
 if(BUILD_TESTING)
-    qt_add_executable(VeyraEditorTests
-        tests/scene_document_tests.cpp
-        src/scene_document.cpp
-        src/scene_document.h
-    )
-    target_link_libraries(VeyraEditorTests PRIVATE Qt6::Test)
-    target_include_directories(VeyraEditorTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-    target_compile_features(VeyraEditorTests PRIVATE cxx_std_20)
-    if(MSVC)
-        target_compile_options(VeyraEditorTests PRIVATE /W4 /permissive-)
-    else()
-        target_compile_options(VeyraEditorTests PRIVATE -Wall -Wextra -Wpedantic)
-    endif()
-    add_test(NAME VeyraSceneDocumentTests COMMAND VeyraEditorTests)
+ qt_add_executable(VeyraEditorTests tests/scene_document_tests.cpp src/scene_document.cpp src/scene_document.h)
+ target_link_libraries(VeyraEditorTests PRIVATE Qt6::Test)
+ target_include_directories(VeyraEditorTests PRIVATE \${CMAKE_CURRENT_SOURCE_DIR}/src)
+ target_compile_features(VeyraEditorTests PRIVATE cxx_std_20)
+ if(MSVC)
+  target_compile_options(VeyraEditorTests PRIVATE /W4 /permissive-)
+ else()
+  target_compile_options(VeyraEditorTests PRIVATE -Wall -Wextra -Wpedantic)
+ endif()
+ add_test(NAME VeyraSceneDocumentTests COMMAND VeyraEditorTests)
 endif()
