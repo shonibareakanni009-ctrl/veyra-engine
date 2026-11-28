@@ -37,7 +37,7 @@ jobs:
       - name: Generate Veyra application icon
         shell: pwsh
         run: |
-          ./scripts/generate-veyra-icon.ps1 -OutputPath "$env:GITHUB_WORKSPACE\\build\\veyra.ico"
+          ./scripts/generate-veyra-icon.ps1 -OutputPath "$env:GITHUB_WORKSPACE\build\veyra.ico"
       - name: Install Qt 6
         uses: jurplel/install-qt-action@v4
         with:
@@ -55,7 +55,7 @@ jobs:
       - name: Configure editor and runtime
         shell: pwsh
         run: |
-          cmake -S engine -B build/engine -A x64 -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=$env:QT_ROOT_DIR" -DVEYRA_ICON_FILE="$env:GITHUB_WORKSPACE\\build\\veyra.ico" -DBUILD_TESTING=ON -DVEYRA_BUILD_EDITOR=ON -DVEYRA_BUILD_RUNTIME=ON
+          cmake -S engine -B build/engine -A x64 -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=$env:QT_ROOT_DIR" -DVEYRA_ICON_FILE="$env:GITHUB_WORKSPACE\build\veyra.ico" -DBUILD_TESTING=ON -DVEYRA_BUILD_EDITOR=ON -DVEYRA_BUILD_RUNTIME=ON
 
       - name: Build editor, runtime, and tests
         shell: pwsh
@@ -82,7 +82,7 @@ jobs:
           $runtime = Join-Path $stage "runtime"
           $updater = Join-Path $stage "updater"
           New-Item -ItemType Directory -Force -Path $editor, $runtime, $updater | Out-Null
-          Copy-Item "$env:GITHUB_WORKSPACE\\build\\veyra.ico" (Join-Path $stage "veyra.ico")
+          Copy-Item "$env:GITHUB_WORKSPACE\build\veyra.ico" (Join-Path $stage "veyra.ico")
 
           $editorExe = "$env:GITHUB_WORKSPACE\build\engine\package\VeyraEditor.exe"
           if (-not (Test-Path $editorExe -PathType Leaf)) { throw "Editor executable missing: $editorExe" }
