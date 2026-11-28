@@ -20,6 +20,7 @@
 #include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QFormLayout>
+#include <QHBoxLayout>
 #include <QInputDialog>
 #include <QKeySequence>
 #include <QLabel>
@@ -219,7 +220,9 @@ void EditorMainWindow::createDockPanels()
     m_inspectorDock = new QDockWidget("Inspector", this);
     m_inspectorDock->setObjectName("InspectorDock");
     auto* inspector = new QWidget(m_inspectorDock);
-    auto* form = new QFormLayout(inspector);
+    auto* form = new QHBoxLayout(inspector);
+    form->setContentsMargins(10, 6, 10, 6);
+    form->setSpacing(12);
     const std::array<QString, 7> labels = {
         "Position X", "Position Y", "Rotation", "Scale X", "Scale Y", "Width", "Height"
     };
@@ -232,7 +235,14 @@ void EditorMainWindow::createDockPanels()
         field->setSingleStep(i == 2 ? 5.0 : (i >= 3 ? 0.1 : 1.0));
         field->setEnabled(false);
         m_transformFields[i] = field;
-        form->addRow(labels[static_cast<size_t>(i)], field);
+        auto* fieldColumn = new QWidget(inspector);
+        auto* fieldLayout = new QVBoxLayout(fieldColumn);
+        fieldLayout->setContentsMargins(0, 0, 0, 0);
+        fieldLayout->setSpacing(3);
+        auto* fieldLabel = new QLabel(labels[static_cast<size_t>(i)], fieldColumn);
+        fieldLayout->addWidget(fieldLabel);
+        fieldLayout->addWidget(field);
+        form->addWidget(fieldColumn);
 
         connect(field, qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                 [this, i](double value)
@@ -258,9 +268,16 @@ void EditorMainWindow::createDockPanels()
         });
     }
 
-    form->addRow(new QLabel("Tip: select an object, then drag it in the viewport.", inspector));
+    auto* inspectorTip = new QLabel("Select an object • drag to move • drag handles to resize", inspector);
+    inspectorTip->setWordWrap(true);
+    form->addWidget(inspectorTip, 1);
     m_inspectorDock->setWidget(inspector);
-    addDockWidget(Qt::RightDockWidgetArea, m_inspectorDock);
+    m_inspectorDock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::RightDockWidgetArea |
+                                     Qt::LeftDockWidgetArea);
+    m_inspectorDock->setFeatures(QDockWidget::DockWidgetMovable |
+                                 QDockWidget::DockWidgetFloatable);
+    m_inspectorDock->setMinimumHeight(105);
+    addDockWidget(Qt::TopDockWidgetArea, m_inspectorDock);
 
     auto* assets = createInformationDock("Asset Browser", "AssetBrowserDock",
         "Project asset import and browsing will be connected after project management.");
