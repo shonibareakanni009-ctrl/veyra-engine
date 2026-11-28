@@ -3,9 +3,9 @@ name: Windows Editor Build
 on:
   push:
     branches: [main]
-    paths: ["engine/editor/**", "engine/CMakeLists.txt", ".github/workflows/windows-editor-build.yml"]
+    paths: ["engine/editor/**", "engine/CMakeLists.txt", "assets/branding/**", "scripts/generate-veyra-icon.ps1", ".github/workflows/windows-editor-build.yml"]
   pull_request:
-    paths: ["engine/editor/**", "engine/CMakeLists.txt", ".github/workflows/windows-editor-build.yml"]
+    paths: ["engine/editor/**", "engine/CMakeLists.txt", "assets/branding/**", "scripts/generate-veyra-icon.ps1", ".github/workflows/windows-editor-build.yml"]
   workflow_dispatch:
 permissions:
   contents: read
