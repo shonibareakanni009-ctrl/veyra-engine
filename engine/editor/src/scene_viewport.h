@@ -1,10 +1,6 @@
 /**
  * @file scene_viewport.h
  * @brief Interactive 2D scene workspace for selecting and transforming objects.
- *
- * The viewport edits the same SceneDocument shown by the hierarchy and
- * inspector. World origin is at the center of the widget; object X/Y values
- * are world units. Mouse dragging changes object position in world units.
  */
 #pragma once
 #include <QWidget>
@@ -33,15 +29,25 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
+    void leaveEvent(QEvent* event) override;
 
 private:
     QPointF toWorld(const QPointF& screen) const;
     QString objectAt(const QPointF& world) const;
+    QTransform objectTransform(const class SceneObject& object) const;
+    QPointF handleLocalPosition(const class SceneObject& object, int handle) const;
+    int resizeHandleAt(const QPointF& screen) const;
+    void updateCursor(const QPointF& screen);
 
-    SceneDocument* m_document = nullptr; // Main window owns the document.
+    SceneDocument* m_document = nullptr;
     QString m_selectedId;
     bool m_dragging = false;
+    bool m_resizing = false;
     QPointF m_dragOffset;
+    QPointF m_resizeStartLocal;
+    double m_resizeStartWidth = 100.0;
+    double m_resizeStartHeight = 100.0;
+    int m_activeHandle = -1;
     std::function<void(const QString&)> m_selectionChanged;
     std::function<void()> m_objectChanged;
 };
