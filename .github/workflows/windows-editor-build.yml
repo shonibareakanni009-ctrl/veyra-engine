@@ -19,7 +19,7 @@ jobs:
       - name: Generate Veyra application icon
         shell: pwsh
         run: |
-          ./scripts/generate-veyra-icon.ps1 -OutputPath "$env:GITHUB_WORKSPACE\\build\\veyra.ico"
+          ./scripts/generate-veyra-icon.ps1 -OutputPath "$env:GITHUB_WORKSPACE\build\veyra.ico"
       - name: Install Qt 6
         uses: jurplel/install-qt-action@v4
         with:
@@ -40,7 +40,7 @@ jobs:
       - name: Configure editor and tests
         shell: pwsh
         run: |
-          cmake -S engine -B build/editor -A x64 -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=$env:QT_ROOT_DIR" -DVEYRA_ICON_FILE="$env:GITHUB_WORKSPACE\\build\\veyra.ico" -DBUILD_TESTING=ON -DVEYRA_BUILD_EDITOR=ON -DVEYRA_BUILD_RUNTIME=OFF
+          cmake -S engine -B build/editor -A x64 -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=$env:QT_ROOT_DIR" -DVEYRA_ICON_FILE="$env:GITHUB_WORKSPACE\build\veyra.ico" -DBUILD_TESTING=ON -DVEYRA_BUILD_EDITOR=ON -DVEYRA_BUILD_RUNTIME=OFF
       - name: Compile editor and tests
         shell: pwsh
         run: |
