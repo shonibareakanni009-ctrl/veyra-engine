@@ -62,6 +62,34 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(bgfx_cmake)
 
+# The pinned bimg/dav1d revision uses __has_include_next in its MSVC
+# compatibility header without defining the operator for the MSVC preprocessor.
+# Newer upstream bimg revisions guard this exact case. Apply that minimal,
+# deterministic compatibility fix to the fetched pinned source rather than
+# changing compiler flags or disabling AVIF/image decoding.
+if(MSVC AND NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
+    set(_veyra_dav1d_atomic_header
+        "${bgfx_cmake_SOURCE_DIR}/bimg/3rdparty/dav1d/include/compat/msvc/stdatomic.h")
+    if(NOT EXISTS "${_veyra_dav1d_atomic_header}")
+        message(FATAL_ERROR "Pinned bimg dav1d MSVC compatibility header was not found: ${_veyra_dav1d_atomic_header}")
+    endif()
+
+    file(READ "${_veyra_dav1d_atomic_header}" _veyra_dav1d_atomic_contents)
+    if(NOT _veyra_dav1d_atomic_contents MATCHES "#ifndef __has_include_next")
+        set(_veyra_dav1d_atomic_marker
+            "#pragma warning(disable:4067)    /* newline for __has_include_next */")
+        string(REPLACE
+            "${_veyra_dav1d_atomic_marker}"
+            "${_veyra_dav1d_atomic_marker}\n#ifndef __has_include_next\n#define __has_include_next(x) 0\n#endif"
+            _veyra_dav1d_atomic_patched
+            "${_veyra_dav1d_atomic_contents}")
+        if(_veyra_dav1d_atomic_patched STREQUAL _veyra_dav1d_atomic_contents)
+            message(FATAL_ERROR "Could not apply the expected dav1d MSVC __has_include_next compatibility guard.")
+        endif()
+        file(WRITE "${_veyra_dav1d_atomic_header}" "${_veyra_dav1d_atomic_patched}")
+    endif()
+endif()
+
 add_library(VeyraRuntimeCore
     src/scene_document.cpp
     src/scene_document.h
