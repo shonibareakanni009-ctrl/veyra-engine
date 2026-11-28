@@ -17,6 +17,7 @@ DisableProgramGroupPage=yes
 UsePreviousAppDir=yes
 Uninstallable=yes
 UninstallDisplayIcon={app}\editor\VeyraEditor.exe
+SetupIconFile=..\build\installer-stage\veyra.ico
 OutputDir=..\build\installer
 OutputBaseFilename=VeyraEngine-Setup-{#AppVersion}-win64
 Compression=lzma2
@@ -35,9 +36,9 @@ Source: "..\build\installer-stage\runtime\*"; DestDir: "{app}\runtime"; Flags: i
 Source: "..\build\installer-stage\updater\*"; DestDir: "{app}\updater"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\Veyra Engine\Veyra Editor"; Filename: "{app}\editor\VeyraEditor.exe"; WorkingDir: "{app}\editor"
+Name: "{autoprograms}\Veyra Engine\Veyra Editor"; Filename: "{app}\editor\VeyraEditor.exe"; IconFilename: "{app}\editor\VeyraEditor.exe"; WorkingDir: "{app}\editor"
 Name: "{autoprograms}\Veyra Engine\Run Sample Scene"; Filename: "{app}\runtime\VeyraRuntime.exe"; Parameters: """{app}\runtime\first-scene.vscene"""; WorkingDir: "{app}\runtime"
-Name: "{autodesktop}\Veyra Editor"; Filename: "{app}\editor\VeyraEditor.exe"; WorkingDir: "{app}\editor"; Tasks: desktopicon
+Name: "{autodesktop}\Veyra Editor"; Filename: "{app}\editor\VeyraEditor.exe"; IconFilename: "{app}\editor\VeyraEditor.exe"; WorkingDir: "{app}\editor"; Tasks: desktopicon
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: unchecked
