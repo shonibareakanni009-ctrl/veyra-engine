@@ -4,6 +4,7 @@
  */
 #pragma once
 #include <QWidget>
+#include <QTransform>
 #include <functional>
 #include <QString>
 
@@ -45,6 +46,7 @@ private:
     bool m_resizing = false;
     QPointF m_dragOffset;
     QPointF m_resizeStartLocal;
+    QTransform m_resizeTransform;
     double m_resizeStartWidth = 100.0;
     double m_resizeStartHeight = 100.0;
     int m_activeHandle = -1;
