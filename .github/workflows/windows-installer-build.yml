@@ -6,6 +6,8 @@ on:
       - "engine/**"
       - "installer/**"
       - "updater/**"
+      - "assets/branding/**"
+      - "scripts/generate-veyra-icon.ps1"
       - ".github/workflows/windows-installer-build.yml"
       - ".github/workflows/windows-updater-build.yml"
   pull_request:
