@@ -1,10 +1,6 @@
 /**
  * @file scene_viewport.cpp
  * @brief Draws and directly manipulates editable 2D scene objects.
- *
- * This is the first real scene editor viewport. It uses QPainter for a simple
- * 2D editor renderer; it is not yet the game's bgfx/runtime renderer. The
- * document remains the source of truth and is serialized independently.
  */
 #include "scene_viewport.h"
 #include "scene_document.h"
@@ -18,11 +14,21 @@
 #include <QPolygonF>
 #include <QPen>
 #include <QTransform>
+#include <QCursor>
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace Veyra
 {
+namespace
+{
+constexpr double MinimumObjectDimension = 10.0;
+constexpr double HandleHalfSize = 5.0;
+constexpr std::array<int, 8> HandleX = {-1, 0, 1, 1, 1, 0, -1, -1};
+constexpr std::array<int, 8> HandleY = {-1, -1, -1, 0, 1, 1, 1, 0};
+}
+
 SceneViewport::SceneViewport(SceneDocument* document, QWidget* parent)
     : QWidget(parent), m_document(document)
 {
@@ -37,10 +43,49 @@ QPointF SceneViewport::toWorld(const QPointF& screen) const
     return QPointF(screen.x() - width() / 2.0, height() / 2.0 - screen.y());
 }
 
+QTransform SceneViewport::objectTransform(const SceneObject& object) const
+{
+    QTransform transform;
+    transform.translate(width() / 2.0 + object.x, height() / 2.0 - object.y);
+    transform.rotate(-object.rotation);
+    transform.scale(object.scaleX, object.scaleY);
+    return transform;
+}
+
+QPointF SceneViewport::handleLocalPosition(const SceneObject& object, int handle) const
+{
+    return QPointF(HandleX[static_cast<size_t>(handle)] * object.width / 2.0,
+                   HandleY[static_cast<size_t>(handle)] * object.height / 2.0);
+}
+
+int SceneViewport::resizeHandleAt(const QPointF& screen) const
+{
+    const SceneObject* object = m_document ? m_document->find(m_selectedId) : nullptr;
+    if (!object || !object->visible) return -1;
+    const QTransform transform = objectTransform(*object);
+    for (int handle = 0; handle < 8; ++handle)
+    {
+        const QPointF point = transform.map(handleLocalPosition(*object, handle));
+        if (QLineF(point, screen).length() <= 9.0)
+            return handle;
+    }
+    return -1;
+}
+
+void SceneViewport::updateCursor(const QPointF& screen)
+{
+    const int handle = resizeHandleAt(screen);
+    if (handle == 0 || handle == 4) setCursor(Qt::SizeFDiagCursor);
+    else if (handle == 2 || handle == 6) setCursor(Qt::SizeBDiagCursor);
+    else if (handle == 1 || handle == 5) setCursor(Qt::SizeVerCursor);
+    else if (handle == 3 || handle == 7) setCursor(Qt::SizeHorCursor);
+    else if (!objectAt(toWorld(screen)).isEmpty()) setCursor(Qt::SizeAllCursor);
+    else unsetCursor();
+}
+
 QString SceneViewport::objectAt(const QPointF& world) const
 {
     if (!m_document) return {};
-    // Search backwards so the visually topmost object receives the click.
     const auto& objects = m_document->objects();
     for (auto it = objects.crbegin(); it != objects.crend(); ++it)
     {
@@ -50,9 +95,8 @@ QString SceneViewport::objectAt(const QPointF& world) const
         transform.rotate(-it->rotation);
         transform.scale(it->scaleX, it->scaleY);
         bool invertible = false;
-        const QTransform inverse = transform.inverted(&invertible);
+        const QPointF local = transform.inverted(&invertible).map(world);
         if (!invertible) continue;
-        const QPointF local = inverse.map(world);
         const QRectF bounds(-it->width / 2.0, -it->height / 2.0,
                             it->width, it->height);
         bool contains = false;
@@ -71,8 +115,7 @@ QString SceneViewport::objectAt(const QPointF& world) const
                      << QPointF(-it->width / 2.0, it->height / 2.0);
             contains = triangle.containsPoint(local, Qt::OddEvenFill);
         }
-        else
-            contains = bounds.contains(local);
+        else contains = bounds.contains(local);
         if (contains) return it->id;
     }
     return {};
@@ -119,22 +162,18 @@ void SceneViewport::paintEvent(QPaintEvent* event)
                             selected ? 2.0 : 1.0));
         if (object.shape == QStringLiteral("sprite"))
         {
-            if (m_document && !m_document->filePath().isEmpty() && !object.assetPath.isEmpty())
+            if (!m_document->filePath().isEmpty() && !object.assetPath.isEmpty())
             {
                 const QString imagePath = QFileInfo(m_document->filePath()).dir().filePath(object.assetPath);
                 QImageReader reader(imagePath);
                 reader.setAutoTransform(true);
                 const QImage image = reader.read();
-                if (!image.isNull())
-                    painter.drawImage(bounds, image);
-                else
-                    painter.drawRect(bounds);
+                if (!image.isNull()) painter.drawImage(bounds, image);
+                else painter.drawRect(bounds);
             }
-            else
-                painter.drawRect(bounds);
+            else painter.drawRect(bounds);
         }
-        else if (object.shape == QStringLiteral("circle"))
-            painter.drawEllipse(bounds);
+        else if (object.shape == QStringLiteral("circle")) painter.drawEllipse(bounds);
         else if (object.shape == QStringLiteral("triangle"))
         {
             QPolygonF triangle;
@@ -143,15 +182,36 @@ void SceneViewport::paintEvent(QPaintEvent* event)
                      << QPointF(-object.width / 2.0, object.height / 2.0);
             painter.drawPolygon(triangle);
         }
-        else
-            painter.drawRect(bounds);
+        else painter.drawRect(bounds);
         painter.setPen(QColor(235, 239, 245));
         painter.drawText(bounds.adjusted(5, 5, -5, -5), Qt::AlignTop | Qt::AlignLeft,
                          object.name);
         painter.restore();
+
+        if (selected)
+        {
+            const QTransform transform = objectTransform(object);
+            QPolygonF outline;
+            outline << transform.map(QPointF(-object.width / 2.0, -object.height / 2.0))
+                    << transform.map(QPointF(object.width / 2.0, -object.height / 2.0))
+                    << transform.map(QPointF(object.width / 2.0, object.height / 2.0))
+                    << transform.map(QPointF(-object.width / 2.0, object.height / 2.0));
+            painter.setBrush(Qt::NoBrush);
+            painter.setPen(QPen(QColor(132, 190, 255), 1.0, Qt::DashLine));
+            painter.drawPolygon(outline);
+            painter.setPen(QPen(QColor(20, 25, 32), 1.0));
+            for (int handle = 0; handle < 8; ++handle)
+            {
+                const QPointF point = transform.map(handleLocalPosition(object, handle));
+                const QRectF grip(point.x() - HandleHalfSize, point.y() - HandleHalfSize,
+                                  HandleHalfSize * 2.0, HandleHalfSize * 2.0);
+                painter.setBrush(QColor(245, 248, 252));
+                painter.drawRect(grip);
+            }
+        }
     }
     painter.setPen(QColor(185, 193, 205));
-    painter.drawText(12, 22, "2D Scene • drag objects to move • select an object to edit it");
+    painter.drawText(12, 22, "2D Scene • drag to move • drag selection handles to resize");
 }
 
 void SceneViewport::mousePressEvent(QMouseEvent* event)
@@ -161,7 +221,29 @@ void SceneViewport::mousePressEvent(QMouseEvent* event)
         QWidget::mousePressEvent(event);
         return;
     }
-    const QPointF world = toWorld(event->position());
+
+    const QPointF screen = event->position();
+    const int handle = resizeHandleAt(screen);
+    if (handle >= 0)
+    {
+        if (SceneObject* object = m_document->find(m_selectedId))
+        {
+            bool invertible = false;
+            const QTransform inverse = objectTransform(*object).inverted(&invertible);
+            if (invertible)
+            {
+                m_activeHandle = handle;
+                m_resizing = true;
+                m_resizeStartLocal = inverse.map(screen);
+                m_resizeStartWidth = object->width;
+                m_resizeStartHeight = object->height;
+                event->accept();
+                return;
+            }
+        }
+    }
+
+    const QPointF world = toWorld(screen);
     const QString hit = objectAt(world);
     m_selectedId = hit;
     m_dragging = !hit.isEmpty();
@@ -169,31 +251,83 @@ void SceneViewport::mousePressEvent(QMouseEvent* event)
         m_dragOffset = QPointF(object->x, object->y) - world;
     if (m_selectionChanged) m_selectionChanged(m_selectedId);
     update();
+    updateCursor(screen);
     event->accept();
 }
 
 void SceneViewport::mouseMoveEvent(QMouseEvent* event)
 {
-    if (!m_dragging || !m_document || !(event->buttons() & Qt::LeftButton))
+    const QPointF screen = event->position();
+    if (m_resizing && m_document)
     {
-        QWidget::mouseMoveEvent(event);
+        if (SceneObject* object = m_document->find(m_selectedId))
+        {
+            bool invertible = false;
+            const QTransform transform = objectTransform(*object);
+            const QPointF local = transform.inverted(&invertible).map(screen);
+            if (invertible)
+            {
+                const double dx = local.x() - m_resizeStartLocal.x();
+                const double dy = local.y() - m_resizeStartLocal.y();
+                const int sx = HandleX[static_cast<size_t>(m_activeHandle)];
+                const int sy = HandleY[static_cast<size_t>(m_activeHandle)];
+                const double newWidth = sx == 0 ? m_resizeStartWidth :
+                    std::max(MinimumObjectDimension, m_resizeStartWidth + dx * sx);
+                const double newHeight = sy == 0 ? m_resizeStartHeight :
+                    std::max(MinimumObjectDimension, m_resizeStartHeight + dy * sy);
+
+                const QPointF localCenterShift(
+                    sx == 0 ? 0.0 : (newWidth - m_resizeStartWidth) * sx / 2.0,
+                    sy == 0 ? 0.0 : (newHeight - m_resizeStartHeight) * sy / 2.0);
+                const QPointF screenShift = transform.map(localCenterShift) - transform.map(QPointF(0, 0));
+
+                object->width = newWidth;
+                object->height = newHeight;
+                object->x += screenShift.x();
+                object->y -= screenShift.y();
+                m_document->markModified();
+                update();
+                if (m_objectChanged) m_objectChanged();
+            }
+        }
+        event->accept();
         return;
     }
-    if (SceneObject* object = m_document->find(m_selectedId))
+
+    if (m_dragging && m_document && (event->buttons() & Qt::LeftButton))
     {
-        const QPointF world = toWorld(event->position()) + m_dragOffset;
-        object->x = world.x();
-        object->y = world.y();
-        m_document->markModified();
-        update();
-        if (m_objectChanged) m_objectChanged();
+        if (SceneObject* object = m_document->find(m_selectedId))
+        {
+            const QPointF world = toWorld(screen) + m_dragOffset;
+            object->x = world.x();
+            object->y = world.y();
+            m_document->markModified();
+            update();
+            if (m_objectChanged) m_objectChanged();
+        }
+        event->accept();
+        return;
     }
-    event->accept();
+
+    updateCursor(screen);
+    QWidget::mouseMoveEvent(event);
 }
 
 void SceneViewport::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (event->button() == Qt::LeftButton) m_dragging = false;
+    if (event->button() == Qt::LeftButton)
+    {
+        m_dragging = false;
+        m_resizing = false;
+        m_activeHandle = -1;
+        updateCursor(event->position());
+    }
     QWidget::mouseReleaseEvent(event);
+}
+
+void SceneViewport::leaveEvent(QEvent* event)
+{
+    if (!m_dragging && !m_resizing) unsetCursor();
+    QWidget::leaveEvent(event);
 }
 } // namespace Veyra
